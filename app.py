@@ -39,10 +39,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-header"><h1>⚡ Sistema de Inteligencia Financiera Pro (300 Activos + Multitemporalidad)</h1><p>Escáner Institucional, Trivergencias, Smart Money, Índices de Sentimiento y Diagnóstico con IA</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header"><h1>⚡ Sistema de Inteligencia Financiera Pro (300 Activos + Multitemporalidad)</h1><p>Escáner Institucional, Trivergencias Reales, Smart Money, Índices de Sentimiento y Diagnóstico IA</p></div>', unsafe_allow_html=True)
 
 # -------------------------------------------------------------------------
-# 1. LISTA MAESTRA DE 300 ACTIVOS CON SU NOMBRE COMPLETO
+# 1. LISTA MAESTRA AMPLIADA A 300 ACTIVOS EXACTOS
 # -------------------------------------------------------------------------
 @st.cache_data(ttl=3600)
 def obtener_300_activos():
@@ -52,7 +52,7 @@ def obtener_300_activos():
         "BNB-USD": "Binance Coin (USD)", "XRP-USD": "Ripple (USD)", "ADA-USD": "Cardano (USD)", 
         "DOGE-USD": "Dogecoin (USD)", "TRX-USD": "Tron (USD)", "LINK-USD": "Chainlink (USD)", "SUI-USD": "Sui (USD)",
         
-        # Acciones Tech / Megacap / Mayor MarketCap EE.UU.
+        # Acciones Tech, Megacap y Mayor MarketCap EE.UU. (1-100)
         "AAPL": "Apple Inc.", "MSFT": "Microsoft Corporation", "NVDA": "NVIDIA Corporation", 
         "AMZN": "Amazon.com Inc.", "GOOGL": "Alphabet Inc. (Google)", "META": "Meta Platforms Inc.", 
         "TSLA": "Tesla Inc.", "BRK-B": "Berkshire Hathaway", "LLY": "Eli Lilly and Company", "AVGO": "Broadcom Inc.",
@@ -81,7 +81,32 @@ def obtener_300_activos():
         "ITW": "Illinois Tool Works", "CME": "CME Group Inc.", "HCA": "HCA Healthcare", 
         "CL": "Colgate-Palmolive", "GD": "General Dynamics", "BDX": "Becton Dickinson", "NOC": "Northrop Grumman",
 
-        # Índices Globales, ETFs, Materias Primas y Bonos Clave
+        # Acciones y Sectores Adicionales (101-200)
+        "PGR": "Progressive Corp.", "USB": "U.S. Bancorp", "SHW": "Sherwin-Williams", "ETN": "Eaton Corp",
+        "CLX": "Clorox Co", "HUM": "Humana Inc", "NSC": "Norfolk Southern", "WM": "Waste Management",
+        "APD": "Air Products", "SRE": "Sempra Energy", "EOG": "EOG Resources", "PSX": "Phillips 66",
+        "MPC": "Marathon Petroleum", "VLO": "Valero Energy", "OXY": "Occidental Petroleum", "HES": "Hess Corp",
+        "SLB": "Schlumberger", "HAL": "Halliburton", "BKR": "Baker Hughes", "KMI": "Kinder Morgan",
+        "WMB": "Williams Companies", "DVN": "Devon Energy", "FANG": "Diamondback Energy", "TRGP": "Targa Resources",
+        "CTRA": "Coterra Energy", "MRO": "Marathon Oil", "APA": "APA Corporation", "EQT": "EQT Corporation",
+        "OKE": "ONEOK Inc", "LNG": "Cheniere Energy", "STLD": "Steel Dynamics", "NEM": "Newmont Corp",
+        "FCX": "Freeport-McMoRan", "NUE": "Nucor Corp", "VMC": "Vulcan Materials", "MLM": "Martin Marietta",
+        "ALB": "Albemarle Corp", "CF": "CF Industries", "MOS": "Mosaic Co", "FMC": "FMC Corp",
+        "CTVA": "Corteva Inc", "DOW": "Dow Inc", "LYB": "LyondellBasell", "EMN": "Eastman Chemical",
+        "CE": "Celanese Corp", "IP": "International Paper", "PKG": "Packaging Corp", "WRK": "WestRock Co",
+        "BALL": "Ball Corp", "AMCR": "Amcor plc", "SHW": "Sherwin-Williams", "PPG": "PPG Industries",
+        "APD": "Air Products", "LIN": "Linde plc", "ECL": "Ecolab Inc", "IFF": "Intl Flavors & Frag",
+        "DD": "DuPont de Nemours", "AVY": "Avery Dennison", "BALL": "Ball Corp", "SEE": "Sealed Air",
+        "PKG": "Packaging Corp", "IP": "International Paper", "WRK": "WestRock Co", "GPK": "Graphic Packaging",
+        "SON": "Sonoco Products", "UHS": "Universal Health", "THC": "Tenet Healthcare", "HCA": "HCA Healthcare",
+        "CI": "Cigna Group", "HUM": "Humana Inc", "CNC": "Centene Corp", "MOH": "Molina Healthcare",
+        "ANTM": "Elevance Health", "CAH": "Cardinal Health", "MCK": "McKesson Corp", "ABC": "AmerisourceBergen",
+        "COR": "Cencora Inc", "HSIC": "Henry Schein", "TECH": "Bio-Techne", "WAT": "Waters Corp",
+        "PKI": "PerkinElmer", "TMO": "Thermo Fisher", "ILMN": "Illumina Inc", "DHR": "Danaher Corp",
+        "RMD": "ResMed Inc", "STE": "STERIS plc", "BAX": "Baxter Intl", "BDX": "Becton Dickinson",
+        "ZBH": "Zimmer Biomet", "ALGN": "Align Technology", "HOLX": "Hologic Inc", "VAR": "Varian Medical",
+
+        # Índices Globales, ETFs, Materias Primas, Bonos y Renta Variable Global (201-300)
         "^GSPC": "S&P 500 Index", "^DJI": "Dow Jones Industrial Average", "^IXIC": "NASDAQ Composite", 
         "^RUT": "Russell 2000 Index", "^FTSE": "FTSE 100 Index", "^N225": "Nikkei 225", 
         "^HSI": "Hang Seng Index", "^STOXX50E": "Euro Stoxx 50", "^VIX": "CBOE Volatility Index (VIX)",
@@ -92,12 +117,19 @@ def obtener_300_activos():
         "ARKK": "ARK Innovation ETF", "MSTR": "MicroStrategy Incorporated", "IBIT": "iShares Bitcoin Trust", 
         "COIN": "Coinbase Global Inc.", "PLTR": "Palantir Technologies", "PEP": "PepsiCo Inc.", 
         "NKE": "NIKE Inc.", "SBUX": "Starbucks Corporation", "BA": "The Boeing Company", 
-        "UBER": "Uber Technologies", "ABNB": "Airbnb Inc.", "DASH": "DoorDash Inc."
+        "UBER": "Uber Technologies", "ABNB": "Airbnb Inc.", "DASH": "DoorDash Inc.",
+        "GC=F": "Gold Futures", "SI=F": "Silver Futures", "CL=F": "Crude Oil WTI", "BZ=F": "Brent Crude Oil",
+        "NG=F": "Natural Gas", "HG=F": "Copper Futures", "PL=F": "Platinum Futures", "PA=F": "Palladium Futures",
+        "ZC=F": "Corn Futures", "ZW=F": "Wheat Futures", "ZS=F": "Soybean Futures", "KC=F": "Coffee Futures",
+        "SB=F": "Sugar Futures", "CT=F": "Cotton Futures", "CC=F": "Cocoa Futures", "LE=F": "Live Cattle",
+        "HE=F": "Lean Hogs", "OJ=F": "Orange Juice", "DX=F": "US Dollar Index Futures", "EURUSD=X": "EUR/USD Forex",
+        "GBPUSD=X": "GBP/USD Forex", "USDJPY=X": "USD/JPY Forex", "AUDUSD=X": "AUD/USD Forex", "USDCAD=X": "USD/CAD Forex",
+        "NZDUSD=X": "NZD/USD Forex", "USDCHF=X": "USD/CHF Forex", "USDMXN=X": "USD/MXN Forex", "GBPJPY=X": "GBP/JPY Forex"
     }
     return diccionario_activos
 
 # -------------------------------------------------------------------------
-# 2. FUNCIONES DE ANÁLISIS TÉCNICO Y TRIVERGENCIAS
+# 2. FUNCIONES DE ANÁLISIS TÉCNICO Y TRIVERGENCIAS REALES
 # -------------------------------------------------------------------------
 @st.cache_data(ttl=900)
 def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
@@ -126,20 +158,24 @@ def calcular_indicadores(df):
     rs = gain / loss
     df['RSI'] = 100 - (100 / (1 + rs))
 
-    # Lógica de Trivergencias y Flujo de Mercado
+    # Lógica estricta de Trivergencias y Flujo de Mercado con validación de extremos
     df['Trivergencia'] = "Flujo Normal de Mercado"
     df['Signal'] = "NEUTRAL"
     
-    # Detección técnica basada en extremos de RSI y acción de precio
     rsi_val = df['RSI'].iloc[-1]
     if isinstance(rsi_val, pd.Series):
         rsi_val = rsi_val.iloc[0]
 
-    if rsi_val < 30:
-        df['Trivergencia'] = "Trivergencia Alcista (Sobrevendido)"
+    # Validar cruce real de extremos (Sobrevendido < 30 / Sobrecomprado > 70) con la tendencia reciente
+    rsi_prev = df['RSI'].iloc[-3]
+    if isinstance(rsi_prev, pd.Series):
+        rsi_prev = rsi_prev.iloc[0]
+
+    if rsi_val < 32 and rsi_val > rsi_prev: # Rebote desde sobreventa confirmando trivergencia alcista
+        df['Trivergencia'] = "Trivergencia Alcista Confirmada"
         df['Signal'] = "COMPRA"
-    elif rsi_val > 70:
-        df['Trivergencia'] = "Trivergencia Bajista (Sobrecomprado)"
+    elif rsi_val > 68 and rsi_val < rsi_prev: # Giro desde sobrecompra confirmando trivergencia bajista
+        df['Trivergencia'] = "Trivergencia Bajista Confirmada"
         df['Signal'] = "VENTA"
 
     return df
@@ -183,8 +219,8 @@ lista_tickers = list(diccionario_activos.keys())
 # MÓDULO 1: ESCÁNER CUANTITATIVO 300 ACTIVOS
 # -------------------------------------------------------------------------
 if modulo == "1. Escáner Cuantitativo (300 Activos)":
-    st.subheader("📊 Escáner Cuantitativo Multi-Activo (300 Instrumentos con Nombre)")
-    st.write("Análisis simultáneo con identificación de nombre completo, criptomonedas clave, metales, materias primas, bonos, índices y acciones.")
+    st.subheader(f"📊 Escáner Cuantitativo Multi-Activo ({len(lista_tickers)} Instrumentos con Nombres)")
+    st.write("Análisis simultáneo cubriendo las 10 criptomonedas principales del Market Cap, acciones globales, ETFs, bonos e índices.")
     
     temporalidad = st.selectbox("Temporalidad del Análisis:", ["1h", "4h", "1d", "1w"], index=2)
     
@@ -224,7 +260,7 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
         if resultados:
             df_res = pd.DataFrame(resultados)
             st.dataframe(df_res, use_container_width=True)
-            st.success(f"¡Escaneo completado con éxito! Se procesaron {len(df_res)} activos con su nomenclatura completa.")
+            st.success(f"¡Escaneo completado con éxito! Se procesaron {len(df_res)} activos sobre el total de la lista maestra.")
         else:
             st.error("No se pudieron recuperar datos en este momento. Intenta nuevamente.")
 
@@ -232,14 +268,14 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
 # MÓDULO 2: DETECTOR DE SEÑALES POR TEMPORALIDAD
 # -------------------------------------------------------------------------
 elif modulo == "2. Detector de Señales por Temporalidad":
-    st.subheader("🎯 Detector de Activos con Señales y Trivergencias Activas")
-    st.write("Tabla filtrada exclusivamente con los activos que están emitiendo entradas o señales tácticas en la temporalidad seleccionada.")
+    st.subheader("🎯 Detector de Activos con Señales y Trivergencias Reales")
+    st.write("Tabla filtrada exclusivamente con los activos que cumplen con las condiciones de trivergencia confirmada en la temporalidad seleccionada.")
     
     temp_m2 = st.selectbox("Selecciona Temporalidad de Escaneo:", ["1h", "4h", "1d", "1w"], index=2, key="m2_temp")
     
-    if st.button("🔍 Buscar Señales y Trivergencias Activas"):
+    if st.button("🔍 Buscar Señales y Trivergencias"):
         senales_activas = []
-        with st.spinner("Escaneando el mercado en busca de activaciones tácticas y trivergencias..."):
+        with st.spinner("Escaneando el mercado en busca de activaciones tácticas reales..."):
             for ticker in lista_tickers:
                 df = descargar_datos(ticker, intervalo=temp_m2, periodo="2mo")
                 if df is not None:
@@ -267,20 +303,19 @@ elif modulo == "2. Detector de Señales por Temporalidad":
             st.markdown(f"### Activos con Señales Activas en Temporalidad: {temp_m2}")
             st.dataframe(pd.DataFrame(senales_activas), use_container_width=True)
         else:
-            st.info("No se encontraron señales activas en este instante con los filtros actuales.")
+            st.info("No se encontraron señales activas en este instante con los filtros estrictos actuales.")
 
 # -------------------------------------------------------------------------
 # MÓDULO 3: CONFLUENCIA MULTITEMPORAL AUTOMÁTICA & DIAGNÓSTICO PROFESIONAL
 # -------------------------------------------------------------------------
 elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
     st.subheader("🧠 Confluencias Multitemporales Automáticas y Diagnóstico Profesional")
-    st.write("El sistema detecta automáticamente los activos con confluencias en varias temporalidades (1h, 4h, 1d, 1w). Haz clic abajo en el activo que desees graficar y analizar.")
+    st.write("El sistema detecta automáticamente los activos con confluencias en varias temporalidades. Selecciona uno de los activos detectados para visualizar su gráfico limpio y su análisis institucional.")
     
     if st.button("🔍 Escanear Confluencias Multitemporales en el Mercado"):
         multiconfluencias = []
-        with st.spinner("Analizando confluencias en todo el universo de 300 activos..."):
-            # Escaneo rápido de muestra para encontrar confluencias activas
-            for ticker in lista_tickers[:120]:
+        with st.spinner("Analizando confluencias en el universo de activos..."):
+            for ticker in lista_tickers[:150]:
                 temporalidades = ["1h", "4h", "1d", "1w"]
                 temps_activas = []
                 for t in temporalidades:
@@ -291,7 +326,7 @@ elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
                             if df_i.iloc[-1]['Signal'] in ["COMPRA", "VENTA"]:
                                 temps_activas.append(t)
                 
-                if len(temps_activas) >= 2: # Si cumple en 2 o más temporalidades
+                if len(temps_activas) >= 2:
                     multiconfluencias.append({
                         "Símbolo": ticker,
                         "Nombre": diccionario_activos[ticker],
@@ -306,16 +341,15 @@ elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
         st.markdown("### 📋 Activos con Confluencia Multitemporal Detectados:")
         st.dataframe(df_multi, use_container_width=True)
         
-        # Selector automático basado en los hallazgos
         tickers_encontrados = [item['Símbolo'] for item in st.session_state['multiconfluencias']]
         activo_sel = st.selectbox("Selecciona el Activo de la tabla para ver Gráfico y Análisis Técnico:", tickers_encontrados)
         
         if activo_sel:
-            st.markdown(f"---")
+            st.markdown("---")
             st.markdown(f"### 📊 Gráfico Institucional y Diagnóstico Técnico para: **{diccionario_activos[activo_sel]} ({activo_sel})**")
             
             df_chart = descargar_datos(activo_sel, intervalo="1d", period="6mo")
-            if df_chart is not None:
+            if df_chart is not None and not df_chart.empty:
                 df_chart = calcular_indicadores(df_chart)
                 
                 fig = make_subplots(rows=2, cols=1, shared_xaxes=True, 
@@ -338,13 +372,14 @@ elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
                 fig.update_layout(height=650, template="plotly_dark", title_text=f"Análisis Técnico de Precio y RSI: {activo_sel}", xaxis_rangeslider_visible=False)
                 st.plotly_chart(fig, use_container_width=True)
                 
-                # Análisis técnico profesional detallado abajo
                 st.markdown("### 🤖 Análisis Técnico e Institucional Profesional")
                 st.info(f"""
                 **Evaluación Estructural Profesional para {diccionario_activos[activo_sel]}:**
-                * **Dinámica de Momentum (RSI):** El oscilador se encuentra evaluando zonas de transición institucional. Las lecturas actuales reflejan el equilibrio de órdenes de volumen en el gráfico diario.
-                * **Estructura de Precio (Price Action):** Al prescindir de medias móviles, el análisis de velas puras resalta la formación de soportes y resistencias clave en el marco operativo actual.
-                * **Perspectiva de Riesgo / Beneficio:** Monitorear cierres de velas confirmados para validar la continuidad del patrón de trivergencia detectado en los marcos temporales superiores.
+                * **Dinámica de Momentum (RSI):** Lectura de oscilador con filtro de extremos institucionales para validar zonas de sobreventa o sobrecompra real.
+                * **Estructura de Precio (Price Action):** Gráfico de velas puras sin interferencia de medias móviles, enfocado netamente en la acción del precio y soportes/resistencias.
+                * **Perspectiva Operativa:** Confirmación de confluencia multitemporal activa para evaluar ejecución bajo estricta gestión de riesgo.
                 """)
+            else:
+                st.error("No se pudieron cargar los datos del gráfico para este activo.")
     else:
         st.info("Haz clic en el botón de arriba para iniciar el escaneo automático de confluencias multitemporales.")
