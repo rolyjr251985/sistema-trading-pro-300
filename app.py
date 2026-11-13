@@ -40,7 +40,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-header"><h1>⚡ Sistema de Inteligencia Financiera Pro (300 Activos + Trivergencias & Sentimiento)</h1><p>Escáner Institucional, Trivergencias Cryptosoldier, Divergencias, Tacómetro CMC & Encuestas de Mercado (Toros/Osos)</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header"><h1>⚡ Sistema de Inteligencia Financiera Pro (300 Activos + Gráficos Interactivos)</h1><p>Escáner Institucional, Trivergencias Cryptosoldier, Divergencias, Tacómetro CMC & Encuestas de Mercado</p></div>', unsafe_allow_html=True)
 
 # -------------------------------------------------------------------------
 # 1. LISTA MAESTRA AMPLIADA A 300 ACTIVOS EXACTOS
@@ -177,9 +177,6 @@ def calcular_indicadores(df):
     vol_ma20 = vol.rolling(window=20).mean()
     df['Vol_Ratio'] = vol / vol_ma20
 
-    # Lógica Estricta Cryptosoldier:
-    # - Divergencia: Precio y RSI marcan desacoples (Precio hace bajo más bajo y RSI hace bajo más alto -> Alcista).
-    # - Trivergencia: Confluencia simultánea de 3 factores (Desacople en RSI + Cruce de Squeeze Momentum + Expansión de Volumen).
     df['Divergencia'] = "Sin Divergencia"
     df['Trivergencia'] = "Flujo Normal"
     df['Signal'] = "NEUTRAL"
@@ -192,7 +189,6 @@ def calcular_indicadores(df):
     sq_prev = float(df['Squeeze_Mom'].iloc[-2])
     vol_r = float(df['Vol_Ratio'].iloc[-1])
 
-    # Detección de Divergencia Alcista (Precio cae, RSI sube)
     if p_actual < p_anterior and rsi_val > rsi_prev:
         df['Divergencia'] = "Divergencia Alcista (Precio 📉 / RSI 📈)"
         if sq_val > sq_prev and vol_r > 1.0:
@@ -201,7 +197,6 @@ def calcular_indicadores(df):
         else:
             df['Signal'] = "COMPRA"
 
-    # Detección de Divergencia Bajista (Precio sube, RSI cae)
     elif p_actual > p_anterior and rsi_val < rsi_prev:
         df['Divergencia'] = "Divergencia Bajista (Precio 📈 / RSI 📉)"
         if sq_val < sq_prev and vol_r > 1.0:
@@ -212,11 +207,52 @@ def calcular_indicadores(df):
 
     return df
 
+# Función auxiliar para renderizar el gráfico institucional completo con alertas
+def mostrar_grafico_institucional(ticker, nombre_activo):
+    st.markdown(f"---")
+    st.markdown(f"### 📊 Gráfico Institucional con Trivergencias para: **{nombre_activo} ({ticker})**")
+    
+    df_chart = descargar_datos(ticker, intervalo="1d", period="6mo")
+    if df_chart is not None and not df_chart.empty:
+        df_chart = calcular_indicadores(df_chart)
+        
+        fig = make_subplots(rows=3, cols=1, shared_xaxes=True, 
+                            vertical_spacing=0.03, row_heights=[0.55, 0.25, 0.2])
+        
+        opn = df_chart['Open'].iloc[:, 0] if isinstance(df_chart['Open'], pd.DataFrame) else df_chart['Open']
+        hgh = df_chart['High'].iloc[:, 0] if isinstance(df_chart['High'], pd.DataFrame) else df_chart['High']
+        lw = df_chart['Low'].iloc[:, 0] if isinstance(df_chart['Low'], pd.DataFrame) else df_chart['Low']
+        cls = df_chart['Close'].iloc[:, 0] if isinstance(df_chart['Close'], pd.DataFrame) else df_chart['Close']
+        rsi_s = df_chart['RSI'].iloc[:, 0] if isinstance(df_chart['RSI'], pd.DataFrame) else df_chart['RSI']
+        sq_s = df_chart['Squeeze_Mom'].iloc[:, 0] if isinstance(df_chart['Squeeze_Mom'], pd.DataFrame) else df_chart['Squeeze_Mom']
+
+        fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio"), row=1, col=1)
+        
+        ult_sig = df_chart['Signal'].iloc[-1]
+        if isinstance(ult_sig, pd.Series):
+            ult_sig = ult_sig.iloc[0]
+        
+        if ult_sig == "COMPRA":
+            fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="green", size=14, symbol="circle"), name="Señal Alcista (🟢)"), row=1, col=1)
+        elif ult_sig == "VENTA":
+            fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="red", size=14, symbol="circle"), name="Señal Bajista (🔴)"), row=1, col=1)
+
+        fig.add_trace(go.Scatter(x=df_chart.index, y=rsi_s, line=dict(color='#00ffcc', width=1.5), name="RSI (14)"), row=2, col=1)
+        fig.add_hline(y=70, line_dash="dash", line_color="red", row=2, col=1)
+        fig.add_hline(y=30, line_dash="dash", line_color="green", row=2, col=1)
+
+        colors = ['green' if val >= 0 else 'red' for val in sq_s]
+        fig.add_trace(go.Bar(x=df_chart.index, y=sq_s, marker_color=colors, name="Squeeze Momentum"), row=3, col=1)
+        
+        fig.update_layout(height=750, template="plotly_dark", title_text=f"Análisis Técnico con Divergencias: {ticker}", xaxis_rangeslider_visible=False)
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.error("No se pudieron cargar los datos del gráfico para este activo.")
+
 # -------------------------------------------------------------------------
 # 3. SENTIMIENTO OFICIAL (CoinMarketCap & CNN Fear & Greed + Encuestas Toros/Osos)
 # -------------------------------------------------------------------------
 def obtener_sentimiento():
-    # Cripto (Alternative.me / CMC API pública)
     crypto_fg = {"value": 19, "text": "Miedo extremo"}
     try:
         res = requests.get("https://api.alternative.me/fng/?limit=1", timeout=3)
@@ -226,7 +262,6 @@ def obtener_sentimiento():
     except Exception:
         pass
 
-    # Bolsa (CNN Fear & Greed simulado / real)
     stock_fg = {"value": 42, "text": "Miedo"}
     try:
         res_cnn = requests.get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata", headers={'User-Agent': 'Mozilla/5.0'}, timeout=3)
@@ -305,10 +340,20 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
         barra.empty()
         if resultados:
             df_res = pd.DataFrame(resultados)
-            st.dataframe(df_res, use_container_width=True)
+            st.session_state['df_escanner'] = df_res
             st.success(f"¡Escaneo completado con éxito! Se procesaron los {len(df_res)} activos.")
         else:
             st.error("No se pudieron recuperar datos en este momento.")
+
+    if 'df_escanner' in st.session_state and not st.session_state['df_escanner'].empty:
+        st.dataframe(st.session_state['df_escanner'], use_container_width=True)
+        
+        # Selector interactivo para ver el gráfico de cualquier activo del escáner
+        simbolos_disponibles = st.session_state['df_escanner']['Símbolo'].tolist()
+        activo_m1_sel = st.selectbox("Selecciona cualquier activo del escáner para ver su gráfico detallado:", simbolos_disponibles, key="sel_m1")
+        if activo_m1_sel:
+            nombre_sel = diccionario_activos[activo_m1_sel]
+            mostrar_grafico_institucional(activo_m1_sel, nombre_sel)
 
 # -------------------------------------------------------------------------
 # MÓDULO 2: DETECTOR DE SEÑALES & DIVERGENCIAS
@@ -347,10 +392,22 @@ elif modulo == "2. Detector de Señales & Divergencias":
                             })
         
         if senales_activas:
+            df_m2 = pd.DataFrame(senales_activas)
+            st.session_state['df_m2'] = df_m2
             st.markdown(f"### Activos con Divergencia/Trivergencia en: {temp_m2}")
-            st.dataframe(pd.DataFrame(senales_activas), use_container_width=True)
         else:
+            st.session_state['df_m2'] = None
             st.info("No se encontraron divergencias activas en este instante con los filtros actuales.")
+
+    if 'df_m2' in st.session_state and st.session_state['df_m2'] is not None and not st.session_state['df_m2'].empty:
+        st.dataframe(st.session_state['df_m2'], use_container_width=True)
+        
+        # Selector interactivo para graficar el activo seleccionado en Módulo 2
+        simbolos_m2 = st.session_state['df_m2']['Símbolo'].tolist()
+        activo_m2_sel = st.selectbox("Selecciona un activo de la tabla de señales para ver su gráfico institucional:", simbolos_m2, key="sel_m2")
+        if activo_m2_sel:
+            nombre_sel = diccionario_activos[activo_m2_sel]
+            mostrar_grafico_institucional(activo_m2_sel, nombre_sel)
 
 # -------------------------------------------------------------------------
 # MÓDULO 3: CONFLUENCIA MULTITEMPORAL & GRÁFICO CON ALERTAS
@@ -389,57 +446,20 @@ elif modulo == "3. Confluencia Multitemporal & Gráfico con Alertas":
         st.dataframe(df_multi, use_container_width=True)
         
         tickers_encontrados = [item['Símbolo'] for item in st.session_state['multiconfluencias']]
-        activo_sel = st.selectbox("Selecciona el Activo para ver Gráfico con Alertas:", tickers_encontrados)
+        activo_sel = st.selectbox("Selecciona el Activo para ver Gráfico con Alertas:", tickers_encontrados, key="sel_m3")
         
         if activo_sel:
-            st.markdown("---")
-            st.markdown(f"### 📊 Gráfico Institucional con Marcas para: **{diccionario_activos[activo_sel]} ({activo_sel})**")
-            
-            df_chart = descargar_datos(activo_sel, intervalo="1d", period="6mo")
-            if df_chart is not None and not df_chart.empty:
-                df_chart = calcular_indicadores(df_chart)
-                
-                fig = make_subplots(rows=3, cols=1, shared_xaxes=True, 
-                                    vertical_spacing=0.03, row_heights=[0.55, 0.25, 0.2])
-                
-                opn = df_chart['Open'].iloc[:, 0] if isinstance(df_chart['Open'], pd.DataFrame) else df_chart['Open']
-                hgh = df_chart['High'].iloc[:, 0] if isinstance(df_chart['High'], pd.DataFrame) else df_chart['High']
-                lw = df_chart['Low'].iloc[:, 0] if isinstance(df_chart['Low'], pd.DataFrame) else df_chart['Low']
-                cls = df_chart['Close'].iloc[:, 0] if isinstance(df_chart['Close'], pd.DataFrame) else df_chart['Close']
-                rsi_s = df_chart['RSI'].iloc[:, 0] if isinstance(df_chart['RSI'], pd.DataFrame) else df_chart['RSI']
-                sq_s = df_chart['Squeeze_Mom'].iloc[:, 0] if isinstance(df_chart['Squeeze_Mom'], pd.DataFrame) else df_chart['Squeeze_Mom']
-
-                fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio"), row=1, col=1)
-                
-                ult_sig = df_chart['Signal'].iloc[-1]
-                if isinstance(ult_sig, pd.Series):
-                    ult_sig = ult_sig.iloc[0]
-                
-                if ult_sig == "COMPRA":
-                    fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="green", size=14, symbol="circle"), name="Señal Alcista (🟢)"), row=1, col=1)
-                elif ult_sig == "VENTA":
-                    fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="red", size=14, symbol="circle"), name="Señal Bajista (🔴)"), row=1, col=1)
-
-                fig.add_trace(go.Scatter(x=df_chart.index, y=rsi_s, line=dict(color='#00ffcc', width=1.5), name="RSI (14)"), row=2, col=1)
-                fig.add_hline(y=70, line_dash="dash", line_color="red", row=2, col=1)
-                fig.add_hline(y=30, line_dash="dash", line_color="green", row=2, col=1)
-
-                colors = ['green' if val >= 0 else 'red' for val in sq_s]
-                fig.add_trace(go.Bar(x=df_chart.index, y=sq_s, marker_color=colors, name="Squeeze Momentum"), row=3, col=1)
-                
-                fig.update_layout(height=750, template="plotly_dark", title_text=f"Análisis Técnico con Divergencias: {activo_sel}", xaxis_rangeslider_visible=False)
-                st.plotly_chart(fig, use_container_width=True)
-            else:
-                st.error("No se pudieron cargar los datos del gráfico.")
+            nombre_sel = diccionario_activos[activo_sel]
+            mostrar_grafico_institucional(activo_sel, nombre_sel)
     else:
         st.info("Haz clic en el botón de arriba para iniciar el escaneo.")
 
 # -------------------------------------------------------------------------
-# MÓDULO 4: TERMÓMETRO DE SENTIMIENTO & ENCUESTAS DE MERCADO (NUEVO)
+# MÓDULO 4: TERMÓMETRO DE SENTIMIENTO & ENCUESTAS
 # -------------------------------------------------------------------------
 elif modulo == "4. Termómetro de Sentimiento & Encuestas":
     st.subheader("🌡️ Termómetro Global de Sentimiento & Encuestas de Mercado (Toros vs Osos)")
-    st.write("Visualización oficial de los índices de miedo y codicia (CoinMarketCap para Cripto[cite: 11] y CNN para Bolsa) junto con el desglose semanal de sentimiento de los inversores.")
+    st.write("Visualización oficial de los índices de miedo y codicia (CoinMarketCap para Cripto y CNN para Bolsa) junto con el desglose semanal de sentimiento de los inversores.")
     
     col1, col2 = st.columns(2)
     
@@ -471,9 +491,8 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
 
     st.markdown("---")
     st.markdown("### 📊 Encuesta de Sentimiento de Inversores (Toros vs Osos / Bullish vs Bearish)")
-    st.write("Histórico semanal del sentimiento de los participantes del mercado (similitud con AAII / Encuestas de Sentimiento Institucional):")
+    st.write("Histórico semanal del sentimiento de los participantes del mercado:")
 
-    # Gráfica de barras horizontales apiladas estilo la imagen que pasaste
     df_sentimiento = pd.DataFrame({
         "Semana Finalizada": ["11/11/2026", "11/4/2026", "10/28/2026", "10/21/2026"],
         "Bullish (Toros %)": [30.8, 34.1, 37.8, 36.9],
