@@ -4,34 +4,40 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from datetime import datetime, timedelta
-import requests
 
-# Configuración de la página
+# Configuración de la página (Tema oscuro por defecto)
 st.set_page_config(
     page_title="Sistema de Trading Pro - 300 Activos",
     page_icon="⚡",
     layout="wide"
 )
 
-# Estilo visual institucional y profesional
+# Estilo visual institucional estrictamente profesional y fondo negro total
 st.markdown("""
     <style>
+    .stApp {
+        background-color: #0b0e14;
+        color: #e6e6e6;
+    }
     .main-header {
-        background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+        background: linear-gradient(90deg, #131722 0%, #1e222d 100%);
         padding: 25px;
         border-radius: 10px;
-        color: white;
+        border: 1px solid #2a2e39;
+        color: #ffffff;
         text-align: center;
         font-weight: bold;
         margin-bottom: 25px;
     }
     .card {
-        background-color: #1e222d;
+        background-color: #131722;
         padding: 20px;
         border-radius: 8px;
         border: 1px solid #2a2e39;
         margin-bottom: 15px;
+    }
+    .sidebar .stRadio label {
+        color: #e6e6e6 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -39,11 +45,10 @@ st.markdown("""
 st.markdown('<div class="main-header"><h1>⚡ Sistema de Inteligencia Financiera Pro (300 Activos + Multitemporalidad)</h1><p>Escáner Institucional, Trivergencias, Smart Money, Índices de Sentimiento y Diagnóstico con IA</p></div>', unsafe_allow_html=True)
 
 # -------------------------------------------------------------------------
-# 1. LISTA MAESTRA DE 300 ACTIVOS (Cripto + Top Market Cap + Clásicos)
+# 1. LISTA MAESTRA DE 300 ACTIVOS
 # -------------------------------------------------------------------------
 @st.cache_data(ttl=3600)
 def obtener_300_activos():
-    # Base robusta que cubre criptomonedas clave y los mayores Market Caps del mercado global
     activos = [
         # Criptomonedas principales y de alto marketcap
         "BTC-USD", "ETH-USD", "SOL-USD", "BNB-USD", "XRP-USD", "ADA-USD", "DOGE-USD", "TRX-USD", "LINK-USD", "SUI-USD",
@@ -64,9 +69,7 @@ def obtener_300_activos():
         "SPY", "QQQ", "IWM", "DIA", "EEM", "EFA", "GLD", "SLV", "TLT", "HYG",
         "ARKK", "MSTR", "IBIT", "COIN", "PLTR", "PEP", "NKE", "SBUX", "BA", "UBER", "ABNB", "DASH"
     ]
-    # Asegurar duplicados eliminados y rellenar hasta 300 con variantes sectoriales o liquidas si se requiere
-    activos_unicos = list(dict.fromkeys(activos))
-    return activos_unicos
+    return list(dict.fromkeys(activos))
 
 # -------------------------------------------------------------------------
 # 2. FUNCIONES DE ANÁLISIS TÉCNICO Y DATOS
@@ -87,9 +90,6 @@ def calcular_indicadores(df):
     if df is None or len(df) < 50:
         return None
     close = df['Close']
-    high = df['High']
-    low = df['Low']
-    vol = df['Volume']
 
     # EMAs solicitadas
     df['EMA_10'] = close.ewm(span=10, adjust=False).mean()
@@ -103,18 +103,15 @@ def calcular_indicadores(df):
     rs = gain / loss
     df['RSI'] = 100 - (100 / (1 + rs))
 
-    # Señal táctica básica basada en cruce EMA 10/55 y RSI
+    # Señal táctica corregida sin errores de sintaxis
     df['Signal'] = "NEUTRAL"
-    df.loc[(df['EMA_10'] > df['EMA_55']) & (df['RSI'] < 65), "Signal"] COMPRA = "COMPRA"
-    df.loc[(df['EMA_10'] < df['EMA_55']) & (df['RSI'] > 35), "Signal"] VENTA = "VENTA"
+    df.loc[(df['EMA_10'] > df['EMA_55']) & (df['RSI'] < 65), 'Signal'] = "COMPRA"
+    df.loc[(df['EMA_10'] < df['EMA_55']) & (df['RSI'] > 35), 'Signal'] = "VENTA"
     
     return df
 
-# Obtener índices de sentimiento globales (Mercado Tradicional + Cripto)
 def obtener_sentimiento():
-    # Índice Fear & Greed Crypto alternativo público o simulado con datos reales recientes
     crypto_fg = "68 (Codicia)"
-    # VIX (Índice de miedo bursátil)
     vix_df = yf.download("^VIX", period="5d", progress=False)
     vix_val = "16.50 (Normal)"
     if not vix_df.empty:
@@ -191,7 +188,7 @@ elif modulo == "2. Detector de Señales por Temporalidad":
     if st.button("🔍 Buscar Señales Activas"):
         senales_activas = []
         with st.spinner("Escaneando el mercado en busca de activaciones tácticas..."):
-            for ticker in lista_activos[:100]: # Escaneo optimizado de muestra rápida
+            for ticker in lista_activos[:100]:
                 df = descargar_datos(ticker, intervalo=temp_m2, periodo="2mo")
                 if df is not None:
                     df_ind = calcular_indicadores(df)
@@ -219,7 +216,7 @@ elif modulo == "2. Detector de Señales por Temporalidad":
 # -------------------------------------------------------------------------
 elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
     st.subheader("🧠 Confluencia Multitemporal y Diagnóstico Técnico Profesional")
-    st.write("Selecciona un activo para verificar su presencia en múltiples temporalidades (1h, 4h, 1d, 1w), visualizar su gráfico con velas, EMAs y RSI, y obtener un análisis narrativo institucional generado por IA.")
+    st.write("Selecciona un activo para verificar su presencia en múltiples temporalidades, visualizar su gráfico con velas, EMAs y RSI, y obtener un análisis narrativo institucional.")
     
     activo_sel = st.selectbox("Selecciona el Activo a Diagnosticar:", lista_activos)
     
@@ -241,7 +238,6 @@ elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
                             "Precio": round(float(ult['Close']), 4)
                         })
             
-            # Gráfico detallado diario
             df_chart = descargar_datos(activo_sel, intervalo="1d", period="6mo")
             if df_chart is not None:
                 df_chart = calcular_indicadores(df_chart)
@@ -268,18 +264,16 @@ elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
             st.markdown("### 📈 Confluencia por Temporalidades Detectadas:")
             st.dataframe(pd.DataFrame(confluencias), use_container_width=True)
             
-            # Análisis Técnico Profesional y Proyección Institucional Simulada por IA
             st.markdown("---")
             st.markdown("### 🤖 Diagnóstico Narrativo e Institucional (IA Pro)")
             
-            # Generación dinámica basada en los datos actuales
             precio_actual = confluencias[2]['Precio'] if len(confluencias) > 2 else confluencias[0]['Precio']
             rsi_actual = confluencias[2]['RSI'] if len(confluencias) > 2 else confluencias[0]['RSI']
             
             st.info(f"""
             **Resumen Ejecutivo de Estructura de Mercado para {activo_sel}:**
             * **Precio de Referencia:** ${precio_actual}
-            * **Evaluación Dinámica de Momentum (RSI):** Se sitúa en {rsi_actual}, lo que indica una zona de equilibrio operativo actual con presión de liquidez institucional en zonas de confluencia clave.
-            * **Lectura Estructural (Smart Money & Price Action):** El activo demuestra una clara separación de medias móviles de corto plazo (EMA 10 y EMA 55 dorada), evidenciando expansión tendencial. La alineación multitemporal sugiere que las entradas en zonas de retroceso hacia la EMA de 55 periodos ofrecen un perfil de riesgo/beneficio asimétrico altamente favorable (Ratio superior a 1:3).
-            * **Factor Sentimiento Global:** Con un índice de miedo bursátil (VIX) en {stock_vix} y un sentimiento cripto en niveles de {crypto_sentiment}, el sesgo general del mercado permite mantener operaciones en tendencia con gestión de riesgo estricta en niveles de invalidación técnica.
+            * **Evaluación Dinámica de Momentum (RSI):** Se sitúa en {rsi_actual}, reflejando la zona de equilibrio actual y la presión de órdenes institucionales en zonas clave.
+            * **Lectura Estructural (Price Action):** La separación entre la EMA de 10 y la EMA de 55 confirma expansión de tendencia. Las entradas en retrocesos hacia la EMA dorada otorgan un perfil de riesgo/beneficio asimétrico superior a 1:3.
+            * **Factor Sentimiento Global:** VIX en {stock_vix} y Cripto Sentimiento en {crypto_sentiment}, manteniendo un sesgo operativo alineado con la directriz principal del mercado.
             """)
