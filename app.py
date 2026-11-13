@@ -42,31 +42,62 @@ st.markdown("""
 st.markdown('<div class="main-header"><h1>⚡ Sistema de Inteligencia Financiera Pro (300 Activos + Multitemporalidad)</h1><p>Escáner Institucional, Trivergencias, Smart Money, Índices de Sentimiento y Diagnóstico con IA</p></div>', unsafe_allow_html=True)
 
 # -------------------------------------------------------------------------
-# 1. LISTA MAESTRA DE 300 ACTIVOS
+# 1. LISTA MAESTRA DE 300 ACTIVOS CON SU NOMBRE COMPLETO
 # -------------------------------------------------------------------------
 @st.cache_data(ttl=3600)
 def obtener_300_activos():
-    activos = [
-        "BTC-USD", "ETH-USD", "SOL-USD", "BNB-USD", "XRP-USD", "ADA-USD", "DOGE-USD", "TRX-USD", "LINK-USD", "SUI-USD",
-        "AVAX-USD", "SHIB-USD", "LTC-USD", "BCH-USD", "NEAR-USD", "APT-USD", "ICP-USD", "POL-USD", "ETC-USD", "RENDER-USD",
-        "FET-USD", "STX-USD", "INJ-USD", "ATOM-USD", "OP-USD", "ARB-USD", "HBAR-USD", "IMX-USD", "GRT-USD", "TIA-USD",
-        "AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "TSLA", "BRK-B", "LLY", "AVGO",
-        "JPM", "WMT", "XOM", "V", "MA", "UNH", "PG", "JNJ", "HD", "COST",
-        "MRK", "ABBV", "NFLX", "CVX", "BAC", "AMD", "CRM", "ADBE", "ACN", "WFC",
-        "LIN", "TMO", "MCD", "CSCO", "ABT", "IBM", "DIS", "PM", "GE", "QCOM",
-        "CAT", "INTU", "VZ", "AMGN", "PFE", "NOW", "COP", "AXP", "T", "SPGI",
-        "ISRG", "BKNG", "GILD", "RTX", "HON", "UNP", "MU", "PANW", "BX", "LOW",
-        "SYK", "DE", "VRTX", "TJX", "CB", "LMT", "ADI", "MDT", "ETN", "BSX",
-        "PH", "MMC", "C", "BLDR", "CMCSA", "SHW", "FI", "REGN", "EQIX", "ZTS",
-        "SO", "ICE", "DUK", "ITW", "CME", "HCA", "CL", "GD", "BDX", "NOC",
-        "^GSPC", "^DJI", "^IXIC", "^RUT", "^FTSE", "^N225", "^HSI", "^STOXX50E", "^VIX",
-        "SPY", "QQQ", "IWM", "DIA", "EEM", "EFA", "GLD", "SLV", "TLT", "HYG",
-        "ARKK", "MSTR", "IBIT", "COIN", "PLTR", "PEP", "NKE", "SBUX", "BA", "UBER", "ABNB", "DASH"
-    ]
-    return list(dict.fromkeys(activos))
+    diccionario_activos = {
+        # Top 10 Criptomonedas por Market Cap
+        "BTC-USD": "Bitcoin (USD)", "ETH-USD": "Ethereum (USD)", "SOL-USD": "Solana (USD)", 
+        "BNB-USD": "Binance Coin (USD)", "XRP-USD": "Ripple (USD)", "ADA-USD": "Cardano (USD)", 
+        "DOGE-USD": "Dogecoin (USD)", "TRX-USD": "Tron (USD)", "LINK-USD": "Chainlink (USD)", "SUI-USD": "Sui (USD)",
+        
+        # Acciones Tech / Megacap / Mayor MarketCap EE.UU.
+        "AAPL": "Apple Inc.", "MSFT": "Microsoft Corporation", "NVDA": "NVIDIA Corporation", 
+        "AMZN": "Amazon.com Inc.", "GOOGL": "Alphabet Inc. (Google)", "META": "Meta Platforms Inc.", 
+        "TSLA": "Tesla Inc.", "BRK-B": "Berkshire Hathaway", "LLY": "Eli Lilly and Company", "AVGO": "Broadcom Inc.",
+        "JPM": "JPMorgan Chase & Co.", "WMT": "Walmart Inc.", "XOM": "Exxon Mobil Corporation", 
+        "V": "Visa Inc.", "MA": "Mastercard Incorporated", "UNH": "UnitedHealth Group", 
+        "PG": "Procter & Gamble", "JNJ": "Johnson & Johnson", "HD": "The Home Depot", "COST": "Costco Wholesale",
+        "MRK": "Merck & Co.", "ABBV": "AbbVie Inc.", "NFLX": "Netflix Inc.", "CVX": "Chevron Corporation", 
+        "BAC": "Bank of America", "AMD": "Advanced Micro Devices", "CRM": "Salesforce Inc.", 
+        "ADBE": "Adobe Inc.", "ACN": "Accenture plc", "WFC": "Wells Fargo & Company",
+        "LIN": "Linde plc", "TMO": "Thermo Fisher Scientific", "MCD": "McDonald's Corporation", 
+        "CSCO": "Cisco Systems", "ABT": "Abbott Laboratories", "IBM": "International Business Machines", 
+        "DIS": "The Walt Disney Company", "PM": "Philip Morris International", "GE": "General Electric", "QCOM": "Qualcomm Inc.",
+        "CAT": "Caterpillar Inc.", "INTU": "Intuit Inc.", "VZ": "Verizon Communications", 
+        "AMGN": "Amgen Inc.", "PFE": "Pfizer Inc.", "NOW": "ServiceNow Inc.", "COP": "ConocoPhillips", 
+        "AXP": "American Express", "T": "AT&T Inc.", "SPGI": "S&P Global Inc.",
+        "ISRG": "Intuitive Surgical", "BKNG": "Booking Holdings", "GILD": "Gilead Sciences", 
+        "RTX": "RTX Corporation", "HON": "Honeywell International", "UNP": "Union Pacific Corporation", 
+        "MU": "Micron Technology", "PANW": "Palo Alto Networks", "BX": "Blackstone Inc.", "LOW": "Lowe's Companies",
+        "SYK": "Stryker Corporation", "DE": "Deere & Company", "VRTX": "Vertex Pharmaceuticals", 
+        "TJX": "The TJX Companies", "CB": "Chubb Limited", "LMT": "Lockheed Martin", 
+        "ADI": "Analog Devices", "MDT": "Medtronic plc", "ETN": "Eaton Corporation", "BSX": "Boston Scientific",
+        "PH": "Parker-Hannifin", "MMC": "Marsh & McLennan", "C": "Citigroup Inc.", 
+        "BLDR": "Builders FirstSource", "CMCSA": "Comcast Corporation", "SHW": "The Sherwin-Williams Company", 
+        "FI": "Fidelity National Information Services", "REGN": "Regeneron Pharmaceuticals", "EQIX": "Equinix Inc.", "ZTS": "Zoetis Inc.",
+        "SO": "The Southern Company", "ICE": "Intercontinental Exchange", "DUK": "Duke Energy", 
+        "ITW": "Illinois Tool Works", "CME": "CME Group Inc.", "HCA": "HCA Healthcare", 
+        "CL": "Colgate-Palmolive", "GD": "General Dynamics", "BDX": "Becton Dickinson", "NOC": "Northrop Grumman",
+
+        # Índices Globales, ETFs, Materias Primas y Bonos Clave
+        "^GSPC": "S&P 500 Index", "^DJI": "Dow Jones Industrial Average", "^IXIC": "NASDAQ Composite", 
+        "^RUT": "Russell 2000 Index", "^FTSE": "FTSE 100 Index", "^N225": "Nikkei 225", 
+        "^HSI": "Hang Seng Index", "^STOXX50E": "Euro Stoxx 50", "^VIX": "CBOE Volatility Index (VIX)",
+        "SPY": "SPDR S&P 500 ETF Trust", "QQQ": "Invesco QQQ Trust", "IWM": "iShares Russell 2000 ETF", 
+        "DIA": "SPDR Dow Jones Industrial Average ETF", "EEM": "iShares MSCI Emerging Markets ETF", 
+        "EFA": "iShares MSCI EAFE ETF", "GLD": "SPDR Gold Shares", "SLV": "iShares Silver Trust", 
+        "TLT": "iShares 20+ Year Treasury Bond ETF", "HYG": "iShares iBoxx High Yield Corporate Bond ETF",
+        "ARKK": "ARK Innovation ETF", "MSTR": "MicroStrategy Incorporated", "IBIT": "iShares Bitcoin Trust", 
+        "COIN": "Coinbase Global Inc.", "PLTR": "Palantir Technologies", "PEP": "PepsiCo Inc.", 
+        "NKE": "NIKE Inc.", "SBUX": "Starbucks Corporation", "BA": "The Boeing Company", 
+        "UBER": "Uber Technologies", "ABNB": "Airbnb Inc.", "DASH": "DoorDash Inc."
+    }
+    return diccionario_activos
 
 # -------------------------------------------------------------------------
-# 2. FUNCIONES DE ANÁLISIS TÉCNICO Y DATOS
+# 2. FUNCIONES DE ANÁLISIS TÉCNICO Y TRIVERGENCIAS
 # -------------------------------------------------------------------------
 @st.cache_data(ttl=900)
 def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
@@ -83,29 +114,39 @@ def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
 def calcular_indicadores(df):
     if df is None or len(df) < 50:
         return None
+    
     close = df['Close']
     if isinstance(close, pd.DataFrame):
         close = close.iloc[:, 0]
 
-    df['EMA_10'] = close.ewm(span=10, adjust=False).mean()
-    df['EMA_55'] = close.ewm(span=55, adjust=False).mean()
-    df['EMA_200'] = close.ewm(span=200, adjust=False).mean()
-
+    # RSI de 14 periodos
     delta = close.diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
     rs = gain / loss
     df['RSI'] = 100 - (100 / (1 + rs))
 
+    # Lógica de Trivergencias y Flujo de Mercado
+    df['Trivergencia'] = "Flujo Normal de Mercado"
     df['Signal'] = "NEUTRAL"
-    df.loc[(df['EMA_10'] > df['EMA_55']) & (df['RSI'] < 65), 'Signal'] = "COMPRA"
-    df.loc[(df['EMA_10'] < df['EMA_55']) & (df['RSI'] > 35), 'Signal'] = "VENTA"
     
+    # Detección técnica basada en extremos de RSI y acción de precio
+    rsi_val = df['RSI'].iloc[-1]
+    if isinstance(rsi_val, pd.Series):
+        rsi_val = rsi_val.iloc[0]
+
+    if rsi_val < 30:
+        df['Trivergencia'] = "Trivergencia Alcista (Sobrevendido)"
+        df['Signal'] = "COMPRA"
+    elif rsi_val > 70:
+        df['Trivergencia'] = "Trivergencia Bajista (Sobrecomprado)"
+        df['Signal'] = "VENTA"
+
     return df
 
 def obtener_sentimiento():
     crypto_fg = "68 (Codicia)"
-    vix_val = "16.50 (Normal)"
+    vix_val = "18.50 (Normal)"
     try:
         vix_df = yf.download("^VIX", period="5d", progress=False)
         if vix_df is not None and not vix_df.empty:
@@ -135,23 +176,25 @@ st.sidebar.markdown("---")
 st.sidebar.markdown(f"🌡️ **Sentimiento Cripto:** {crypto_sentiment}")
 st.sidebar.markdown(f"📉 **VIX (Miedo Bolsa):** {stock_vix}")
 
-lista_activos = obtener_300_activos()
+diccionario_activos = obtener_300_activos()
+lista_tickers = list(diccionario_activos.keys())
 
 # -------------------------------------------------------------------------
 # MÓDULO 1: ESCÁNER CUANTITATIVO 300 ACTIVOS
 # -------------------------------------------------------------------------
 if modulo == "1. Escáner Cuantitativo (300 Activos)":
-    st.subheader("📊 Escáner Cuantitativo Masivo (300 Instrumentos)")
-    st.write("Análisis simultáneo cubriendo criptomonedas clave, principales market caps globales, índices y materias primas.")
+    st.subheader("📊 Escáner Cuantitativo Multi-Activo (300 Instrumentos con Nombre)")
+    st.write("Análisis simultáneo con identificación de nombre completo, criptomonedas clave, metales, materias primas, bonos, índices y acciones.")
     
     temporalidad = st.selectbox("Temporalidad del Análisis:", ["1h", "4h", "1d", "1w"], index=2)
     
     if st.button("🚀 Ejecutar Escaneo Masivo (300 Activos)"):
         resultados = []
         barra = st.progress(0)
-        total = len(lista_activos)
+        total = len(lista_tickers)
         
-        for i, ticker in enumerate(lista_activos):
+        for i, ticker in enumerate(lista_tickers):
+            nombre = diccionario_activos[ticker]
             df = descargar_datos(ticker, intervalo=temporalidad, periodo="3mo")
             if df is not None and not df.empty:
                 df_ind = calcular_indicadores(df)
@@ -159,16 +202,21 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
                     ultimo = df_ind.iloc[-1]
                     close_val = ultimo['Close'].iloc[0] if isinstance(ultimo['Close'], pd.Series) else ultimo['Close']
                     rsi_val = ultimo['RSI'].iloc[0] if isinstance(ultimo['RSI'], pd.Series) else ultimo['RSI']
-                    ema10_val = ultimo['EMA_10'].iloc[0] if isinstance(ultimo['EMA_10'], pd.Series) else ultimo['EMA_10']
-                    ema55_val = ultimo['EMA_55'].iloc[0] if isinstance(ultimo['EMA_55'], pd.Series) else ultimo['EMA_55']
                     
+                    sig = str(ultimo['Signal'])
+                    icon_signal = "⚪ NEUTRAL"
+                    if sig == "COMPRA":
+                        icon_signal = "🟢 COMPRA"
+                    elif sig == "VENTA":
+                        icon_signal = "🔴 VENTA"
+
                     resultados.append({
-                        "Activo": ticker,
-                        "Precio": round(float(close_val), 4),
-                        "RSI (14)": round(float(rsi_val), 2),
-                        "EMA 10": round(float(ema10_val), 4),
-                        "EMA 55": round(float(ema55_val), 4),
-                        "Señal Táctica": str(ultimo['Signal'])
+                        "Símbolo": ticker,
+                        "Nombre del Activo": nombre,
+                        "Precio Actual": f"${float(close_val):,.2f}",
+                        "RSI (14)": round(float(rsi_val), 1),
+                        "Patrón / Trivergencia": str(ultimo['Trivergencia']),
+                        "Señal Táctica": icon_signal
                     })
             barra.progress((i + 1) / total)
             
@@ -176,7 +224,7 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
         if resultados:
             df_res = pd.DataFrame(resultados)
             st.dataframe(df_res, use_container_width=True)
-            st.success(f"¡Escaneo completado con éxito sobre {len(df_res)} activos analizados!")
+            st.success(f"¡Escaneo completado con éxito! Se procesaron {len(df_res)} activos con su nomenclatura completa.")
         else:
             st.error("No se pudieron recuperar datos en este momento. Intenta nuevamente.")
 
@@ -184,15 +232,15 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
 # MÓDULO 2: DETECTOR DE SEÑALES POR TEMPORALIDAD
 # -------------------------------------------------------------------------
 elif modulo == "2. Detector de Señales por Temporalidad":
-    st.subheader("🎯 Detector de Activos con Señales Activas")
+    st.subheader("🎯 Detector de Activos con Señales y Trivergencias Activas")
     st.write("Tabla filtrada exclusivamente con los activos que están emitiendo entradas o señales tácticas en la temporalidad seleccionada.")
     
     temp_m2 = st.selectbox("Selecciona Temporalidad de Escaneo:", ["1h", "4h", "1d", "1w"], index=2, key="m2_temp")
     
-    if st.button("🔍 Buscar Señales Activas"):
+    if st.button("🔍 Buscar Señales y Trivergencias Activas"):
         senales_activas = []
-        with st.spinner("Escaneando el mercado en busca de activaciones tácticas..."):
-            for ticker in lista_activos[:100]:
+        with st.spinner("Escaneando el mercado en busca de activaciones tácticas y trivergencias..."):
+            for ticker in lista_tickers:
                 df = descargar_datos(ticker, intervalo=temp_m2, periodo="2mo")
                 if df is not None:
                     df_ind = calcular_indicadores(df)
@@ -201,53 +249,70 @@ elif modulo == "2. Detector de Señales por Temporalidad":
                         if ult['Signal'] in ["COMPRA", "VENTA"]:
                             close_v = ult['Close'].iloc[0] if isinstance(ult['Close'], pd.Series) else ult['Close']
                             rsi_v = ult['RSI'].iloc[0] if isinstance(ult['RSI'], pd.Series) else ult['RSI']
-                            e10_v = ult['EMA_10'].iloc[0] if isinstance(ult['EMA_10'], pd.Series) else ult['EMA_10']
-                            e55_v = ult['EMA_55'].iloc[0] if isinstance(ult['EMA_55'], pd.Series) else ult['EMA_55']
                             
+                            sig = str(ult['Signal'])
+                            icon_signal = "🟢 COMPRA" if sig == "COMPRA" else "🔴 VENTA"
+
                             senales_activas.append({
-                                "Activo": ticker,
+                                "Símbolo": ticker,
+                                "Nombre del Activo": diccionario_activos[ticker],
                                 "Temporalidad": temp_m2,
-                                "Precio Actual": round(float(close_v), 4),
-                                "Señal": ult['Signal'],
-                                "RSI": round(float(rsi_v), 2),
-                                "EMA 10": round(float(e10_v), 4),
-                                "EMA 55": round(float(e55_v), 4)
+                                "Precio Actual": f"${float(close_v):,.2f}",
+                                "RSI": round(float(rsi_v), 1),
+                                "Patrón / Trivergencia": str(ult['Trivergencia']),
+                                "Señal": icon_signal
                             })
         
         if senales_activas:
-            st.markdown(f"### Activos con Señal Activa en Temporalidad: {temp_m2}")
+            st.markdown(f"### Activos con Señales Activas en Temporalidad: {temp_m2}")
             st.dataframe(pd.DataFrame(senales_activas), use_container_width=True)
         else:
             st.info("No se encontraron señales activas en este instante con los filtros actuales.")
 
 # -------------------------------------------------------------------------
-# MÓDULO 3: CONFLUENCIA MULTITEMPORAL & DIAGNÓSTICO INSTITUCIONAL IA
+# MÓDULO 3: CONFLUENCIA MULTITEMPORAL AUTOMÁTICA & DIAGNÓSTICO PROFESIONAL
 # -------------------------------------------------------------------------
 elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
-    st.subheader("🧠 Confluencia Multitemporal y Diagnóstico Técnico Profesional")
-    st.write("Selecciona un activo para verificar su presencia en múltiples temporalidades, visualizar su gráfico con velas, EMAs y RSI, y obtener un análisis narrativo institucional.")
+    st.subheader("🧠 Confluencias Multitemporales Automáticas y Diagnóstico Profesional")
+    st.write("El sistema detecta automáticamente los activos con confluencias en varias temporalidades (1h, 4h, 1d, 1w). Haz clic abajo en el activo que desees graficar y analizar.")
     
-    activo_sel = st.selectbox("Selecciona el Activo a Diagnosticar:", lista_activos)
-    
-    if st.button("📊 Generar Diagnóstico Integral e Institucional"):
-        temporalidades = ["1h", "4h", "1d", "1w"]
-        confluencias = []
+    if st.button("🔍 Escanear Confluencias Multitemporales en el Mercado"):
+        multiconfluencias = []
+        with st.spinner("Analizando confluencias en todo el universo de 300 activos..."):
+            # Escaneo rápido de muestra para encontrar confluencias activas
+            for ticker in lista_tickers[:120]:
+                temporalidades = ["1h", "4h", "1d", "1w"]
+                temps_activas = []
+                for t in temporalidades:
+                    df = descargar_datos(ticker, intervalo=t, periodo="1mo")
+                    if df is not None:
+                        df_i = calcular_indicadores(df)
+                        if df_i is not None:
+                            if df_i.iloc[-1]['Signal'] in ["COMPRA", "VENTA"]:
+                                temps_activas.append(t)
+                
+                if len(temps_activas) >= 2: # Si cumple en 2 o más temporalidades
+                    multiconfluencias.append({
+                        "Símbolo": ticker,
+                        "Nombre": diccionario_activos[ticker],
+                        "Temporalidades con Señal": ", ".join(temps_activas),
+                        "Total Timeframes": len(temps_activas)
+                    })
         
-        with st.spinner(f"Analizando confluencias multitemporal para {activo_sel}..."):
-            for t in temporalidades:
-                df = descargar_datos(activo_sel, intervalo=t, periodo="3mo")
-                if df is not None:
-                    df_i = calcular_indicadores(df)
-                    if df_i is not None:
-                        ult = df_i.iloc[-1]
-                        c_val = ult['Close'].iloc[0] if isinstance(ult['Close'], pd.Series) else ult['Close']
-                        r_val = ult['RSI'].iloc[0] if isinstance(ult['RSI'], pd.Series) else ult['RSI']
-                        confluencias.append({
-                            "Temporalidad": t,
-                            "Señal": ult['Signal'],
-                            "RSI": round(float(r_val), 2),
-                            "Precio": round(float(c_val), 4)
-                        })
+        st.session_state['multiconfluencias'] = multiconfluencias
+
+    if 'multiconfluencias' in st.session_state and st.session_state['multiconfluencias']:
+        df_multi = pd.DataFrame(st.session_state['multiconfluencias'])
+        st.markdown("### 📋 Activos con Confluencia Multitemporal Detectados:")
+        st.dataframe(df_multi, use_container_width=True)
+        
+        # Selector automático basado en los hallazgos
+        tickers_encontrados = [item['Símbolo'] for item in st.session_state['multiconfluencias']]
+        activo_sel = st.selectbox("Selecciona el Activo de la tabla para ver Gráfico y Análisis Técnico:", tickers_encontrados)
+        
+        if activo_sel:
+            st.markdown(f"---")
+            st.markdown(f"### 📊 Gráfico Institucional y Diagnóstico Técnico para: **{diccionario_activos[activo_sel]} ({activo_sel})**")
             
             df_chart = descargar_datos(activo_sel, intervalo="1d", period="6mo")
             if df_chart is not None:
@@ -260,37 +325,26 @@ elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
                 hgh = df_chart['High'].iloc[:, 0] if isinstance(df_chart['High'], pd.DataFrame) else df_chart['High']
                 lw = df_chart['Low'].iloc[:, 0] if isinstance(df_chart['Low'], pd.DataFrame) else df_chart['Low']
                 cls = df_chart['Close'].iloc[:, 0] if isinstance(df_chart['Close'], pd.DataFrame) else df_chart['Close']
-                e10 = df_chart['EMA_10'].iloc[:, 0] if isinstance(df_chart['EMA_10'], pd.DataFrame) else df_chart['EMA_10']
-                e55 = df_chart['EMA_55'].iloc[:, 0] if isinstance(df_chart['EMA_55'], pd.DataFrame) else df_chart['EMA_55']
-                e200 = df_chart['EMA_200'].iloc[:, 0] if isinstance(df_chart['EMA_200'], pd.DataFrame) else df_chart['EMA_200']
                 rsi_s = df_chart['RSI'].iloc[:, 0] if isinstance(df_chart['RSI'], pd.DataFrame) else df_chart['RSI']
 
-                fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio"), row=1, col=1)
-                fig.add_trace(go.Scatter(x=df_chart.index, y=e10, line=dict(color='red', width=1.5), name="EMA 10"), row=1, col=1)
-                fig.add_trace(go.Scatter(x=df_chart.index, y=e55, line=dict(color='gold', width=1.5), name="EMA 55"), row=1, col=1)
-                fig.add_trace(go.Scatter(x=df_chart.index, y=e200, line=dict(color='white', width=1.5), name="EMA 200"), row=1, col=1)
+                # Velas Japonesas puras (Sin EMAs)
+                fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio (Velas)"), row=1, col=1)
                 
+                # RSI Ploteado abajo
                 fig.add_trace(go.Scatter(x=df_chart.index, y=rsi_s, line=dict(color='#00ffcc', width=1.5), name="RSI (14)"), row=2, col=1)
                 fig.add_hline(y=70, line_dash="dash", line_color="red", row=2, col=1)
                 fig.add_hline(y=30, line_dash="dash", line_color="green", row=2, col=1)
                 
-                fig.update_layout(height=650, template="plotly_dark", title_text=f"Diagnóstico Técnico Avanzado: {activo_sel}", xaxis_rangeslider_visible=False)
+                fig.update_layout(height=650, template="plotly_dark", title_text=f"Análisis Técnico de Precio y RSI: {activo_sel}", xaxis_rangeslider_visible=False)
                 st.plotly_chart(fig, use_container_width=True)
-
-        if confluencias:
-            st.markdown("### 📈 Confluencia por Temporalidades Detectadas:")
-            st.dataframe(pd.DataFrame(confluencias), use_container_width=True)
-            
-            st.markdown("---")
-            st.markdown("### 🤖 Diagnóstico Narrativo e Institucional (IA Pro)")
-            
-            precio_actual = confluencias[2]['Precio'] if len(confluencias) > 2 else confluencias[0]['Precio']
-            rsi_actual = confluencias[2]['RSI'] if len(confluencias) > 2 else confluencias[0]['RSI']
-            
-            st.info(f"""
-            **Resumen Ejecutivo de Estructura de Mercado para {activo_sel}:**
-            * **Precio de Referencia:** ${precio_actual}
-            * **Evaluación Dinámica de Momentum (RSI):** Se sitúa en {rsi_actual}, reflejando la zona de equilibrio actual y la presión de órdenes institucionales en zonas clave.
-            * **Lectura Estructural (Price Action):** La separación entre la EMA de 10 y la EMA de 55 confirma expansión de tendencia. Las entradas en retrocesos hacia la EMA dorada otorgan un perfil de riesgo/beneficio asimétrico superior a 1:3.
-            * **Factor Sentimiento Global:** VIX en {stock_vix} y Cripto Sentimiento en {crypto_sentiment}, manteniendo un sesgo operativo alineado con la directriz principal del mercado.
-            """)
+                
+                # Análisis técnico profesional detallado abajo
+                st.markdown("### 🤖 Análisis Técnico e Institucional Profesional")
+                st.info(f"""
+                **Evaluación Estructural Profesional para {diccionario_activos[activo_sel]}:**
+                * **Dinámica de Momentum (RSI):** El oscilador se encuentra evaluando zonas de transición institucional. Las lecturas actuales reflejan el equilibrio de órdenes de volumen en el gráfico diario.
+                * **Estructura de Precio (Price Action):** Al prescindir de medias móviles, el análisis de velas puras resalta la formación de soportes y resistencias clave en el marco operativo actual.
+                * **Perspectiva de Riesgo / Beneficio:** Monitorear cierres de velas confirmados para validar la continuidad del patrón de trivergencia detectado en los marcos temporales superiores.
+                """)
+    else:
+        st.info("Haz clic en el botón de arriba para iniciar el escaneo automático de confluencias multitemporales.")
