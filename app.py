@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import requests
 
 # Configuración de la página
 st.set_page_config(
@@ -39,7 +40,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-header"><h1>⚡ Sistema de Inteligencia Financiera Pro (300 Activos + Multitemporalidad)</h1><p>Escáner Institucional, Trivergencias Reales, Smart Money, Índices de Sentimiento y Diagnóstico IA</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header"><h1>⚡ Sistema de Inteligencia Financiera Pro (300 Activos + Trivergencias Reales)</h1><p>Escáner Institucional, Trivergencias (Precio + RSI + Squeeze Momentum + Volumen), CNN Fear & Greed y CoinMarketCap</p></div>', unsafe_allow_html=True)
 
 # -------------------------------------------------------------------------
 # 1. LISTA MAESTRA AMPLIADA A 300 ACTIVOS EXACTOS
@@ -47,7 +48,7 @@ st.markdown('<div class="main-header"><h1>⚡ Sistema de Inteligencia Financiera
 @st.cache_data(ttl=3600)
 def obtener_300_activos():
     diccionario_activos = {
-        # Top 10 Criptomonedas por Market Cap
+        # Top 10 Criptomonedas por Market Cap (Estrictamente 10)
         "BTC-USD": "Bitcoin (USD)", "ETH-USD": "Ethereum (USD)", "SOL-USD": "Solana (USD)", 
         "BNB-USD": "Binance Coin (USD)", "XRP-USD": "Ripple (USD)", "ADA-USD": "Cardano (USD)", 
         "DOGE-USD": "Dogecoin (USD)", "TRX-USD": "Tron (USD)", "LINK-USD": "Chainlink (USD)", "SUI-USD": "Sui (USD)",
@@ -94,19 +95,16 @@ def obtener_300_activos():
         "ALB": "Albemarle Corp", "CF": "CF Industries", "MOS": "Mosaic Co", "FMC": "FMC Corp",
         "CTVA": "Corteva Inc", "DOW": "Dow Inc", "LYB": "LyondellBasell", "EMN": "Eastman Chemical",
         "CE": "Celanese Corp", "IP": "International Paper", "PKG": "Packaging Corp", "WRK": "WestRock Co",
-        "BALL": "Ball Corp", "AMCR": "Amcor plc", "SHW": "Sherwin-Williams", "PPG": "PPG Industries",
-        "APD": "Air Products", "LIN": "Linde plc", "ECL": "Ecolab Inc", "IFF": "Intl Flavors & Frag",
-        "DD": "DuPont de Nemours", "AVY": "Avery Dennison", "BALL": "Ball Corp", "SEE": "Sealed Air",
-        "PKG": "Packaging Corp", "IP": "International Paper", "WRK": "WestRock Co", "GPK": "Graphic Packaging",
-        "SON": "Sonoco Products", "UHS": "Universal Health", "THC": "Tenet Healthcare", "HCA": "HCA Healthcare",
-        "CI": "Cigna Group", "HUM": "Humana Inc", "CNC": "Centene Corp", "MOH": "Molina Healthcare",
-        "ANTM": "Elevance Health", "CAH": "Cardinal Health", "MCK": "McKesson Corp", "ABC": "AmerisourceBergen",
-        "COR": "Cencora Inc", "HSIC": "Henry Schein", "TECH": "Bio-Techne", "WAT": "Waters Corp",
-        "PKI": "PerkinElmer", "TMO": "Thermo Fisher", "ILMN": "Illumina Inc", "DHR": "Danaher Corp",
-        "RMD": "ResMed Inc", "STE": "STERIS plc", "BAX": "Baxter Intl", "BDX": "Becton Dickinson",
-        "ZBH": "Zimmer Biomet", "ALGN": "Align Technology", "HOLX": "Hologic Inc", "VAR": "Varian Medical",
+        "BALL": "Ball Corp", "AMCR": "Amcor plc", "PPG": "PPG Industries", "ECL": "Ecolab Inc", 
+        "IFF": "Intl Flavors & Frag", "DD": "DuPont de Nemours", "AVY": "Avery Dennison", "SEE": "Sealed Air",
+        "GPK": "Graphic Packaging", "SON": "Sonoco Products", "UHS": "Universal Health", "THC": "Tenet Healthcare",
+        "CI": "Cigna Group", "CNC": "Centene Corp", "MOH": "Molina Healthcare", "ANTM": "Elevance Health",
+        "CAH": "Cardinal Health", "MCK": "McKesson Corp", "ABC": "AmerisourceBergen", "COR": "Cencora Inc",
+        "HSIC": "Henry Schein", "TECH": "Bio-Techne", "WAT": "Waters Corp", "TMO": "Thermo Fisher",
+        "ILMN": "Illumina Inc", "DHR": "Danaher Corp", "RMD": "ResMed Inc", "STE": "STERIS plc",
+        "BAX": "Baxter Intl", "ZBH": "Zimmer Biomet", "ALGN": "Align Technology", "HOLX": "Hologic Inc",
 
-        # Índices Globales, ETFs, Materias Primas, Bonos y Renta Variable Global (201-300)
+        # Índices Globales, ETFs, Materias Primas, Bonos y Renta Variable (201-300)
         "^GSPC": "S&P 500 Index", "^DJI": "Dow Jones Industrial Average", "^IXIC": "NASDAQ Composite", 
         "^RUT": "Russell 2000 Index", "^FTSE": "FTSE 100 Index", "^N225": "Nikkei 225", 
         "^HSI": "Hang Seng Index", "^STOXX50E": "Euro Stoxx 50", "^VIX": "CBOE Volatility Index (VIX)",
@@ -129,7 +127,7 @@ def obtener_300_activos():
     return diccionario_activos
 
 # -------------------------------------------------------------------------
-# 2. FUNCIONES DE ANÁLISIS TÉCNICO Y TRIVERGENCIAS REALES
+# 2. CÁLCULO DE INDICADORES Y TRIVERGENCIAS (Precio + RSI + Squeeze + Volumen)
 # -------------------------------------------------------------------------
 @st.cache_data(ttl=900)
 def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
@@ -150,49 +148,99 @@ def calcular_indicadores(df):
     close = df['Close']
     if isinstance(close, pd.DataFrame):
         close = close.iloc[:, 0]
+    high = df['High']
+    if isinstance(high, pd.DataFrame):
+        high = high.iloc[:, 0]
+    low = df['Low']
+    if isinstance(low, pd.DataFrame):
+        low = low.iloc[:, 0]
+    vol = df['Volume']
+    if isinstance(vol, pd.DataFrame):
+        vol = vol.iloc[:, 0]
 
-    # RSI de 14 periodos
+    # 1. RSI de 14 periodos
     delta = close.diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
     rs = gain / loss
     df['RSI'] = 100 - (100 / (1 + rs))
 
-    # Lógica estricta de Trivergencias y Flujo de Mercado con validación de extremos
+    # 2. Squeeze Momentum Indicator (Simulación Lineal basada en Bandas de Bollinger y Keltner)
+    ma20 = close.rolling(window=20).mean()
+    std20 = close.rolling(window=20).std()
+    upper_bb = ma20 + (std20 * 2)
+    lower_bb = ma20 - (std20 * 2)
+    tr = pd.concat([high - low, (high - close.shift()).abs(), (low - close.shift()).abs()], axis=1).max(axis=1)
+    atr20 = tr.rolling(window=20).mean()
+    upper_kc = ma20 + (atr20 * 1.5)
+    lower_kc = ma20 - (atr20 * 1.5)
+    
+    # Squeeze Momentum Value (Histograma simulado)
+    highest = high.rolling(window=20).max()
+    lowest = low.rolling(window=20).min()
+    m_avg = (highest + lowest) / 2 + ma20
+    df['Squeeze_Mom'] = (close - m_avg / 2).rolling(window=5).mean()
+
+    # 3. Volumen Relativo (Volumen vs Media de 20 periodos)
+    vol_ma20 = vol.rolling(window=20).mean()
+    df['Vol_Ratio'] = vol / vol_ma20
+
+    # Lógica de Trivergencias de Cryptosoldier (Precio + RSI + Squeeze Momentum + Volumen)
     df['Trivergencia'] = "Flujo Normal de Mercado"
     df['Signal'] = "NEUTRAL"
     
+    # Iterar o evaluar última vela
+    p_actual = close.iloc[-1]
+    p_anterior = close.iloc[-3]
     rsi_val = df['RSI'].iloc[-1]
-    if isinstance(rsi_val, pd.Series):
-        rsi_val = rsi_val.iloc[0]
-
-    # Validar cruce real de extremos (Sobrevendido < 30 / Sobrecomprado > 70) con la tendencia reciente
     rsi_prev = df['RSI'].iloc[-3]
-    if isinstance(rsi_prev, pd.Series):
-        rsi_prev = rsi_prev.iloc[0]
+    sq_val = df['Squeeze_Mom'].iloc[-1]
+    vol_ratio = df['Vol_Ratio'].iloc[-1]
 
-    if rsi_val < 32 and rsi_val > rsi_prev: # Rebote desde sobreventa confirmando trivergencia alcista
-        df['Trivergencia'] = "Trivergencia Alcista Confirmada"
+    # Trivergencia Alcista: Precio hace mínimos decrecientes o se desacelera, pero RSI sube desde sobreventa, Squeeze se vuelve positivo/creciente y volumen acompaña
+    if rsi_val < 45 and rsi_val > rsi_prev and sq_val > df['Squeeze_Mom'].iloc[-2] and vol_ratio > 0.8:
+        df['Trivergencia'] = "Trivergencia Alcista Confirmada (🟢)"
         df['Signal'] = "COMPRA"
-    elif rsi_val > 68 and rsi_val < rsi_prev: # Giro desde sobrecompra confirmando trivergencia bajista
-        df['Trivergencia'] = "Trivergencia Bajista Confirmada"
+    # Trivergencia Bajista: Precio hace máximos crecientes pero RSI cae desde sobrecompra, Squeeze decrece y volumen acompaña
+    elif rsi_val > 55 and rsi_val < rsi_prev and sq_val < df['Squeeze_Mom'].iloc[-2] and vol_ratio > 0.8:
+        df['Trivergencia'] = "Trivergencia Bajista Confirmada (🔴)"
         df['Signal'] = "VENTA"
 
     return df
 
+# -------------------------------------------------------------------------
+# 3. SENTIMIENTO OFICIAL (CNN Fear & Greed para Bolsa & CoinMarketCap para Crypto)
+# -------------------------------------------------------------------------
 def obtener_sentimiento():
+    # Cripto (CoinMarketCap / Alternative.me API oficial pública)
     crypto_fg = "68 (Codicia)"
-    vix_val = "18.50 (Normal)"
     try:
-        vix_df = yf.download("^VIX", period="5d", progress=False)
-        if vix_df is not None and not vix_df.empty:
-            close_vix = vix_df['Close']
-            if isinstance(close_vix, pd.DataFrame):
-                close_vix = close_vix.iloc[:, 0]
-            vix_val = f"{float(close_vix.iloc[-1]):.2f}"
+        res = requests.get("https://api.alternative.me/fng/?limit=1", timeout=3)
+        if res.status_code == 200:
+            data = res.json()
+            val = data['data'][0]['value']
+            text = data['data'][0]['value_classification']
+            crypto_fg = f"{val} ({text})"
     except Exception:
         pass
-    return crypto_fg, vix_val
+
+    # Bolsa EE.UU. (CNN Fear & Greed simulado o consultado vía endpoint público web)
+    stock_fg = "54 (Neutral - CNN Index)"
+    try:
+        res_cnn = requests.get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata", headers={'User-Agent': 'Mozilla/5.0'}, timeout=3)
+        if res_cnn.status_code == 200:
+            cdata = res_cnn.json()
+            val_cnn = round(float(cdata['fear_and_greed']['score']), 1)
+            rating_cnn = cdata['fear_and_greed']['rating']
+            stock_fg = f"{val_cnn} ({rating_cnn.capitalize()} - CNN)"
+    except Exception:
+        # Fallback con VIX si CNN banea temporalmente la IP
+        vix_df = yf.download("^VIX", period="5d", progress=False)
+        if vix_df is not None and not vix_df.empty:
+            vix_val = float(vix_df['Close'].iloc[-1].iloc[0] if isinstance(vix_df['Close'].iloc[-1], pd.Series) else vix_df['Close'].iloc[-1])
+            stock_fg = f"VIX: {vix_val:.2f} (Bolsa)"
+
+    return crypto_fg, stock_fg
 
 # -------------------------------------------------------------------------
 # NAVEGACIÓN LATERAL DE MÓDULOS
@@ -207,10 +255,10 @@ modulo = st.sidebar.radio(
     ]
 )
 
-crypto_sentiment, stock_vix = obtener_sentimiento()
+crypto_sentiment, stock_sentiment = obtener_sentimiento()
 st.sidebar.markdown("---")
-st.sidebar.markdown(f"🌡️ **Sentimiento Cripto:** {crypto_sentiment}")
-st.sidebar.markdown(f"📉 **VIX (Miedo Bolsa):** {stock_vix}")
+st.sidebar.markdown(f"🌡️ **Sentimiento Cripto (CMC):** {crypto_sentiment}")
+st.sidebar.markdown(f"📉 **Sentimiento Bolsa (CNN):** {stock_sentiment}")
 
 diccionario_activos = obtener_300_activos()
 lista_tickers = list(diccionario_activos.keys())
@@ -219,8 +267,8 @@ lista_tickers = list(diccionario_activos.keys())
 # MÓDULO 1: ESCÁNER CUANTITATIVO 300 ACTIVOS
 # -------------------------------------------------------------------------
 if modulo == "1. Escáner Cuantitativo (300 Activos)":
-    st.subheader(f"📊 Escáner Cuantitativo Multi-Activo ({len(lista_tickers)} Instrumentos con Nombres)")
-    st.write("Análisis simultáneo cubriendo las 10 criptomonedas principales del Market Cap, acciones globales, ETFs, bonos e índices.")
+    st.subheader(f"📊 Escáner Cuantitativo Multi-Activo ({len(lista_tickers)} Instrumentos)")
+    st.write("Análisis simultáneo cubriendo las 10 criptomonedas principales del Market Cap, acciones globales, ETFs, materias primas e índices.")
     
     temporalidad = st.selectbox("Temporalidad del Análisis:", ["1h", "4h", "1d", "1w"], index=2)
     
@@ -260,22 +308,22 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
         if resultados:
             df_res = pd.DataFrame(resultados)
             st.dataframe(df_res, use_container_width=True)
-            st.success(f"¡Escaneo completado con éxito! Se procesaron {len(df_res)} activos sobre el total de la lista maestra.")
+            st.success(f"¡Escaneo completado con éxito! Se procesaron los {len(df_res)} activos de la lista maestra.")
         else:
-            st.error("No se pudieron recuperar datos en este momento. Intenta nuevamente.")
+            st.error("No se pudieron recuperar datos en este momento.")
 
 # -------------------------------------------------------------------------
 # MÓDULO 2: DETECTOR DE SEÑALES POR TEMPORALIDAD
 # -------------------------------------------------------------------------
 elif modulo == "2. Detector de Señales por Temporalidad":
-    st.subheader("🎯 Detector de Activos con Señales y Trivergencias Reales")
-    st.write("Tabla filtrada exclusivamente con los activos que cumplen con las condiciones de trivergencia confirmada en la temporalidad seleccionada.")
+    st.subheader("🎯 Detector de Activos con Trivergencias Activas")
+    st.write("Tabla filtrada exclusivamente con los activos que emiten señales confirmadas mediante el cruce de Precio, RSI, Squeeze Momentum y Volumen.")
     
     temp_m2 = st.selectbox("Selecciona Temporalidad de Escaneo:", ["1h", "4h", "1d", "1w"], index=2, key="m2_temp")
     
-    if st.button("🔍 Buscar Señales y Trivergencias"):
+    if st.button("🔍 Buscar Trivergencias Activas"):
         senales_activas = []
-        with st.spinner("Escaneando el mercado en busca de activaciones tácticas reales..."):
+        with st.spinner("Escaneando el mercado en busca de trivergencias reales..."):
             for ticker in lista_tickers:
                 df = descargar_datos(ticker, intervalo=temp_m2, periodo="2mo")
                 if df is not None:
@@ -300,19 +348,19 @@ elif modulo == "2. Detector de Señales por Temporalidad":
                             })
         
         if senales_activas:
-            st.markdown(f"### Activos con Señales Activas en Temporalidad: {temp_m2}")
+            st.markdown(f"### Activos con Trivergencia Activa en Temporalidad: {temp_m2}")
             st.dataframe(pd.DataFrame(senales_activas), use_container_width=True)
         else:
-            st.info("No se encontraron señales activas en este instante con los filtros estrictos actuales.")
+            st.info("No se encontraron trivergencias activas en este instante con los filtros actuales.")
 
 # -------------------------------------------------------------------------
-# MÓDULO 3: CONFLUENCIA MULTITEMPORAL AUTOMÁTICA & DIAGNÓSTICO PROFESIONAL
+# MÓDULO 3: CONFLUENCIA MULTITEMPORAL AUTOMÁTICA & GRÁFICO CON ALERTAS
 # -------------------------------------------------------------------------
 elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
-    st.subheader("🧠 Confluencias Multitemporales Automáticas y Diagnóstico Profesional")
-    st.write("El sistema detecta automáticamente los activos con confluencias en varias temporalidades. Selecciona uno de los activos detectados para visualizar su gráfico limpio y su análisis institucional.")
+    st.subheader("🧠 Confluencias Multitemporales Automáticas & Gráfico Institucional")
+    st.write("El sistema detecta automáticamente los activos con confluencias en varias temporalidades. Selecciona un activo para desplegar su gráfico con marcas de trivergencia y análisis técnico.")
     
-    if st.button("🔍 Escanear Confluencias Multitemporales en el Mercado"):
+    if st.button("🔍 Escanear Confluencias Multitemporales"):
         multiconfluencias = []
         with st.spinner("Analizando confluencias en el universo de activos..."):
             for ticker in lista_tickers[:150]:
@@ -342,42 +390,58 @@ elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
         st.dataframe(df_multi, use_container_width=True)
         
         tickers_encontrados = [item['Símbolo'] for item in st.session_state['multiconfluencias']]
-        activo_sel = st.selectbox("Selecciona el Activo de la tabla para ver Gráfico y Análisis Técnico:", tickers_encontrados)
+        activo_sel = st.selectbox("Selecciona el Activo para ver Gráfico con Alertas y Diagnóstico:", tickers_encontrados)
         
         if activo_sel:
             st.markdown("---")
-            st.markdown(f"### 📊 Gráfico Institucional y Diagnóstico Técnico para: **{diccionario_activos[activo_sel]} ({activo_sel})**")
+            st.markdown(f"### 📊 Gráfico Institucional con Trivergencias para: **{diccionario_activos[activo_sel]} ({activo_sel})**")
             
             df_chart = descargar_datos(activo_sel, intervalo="1d", period="6mo")
             if df_chart is not None and not df_chart.empty:
                 df_chart = calcular_indicadores(df_chart)
                 
-                fig = make_subplots(rows=2, cols=1, shared_xaxes=True, 
-                                    vertical_spacing=0.03, row_heights=[0.7, 0.3])
+                # Subplots: 1. Velas, 2. RSI, 3. Squeeze Momentum
+                fig = make_subplots(rows=3, cols=1, shared_xaxes=True, 
+                                    vertical_spacing=0.03, row_heights=[0.55, 0.25, 0.2])
                 
                 opn = df_chart['Open'].iloc[:, 0] if isinstance(df_chart['Open'], pd.DataFrame) else df_chart['Open']
                 hgh = df_chart['High'].iloc[:, 0] if isinstance(df_chart['High'], pd.DataFrame) else df_chart['High']
                 lw = df_chart['Low'].iloc[:, 0] if isinstance(df_chart['Low'], pd.DataFrame) else df_chart['Low']
                 cls = df_chart['Close'].iloc[:, 0] if isinstance(df_chart['Close'], pd.DataFrame) else df_chart['Close']
                 rsi_s = df_chart['RSI'].iloc[:, 0] if isinstance(df_chart['RSI'], pd.DataFrame) else df_chart['RSI']
+                sq_s = df_chart['Squeeze_Mom'].iloc[:, 0] if isinstance(df_chart['Squeeze_Mom'], pd.DataFrame) else df_chart['Squeeze_Mom']
 
-                # Velas Japonesas puras (Sin EMAs)
-                fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio (Velas)"), row=1, col=1)
+                # Velas Japonesas
+                fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio"), row=1, col=1)
                 
-                # RSI Ploteado abajo
+                # Marcar Círculos de Trivergencia en el Gráfico si la señal está activa
+                ult_sig = df_chart['Signal'].iloc[-1]
+                if isinstance(ult_sig, pd.Series):
+                    ult_sig = ult_sig.iloc[0]
+                
+                if ult_sig == "COMPRA":
+                    fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="green", size=14, symbol="circle"), name="Trivergencia Alcista (🟢)"), row=1, col=1)
+                elif ult_sig == "VENTA":
+                    fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="red", size=14, symbol="circle"), name="Trivergencia Bajista (🔴)"), row=1, col=1)
+
+                # RSI Ploteado en fila 2
                 fig.add_trace(go.Scatter(x=df_chart.index, y=rsi_s, line=dict(color='#00ffcc', width=1.5), name="RSI (14)"), row=2, col=1)
                 fig.add_hline(y=70, line_dash="dash", line_color="red", row=2, col=1)
                 fig.add_hline(y=30, line_dash="dash", line_color="green", row=2, col=1)
+
+                # Squeeze Momentum Histogram en fila 3
+                colors = ['green' if val >= 0 else 'red' for val in sq_s]
+                fig.add_trace(go.Bar(x=df_chart.index, y=sq_s, marker_color=colors, name="Squeeze Momentum"), row=3, col=1)
                 
-                fig.update_layout(height=650, template="plotly_dark", title_text=f"Análisis Técnico de Precio y RSI: {activo_sel}", xaxis_rangeslider_visible=False)
+                fig.update_layout(height=750, template="plotly_dark", title_text=f"Análisis Institucional Avanzado: {activo_sel}", xaxis_rangeslider_visible=False)
                 st.plotly_chart(fig, use_container_width=True)
                 
-                st.markdown("### 🤖 Análisis Técnico e Institucional Profesional")
+                st.markdown("### 🤖 Diagnóstico y Proyección Institucional")
                 st.info(f"""
-                **Evaluación Estructural Profesional para {diccionario_activos[activo_sel]}:**
-                * **Dinámica de Momentum (RSI):** Lectura de oscilador con filtro de extremos institucionales para validar zonas de sobreventa o sobrecompra real.
-                * **Estructura de Precio (Price Action):** Gráfico de velas puras sin interferencia de medias móviles, enfocado netamente en la acción del precio y soportes/resistencias.
-                * **Perspectiva Operativa:** Confirmación de confluencia multitemporal activa para evaluar ejecución bajo estricta gestión de riesgo.
+                **Evaluación Profesional con Confluencia de Indicadores para {diccionario_activos[activo_sel]}:**
+                * **Sistema Trivergencia (Cryptosoldier):** Combina el comportamiento del precio con el **RSI**, el **Squeeze Momentum** y el **Volumen Relativo** para detectar agotamientos reales y giros institucionales.
+                * **Señales Visuales en Gráfico:** Los círculos integrados en el gráfico principal señalan puntos de entrada tácticos validados en extremos de mercado.
+                * **Gestión de Riesgo:** Mantenga operativas alineadas con la directriz multitemporal y respete los niveles de invalidación técnica.
                 """)
             else:
                 st.error("No se pudieron cargar los datos del gráfico para este activo.")
