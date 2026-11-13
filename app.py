@@ -167,7 +167,6 @@ def calcular_indicadores(df):
 
     # 2. Squeeze Momentum Indicator
     ma20 = close.rolling(window=20).mean()
-    std20 = close.rolling(window=20).std()
     highest = high.rolling(window=20).max()
     lowest = low.rolling(window=20).min()
     m_avg = (highest + lowest) / 2 + ma20
@@ -209,10 +208,11 @@ def calcular_indicadores(df):
 
 # Función auxiliar para renderizar el gráfico institucional completo con alertas
 def mostrar_grafico_institucional(ticker, nombre_activo):
-    st.markdown(f"---")
+    st.markdown("---")
     st.markdown(f"### 📊 Gráfico Institucional con Trivergencias para: **{nombre_activo} ({ticker})**")
     
-    df_chart = descargar_datos(ticker, intervalo="1d", period="6mo")
+    # CORREGIDO: periodo="6mo" en lugar de period="6mo"
+    df_chart = descargar_datos(ticker, intervalo="1d", periodo="6mo")
     if df_chart is not None and not df_chart.empty:
         df_chart = calcular_indicadores(df_chart)
         
@@ -348,7 +348,6 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
     if 'df_escanner' in st.session_state and not st.session_state['df_escanner'].empty:
         st.dataframe(st.session_state['df_escanner'], use_container_width=True)
         
-        # Selector interactivo para ver el gráfico de cualquier activo del escáner
         simbolos_disponibles = st.session_state['df_escanner']['Símbolo'].tolist()
         activo_m1_sel = st.selectbox("Selecciona cualquier activo del escáner para ver su gráfico detallado:", simbolos_disponibles, key="sel_m1")
         if activo_m1_sel:
@@ -402,7 +401,6 @@ elif modulo == "2. Detector de Señales & Divergencias":
     if 'df_m2' in st.session_state and st.session_state['df_m2'] is not None and not st.session_state['df_m2'].empty:
         st.dataframe(st.session_state['df_m2'], use_container_width=True)
         
-        # Selector interactivo para graficar el activo seleccionado en Módulo 2
         simbolos_m2 = st.session_state['df_m2']['Símbolo'].tolist()
         activo_m2_sel = st.selectbox("Selecciona un activo de la tabla de señales para ver su gráfico institucional:", simbolos_m2, key="sel_m2")
         if activo_m2_sel:
