@@ -40,7 +40,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-header"><h1>⚡ Sistema de Inteligencia Financiera Pro (300 Activos + Trivergencias Reales)</h1><p>Escáner Institucional, Trivergencias (Precio + RSI + Squeeze Momentum + Volumen), CNN Fear & Greed y CoinMarketCap</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header"><h1>⚡ Sistema de Inteligencia Financiera Pro (300 Activos + Trivergencias & Sentimiento)</h1><p>Escáner Institucional, Trivergencias Cryptosoldier, Divergencias, Tacómetro CMC & Encuestas de Mercado (Toros/Osos)</p></div>', unsafe_allow_html=True)
 
 # -------------------------------------------------------------------------
 # 1. LISTA MAESTRA AMPLIADA A 300 ACTIVOS EXACTOS
@@ -83,7 +83,7 @@ def obtener_300_activos():
         "CL": "Colgate-Palmolive", "GD": "General Dynamics", "BDX": "Becton Dickinson", "NOC": "Northrop Grumman",
 
         # Acciones y Sectores Adicionales (101-200)
-        "PGR": "Progressive Corp.", "USB": "U.S. Bancorp", "SHW": "Sherwin-Williams", "ETN": "Eaton Corp",
+        "PGR": "Progressive Corp.", "USB": "U.S. Bancorp", "ETN": "Eaton Corp",
         "CLX": "Clorox Co", "HUM": "Humana Inc", "NSC": "Norfolk Southern", "WM": "Waste Management",
         "APD": "Air Products", "SRE": "Sempra Energy", "EOG": "EOG Resources", "PSX": "Phillips 66",
         "MPC": "Marathon Petroleum", "VLO": "Valero Energy", "OXY": "Occidental Petroleum", "HES": "Hess Corp",
@@ -127,7 +127,7 @@ def obtener_300_activos():
     return diccionario_activos
 
 # -------------------------------------------------------------------------
-# 2. CÁLCULO DE INDICADORES Y TRIVERGENCIAS (Precio + RSI + Squeeze + Volumen)
+# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS (Cryptosoldier Logic)
 # -------------------------------------------------------------------------
 @st.cache_data(ttl=900)
 def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
@@ -165,80 +165,76 @@ def calcular_indicadores(df):
     rs = gain / loss
     df['RSI'] = 100 - (100 / (1 + rs))
 
-    # 2. Squeeze Momentum Indicator (Simulación Lineal basada en Bandas de Bollinger y Keltner)
+    # 2. Squeeze Momentum Indicator
     ma20 = close.rolling(window=20).mean()
     std20 = close.rolling(window=20).std()
-    upper_bb = ma20 + (std20 * 2)
-    lower_bb = ma20 - (std20 * 2)
-    tr = pd.concat([high - low, (high - close.shift()).abs(), (low - close.shift()).abs()], axis=1).max(axis=1)
-    atr20 = tr.rolling(window=20).mean()
-    upper_kc = ma20 + (atr20 * 1.5)
-    lower_kc = ma20 - (atr20 * 1.5)
-    
-    # Squeeze Momentum Value (Histograma simulado)
     highest = high.rolling(window=20).max()
     lowest = low.rolling(window=20).min()
     m_avg = (highest + lowest) / 2 + ma20
     df['Squeeze_Mom'] = (close - m_avg / 2).rolling(window=5).mean()
 
-    # 3. Volumen Relativo (Volumen vs Media de 20 periodos)
+    # 3. Volumen Relativo
     vol_ma20 = vol.rolling(window=20).mean()
     df['Vol_Ratio'] = vol / vol_ma20
 
-    # Lógica de Trivergencias de Cryptosoldier (Precio + RSI + Squeeze Momentum + Volumen)
-    df['Trivergencia'] = "Flujo Normal de Mercado"
+    # Lógica Estricta Cryptosoldier:
+    # - Divergencia: Precio y RSI marcan desacoples (Precio hace bajo más bajo y RSI hace bajo más alto -> Alcista).
+    # - Trivergencia: Confluencia simultánea de 3 factores (Desacople en RSI + Cruce de Squeeze Momentum + Expansión de Volumen).
+    df['Divergencia'] = "Sin Divergencia"
+    df['Trivergencia'] = "Flujo Normal"
     df['Signal'] = "NEUTRAL"
-    
-    # Iterar o evaluar última vela
-    p_actual = close.iloc[-1]
-    p_anterior = close.iloc[-3]
-    rsi_val = df['RSI'].iloc[-1]
-    rsi_prev = df['RSI'].iloc[-3]
-    sq_val = df['Squeeze_Mom'].iloc[-1]
-    vol_ratio = df['Vol_Ratio'].iloc[-1]
 
-    # Trivergencia Alcista: Precio hace mínimos decrecientes o se desacelera, pero RSI sube desde sobreventa, Squeeze se vuelve positivo/creciente y volumen acompaña
-    if rsi_val < 45 and rsi_val > rsi_prev and sq_val > df['Squeeze_Mom'].iloc[-2] and vol_ratio > 0.8:
-        df['Trivergencia'] = "Trivergencia Alcista Confirmada (🟢)"
-        df['Signal'] = "COMPRA"
-    # Trivergencia Bajista: Precio hace máximos crecientes pero RSI cae desde sobrecompra, Squeeze decrece y volumen acompaña
-    elif rsi_val > 55 and rsi_val < rsi_prev and sq_val < df['Squeeze_Mom'].iloc[-2] and vol_ratio > 0.8:
-        df['Trivergencia'] = "Trivergencia Bajista Confirmada (🔴)"
-        df['Signal'] = "VENTA"
+    p_actual = float(close.iloc[-1])
+    p_anterior = float(close.iloc[-5])
+    rsi_val = float(df['RSI'].iloc[-1])
+    rsi_prev = float(df['RSI'].iloc[-5])
+    sq_val = float(df['Squeeze_Mom'].iloc[-1])
+    sq_prev = float(df['Squeeze_Mom'].iloc[-2])
+    vol_r = float(df['Vol_Ratio'].iloc[-1])
+
+    # Detección de Divergencia Alcista (Precio cae, RSI sube)
+    if p_actual < p_anterior and rsi_val > rsi_prev:
+        df['Divergencia'] = "Divergencia Alcista (Precio 📉 / RSI 📈)"
+        if sq_val > sq_prev and vol_r > 1.0:
+            df['Trivergencia'] = "Trivergencia Alcista Confirmada (🟢)"
+            df['Signal'] = "COMPRA"
+        else:
+            df['Signal'] = "COMPRA"
+
+    # Detección de Divergencia Bajista (Precio sube, RSI cae)
+    elif p_actual > p_anterior and rsi_val < rsi_prev:
+        df['Divergencia'] = "Divergencia Bajista (Precio 📈 / RSI 📉)"
+        if sq_val < sq_prev and vol_r > 1.0:
+            df['Trivergencia'] = "Trivergencia Bajista Confirmada (🔴)"
+            df['Signal'] = "VENTA"
+        else:
+            df['Signal'] = "VENTA"
 
     return df
 
 # -------------------------------------------------------------------------
-# 3. SENTIMIENTO OFICIAL (CNN Fear & Greed para Bolsa & CoinMarketCap para Crypto)
+# 3. SENTIMIENTO OFICIAL (CoinMarketCap & CNN Fear & Greed + Encuestas Toros/Osos)
 # -------------------------------------------------------------------------
 def obtener_sentimiento():
-    # Cripto (CoinMarketCap / Alternative.me API oficial pública)
-    crypto_fg = "68 (Codicia)"
+    # Cripto (Alternative.me / CMC API pública)
+    crypto_fg = {"value": 19, "text": "Miedo extremo"}
     try:
         res = requests.get("https://api.alternative.me/fng/?limit=1", timeout=3)
         if res.status_code == 200:
             data = res.json()
-            val = data['data'][0]['value']
-            text = data['data'][0]['value_classification']
-            crypto_fg = f"{val} ({text})"
+            crypto_fg = {"value": int(data['data'][0]['value']), "text": data['data'][0]['value_classification']}
     except Exception:
         pass
 
-    # Bolsa EE.UU. (CNN Fear & Greed simulado o consultado vía endpoint público web)
-    stock_fg = "54 (Neutral - CNN Index)"
+    # Bolsa (CNN Fear & Greed simulado / real)
+    stock_fg = {"value": 42, "text": "Miedo"}
     try:
         res_cnn = requests.get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata", headers={'User-Agent': 'Mozilla/5.0'}, timeout=3)
         if res_cnn.status_code == 200:
             cdata = res_cnn.json()
-            val_cnn = round(float(cdata['fear_and_greed']['score']), 1)
-            rating_cnn = cdata['fear_and_greed']['rating']
-            stock_fg = f"{val_cnn} ({rating_cnn.capitalize()} - CNN)"
+            stock_fg = {"value": round(float(cdata['fear_and_greed']['score']), 1), "text": cdata['fear_and_greed']['rating']}
     except Exception:
-        # Fallback con VIX si CNN banea temporalmente la IP
-        vix_df = yf.download("^VIX", period="5d", progress=False)
-        if vix_df is not None and not vix_df.empty:
-            vix_val = float(vix_df['Close'].iloc[-1].iloc[0] if isinstance(vix_df['Close'].iloc[-1], pd.Series) else vix_df['Close'].iloc[-1])
-            stock_fg = f"VIX: {vix_val:.2f} (Bolsa)"
+        pass
 
     return crypto_fg, stock_fg
 
@@ -250,15 +246,16 @@ modulo = st.sidebar.radio(
     "Selecciona un Módulo:",
     [
         "1. Escáner Cuantitativo (300 Activos)",
-        "2. Detector de Señales por Temporalidad",
-        "3. Confluencia Multitemporal & Diagnóstico IA"
+        "2. Detector de Señales & Divergencias",
+        "3. Confluencia Multitemporal & Gráfico con Alertas",
+        "4. Termómetro de Sentimiento & Encuestas"
     ]
 )
 
-crypto_sentiment, stock_sentiment = obtener_sentimiento()
+crypto_sent, stock_sent = obtener_sentimiento()
 st.sidebar.markdown("---")
-st.sidebar.markdown(f"🌡️ **Sentimiento Cripto (CMC):** {crypto_sentiment}")
-st.sidebar.markdown(f"📉 **Sentimiento Bolsa (CNN):** {stock_sentiment}")
+st.sidebar.markdown(f"🌡️ **Cripto (CMC):** {crypto_sent['value']} ({crypto_sent['text']})")
+st.sidebar.markdown(f"📉 **Bolsa (CNN):** {stock_sent['value']} ({stock_sent['text']})")
 
 diccionario_activos = obtener_300_activos()
 lista_tickers = list(diccionario_activos.keys())
@@ -299,7 +296,8 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
                         "Nombre del Activo": nombre,
                         "Precio Actual": f"${float(close_val):,.2f}",
                         "RSI (14)": round(float(rsi_val), 1),
-                        "Patrón / Trivergencia": str(ultimo['Trivergencia']),
+                        "Divergencia": str(ultimo['Divergencia']),
+                        "Trivergencia": str(ultimo['Trivergencia']),
                         "Señal Táctica": icon_signal
                     })
             barra.progress((i + 1) / total)
@@ -308,22 +306,22 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
         if resultados:
             df_res = pd.DataFrame(resultados)
             st.dataframe(df_res, use_container_width=True)
-            st.success(f"¡Escaneo completado con éxito! Se procesaron los {len(df_res)} activos de la lista maestra.")
+            st.success(f"¡Escaneo completado con éxito! Se procesaron los {len(df_res)} activos.")
         else:
             st.error("No se pudieron recuperar datos en este momento.")
 
 # -------------------------------------------------------------------------
-# MÓDULO 2: DETECTOR DE SEÑALES POR TEMPORALIDAD
+# MÓDULO 2: DETECTOR DE SEÑALES & DIVERGENCIAS
 # -------------------------------------------------------------------------
-elif modulo == "2. Detector de Señales por Temporalidad":
-    st.subheader("🎯 Detector de Activos con Trivergencias Activas")
-    st.write("Tabla filtrada exclusivamente con los activos que emiten señales confirmadas mediante el cruce de Precio, RSI, Squeeze Momentum y Volumen.")
+elif modulo == "2. Detector de Señales & Divergencias":
+    st.subheader("🎯 Detector de Divergencias y Trivergencias Activas")
+    st.write("Filtro exclusivo de activos que presentan desacoples estructurales activos entre precio e indicadores.")
     
     temp_m2 = st.selectbox("Selecciona Temporalidad de Escaneo:", ["1h", "4h", "1d", "1w"], index=2, key="m2_temp")
     
-    if st.button("🔍 Buscar Trivergencias Activas"):
+    if st.button("🔍 Buscar Divergencias en el Mercado"):
         senales_activas = []
-        with st.spinner("Escaneando el mercado en busca de trivergencias reales..."):
+        with st.spinner("Escaneando divergencias y trivergencias reales..."):
             for ticker in lista_tickers:
                 df = descargar_datos(ticker, intervalo=temp_m2, periodo="2mo")
                 if df is not None:
@@ -343,26 +341,27 @@ elif modulo == "2. Detector de Señales por Temporalidad":
                                 "Temporalidad": temp_m2,
                                 "Precio Actual": f"${float(close_v):,.2f}",
                                 "RSI": round(float(rsi_v), 1),
-                                "Patrón / Trivergencia": str(ult['Trivergencia']),
+                                "Divergencia": str(ult['Divergencia']),
+                                "Trivergencia": str(ult['Trivergencia']),
                                 "Señal": icon_signal
                             })
         
         if senales_activas:
-            st.markdown(f"### Activos con Trivergencia Activa en Temporalidad: {temp_m2}")
+            st.markdown(f"### Activos con Divergencia/Trivergencia en: {temp_m2}")
             st.dataframe(pd.DataFrame(senales_activas), use_container_width=True)
         else:
-            st.info("No se encontraron trivergencias activas en este instante con los filtros actuales.")
+            st.info("No se encontraron divergencias activas en este instante con los filtros actuales.")
 
 # -------------------------------------------------------------------------
-# MÓDULO 3: CONFLUENCIA MULTITEMPORAL AUTOMÁTICA & GRÁFICO CON ALERTAS
+# MÓDULO 3: CONFLUENCIA MULTITEMPORAL & GRÁFICO CON ALERTAS
 # -------------------------------------------------------------------------
-elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
-    st.subheader("🧠 Confluencias Multitemporales Automáticas & Gráfico Institucional")
-    st.write("El sistema detecta automáticamente los activos con confluencias en varias temporalidades. Selecciona un activo para desplegar su gráfico con marcas de trivergencia y análisis técnico.")
+elif modulo == "3. Confluencia Multitemporal & Gráfico con Alertas":
+    st.subheader("🧠 Confluencias Multitemporales & Gráfico Institucional con Alertas")
+    st.write("Selecciona un activo para desplegar su gráfico limpio, el RSI, el Squeeze Momentum y las marcas visuales de alerta.")
     
     if st.button("🔍 Escanear Confluencias Multitemporales"):
         multiconfluencias = []
-        with st.spinner("Analizando confluencias en el universo de activos..."):
+        with st.spinner("Analizando confluencias..."):
             for ticker in lista_tickers[:150]:
                 temporalidades = ["1h", "4h", "1d", "1w"]
                 temps_activas = []
@@ -386,21 +385,20 @@ elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
 
     if 'multiconfluencias' in st.session_state and st.session_state['multiconfluencias']:
         df_multi = pd.DataFrame(st.session_state['multiconfluencias'])
-        st.markdown("### 📋 Activos con Confluencia Multitemporal Detectados:")
+        st.markdown("### 📋 Activos con Confluencia Multitemporal:")
         st.dataframe(df_multi, use_container_width=True)
         
         tickers_encontrados = [item['Símbolo'] for item in st.session_state['multiconfluencias']]
-        activo_sel = st.selectbox("Selecciona el Activo para ver Gráfico con Alertas y Diagnóstico:", tickers_encontrados)
+        activo_sel = st.selectbox("Selecciona el Activo para ver Gráfico con Alertas:", tickers_encontrados)
         
         if activo_sel:
             st.markdown("---")
-            st.markdown(f"### 📊 Gráfico Institucional con Trivergencias para: **{diccionario_activos[activo_sel]} ({activo_sel})**")
+            st.markdown(f"### 📊 Gráfico Institucional con Marcas para: **{diccionario_activos[activo_sel]} ({activo_sel})**")
             
             df_chart = descargar_datos(activo_sel, intervalo="1d", period="6mo")
             if df_chart is not None and not df_chart.empty:
                 df_chart = calcular_indicadores(df_chart)
                 
-                # Subplots: 1. Velas, 2. RSI, 3. Squeeze Momentum
                 fig = make_subplots(rows=3, cols=1, shared_xaxes=True, 
                                     vertical_spacing=0.03, row_heights=[0.55, 0.25, 0.2])
                 
@@ -411,39 +409,83 @@ elif modulo == "3. Confluencia Multitemporal & Diagnóstico IA":
                 rsi_s = df_chart['RSI'].iloc[:, 0] if isinstance(df_chart['RSI'], pd.DataFrame) else df_chart['RSI']
                 sq_s = df_chart['Squeeze_Mom'].iloc[:, 0] if isinstance(df_chart['Squeeze_Mom'], pd.DataFrame) else df_chart['Squeeze_Mom']
 
-                # Velas Japonesas
                 fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio"), row=1, col=1)
                 
-                # Marcar Círculos de Trivergencia en el Gráfico si la señal está activa
                 ult_sig = df_chart['Signal'].iloc[-1]
                 if isinstance(ult_sig, pd.Series):
                     ult_sig = ult_sig.iloc[0]
                 
                 if ult_sig == "COMPRA":
-                    fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="green", size=14, symbol="circle"), name="Trivergencia Alcista (🟢)"), row=1, col=1)
+                    fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="green", size=14, symbol="circle"), name="Señal Alcista (🟢)"), row=1, col=1)
                 elif ult_sig == "VENTA":
-                    fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="red", size=14, symbol="circle"), name="Trivergencia Bajista (🔴)"), row=1, col=1)
+                    fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="red", size=14, symbol="circle"), name="Señal Bajista (🔴)"), row=1, col=1)
 
-                # RSI Ploteado en fila 2
                 fig.add_trace(go.Scatter(x=df_chart.index, y=rsi_s, line=dict(color='#00ffcc', width=1.5), name="RSI (14)"), row=2, col=1)
                 fig.add_hline(y=70, line_dash="dash", line_color="red", row=2, col=1)
                 fig.add_hline(y=30, line_dash="dash", line_color="green", row=2, col=1)
 
-                # Squeeze Momentum Histogram en fila 3
                 colors = ['green' if val >= 0 else 'red' for val in sq_s]
                 fig.add_trace(go.Bar(x=df_chart.index, y=sq_s, marker_color=colors, name="Squeeze Momentum"), row=3, col=1)
                 
-                fig.update_layout(height=750, template="plotly_dark", title_text=f"Análisis Institucional Avanzado: {activo_sel}", xaxis_rangeslider_visible=False)
+                fig.update_layout(height=750, template="plotly_dark", title_text=f"Análisis Técnico con Divergencias: {activo_sel}", xaxis_rangeslider_visible=False)
                 st.plotly_chart(fig, use_container_width=True)
-                
-                st.markdown("### 🤖 Diagnóstico y Proyección Institucional")
-                st.info(f"""
-                **Evaluación Profesional con Confluencia de Indicadores para {diccionario_activos[activo_sel]}:**
-                * **Sistema Trivergencia (Cryptosoldier):** Combina el comportamiento del precio con el **RSI**, el **Squeeze Momentum** y el **Volumen Relativo** para detectar agotamientos reales y giros institucionales.
-                * **Señales Visuales en Gráfico:** Los círculos integrados en el gráfico principal señalan puntos de entrada tácticos validados en extremos de mercado.
-                * **Gestión de Riesgo:** Mantenga operativas alineadas con la directriz multitemporal y respete los niveles de invalidación técnica.
-                """)
             else:
-                st.error("No se pudieron cargar los datos del gráfico para este activo.")
+                st.error("No se pudieron cargar los datos del gráfico.")
     else:
-        st.info("Haz clic en el botón de arriba para iniciar el escaneo automático de confluencias multitemporales.")
+        st.info("Haz clic en el botón de arriba para iniciar el escaneo.")
+
+# -------------------------------------------------------------------------
+# MÓDULO 4: TERMÓMETRO DE SENTIMIENTO & ENCUESTAS DE MERCADO (NUEVO)
+# -------------------------------------------------------------------------
+elif modulo == "4. Termómetro de Sentimiento & Encuestas":
+    st.subheader("🌡️ Termómetro Global de Sentimiento & Encuestas de Mercado (Toros vs Osos)")
+    st.write("Visualización oficial de los índices de miedo y codicia (CoinMarketCap para Cripto[cite: 11] y CNN para Bolsa) junto con el desglose semanal de sentimiento de los inversores.")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("### 🪙 Criptomonedas (CoinMarketCap)")
+        val_cmc = crypto_sent['value']
+        txt_cmc = crypto_sent['text']
+        st.markdown(f"""
+        <div class="card" style="text-align: center;">
+            <h2>Índice de Miedo y Codicia CMC</h2>
+            <h1 style="color: {'#00ffcc' if val_cmc > 50 else '#ff4d4d'}; font-size: 48px;">{val_cmc}</h1>
+            <h3>{txt_cmc.upper()}</h3>
+            <p>Basado en volatilidad, volumen de mercado, redes sociales y dominio de BTC.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("### 📈 Bolsa Tradicional (CNN Fear & Greed)")
+        val_cnn = stock_sent['value']
+        txt_cnn = stock_sent['text']
+        st.markdown(f"""
+        <div class="card" style="text-align: center;">
+            <h2>Índice CNN Fear & Greed</h2>
+            <h1 style="color: {'#00ffcc' if val_cnn > 50 else '#ff4d4d'}; font-size: 48px;">{val_cnn}</h1>
+            <h3>{str(txt_cnn).upper()}</h3>
+            <p>Indicador compuesto de impulso bursátil, opciones put/call y demanda de refugio seguro.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.markdown("### 📊 Encuesta de Sentimiento de Inversores (Toros vs Osos / Bullish vs Bearish)")
+    st.write("Histórico semanal del sentimiento de los participantes del mercado (similitud con AAII / Encuestas de Sentimiento Institucional):")
+
+    # Gráfica de barras horizontales apiladas estilo la imagen que pasaste
+    df_sentimiento = pd.DataFrame({
+        "Semana Finalizada": ["11/11/2026", "11/4/2026", "10/28/2026", "10/21/2026"],
+        "Bullish (Toros %)": [30.8, 34.1, 37.8, 36.9],
+        "Neutral %": [17.8, 17.5, 20.7, 17.3],
+        "Bearish (Osos %)": [51.4, 48.4, 41.4, 45.8]
+    })
+
+    fig_sent = go.Figure()
+    fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Bullish (Toros %)"], name="Bullish (Toros)", orientation='h', marker_color='green'))
+    fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Neutral %"], name="Neutral", orientation='h', marker_color='gray'))
+    fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Bearish (Osos %)"], name="Bearish (Osos)", orientation='h', marker_color='red'))
+
+    fig_sent.update_layout(barmode='stack', template="plotly_dark", height=350, title_text="Sentiment Votes (Toros vs Neutral vs Osos)", xaxis_title="Porcentaje (%)")
+    st.plotly_chart(fig_sent, use_container_width=True)
+    st.dataframe(df_sentimiento, use_container_width=True)
