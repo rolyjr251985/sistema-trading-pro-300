@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilo visual institucional ultra nítido: Corrección total de alertas, textos y legibilidad
+# Estilo visual institucional ultra nítido: Corrección total de alertas y legibilidad
 st.markdown("""
     <style>
     .stApp {
@@ -24,13 +24,13 @@ st.markdown("""
     p, span, label, div, h1, h2, h3, h4, h5, h6, .stMarkdown, .streamlit-expanderHeader {
         color: #f8fafc !important;
     }
-    /* Corrección absoluta para las cajas de info/advertencia de Streamlit para que no tengan letras invisibles */
-    div.stAlert, div[data-baseweb="notification"], .stInfo, .stSuccess, .stWarning, .stError {
+    /* CORRECCIÓN DEFINITIVA PARA CAJAS DE INFO Y ALERTAS (st.info, st.success, etc.) */
+    div.stAlert, div[data-baseweb="notification"], div.stInfo, div.stSuccess, div.stWarning, div.stError {
         background-color: #0f172a !important;
         color: #ffffff !important;
         border: 1px solid #334155 !important;
     }
-    div.stAlert p, div.stAlert span, .stInfo p, .stSuccess p, .stWarning p, .stError p {
+    div.stAlert *, div.stInfo *, div.stSuccess *, div.stWarning *, div.stError * {
         color: #ffffff !important;
     }
     /* Corrección para los menús desplegables (Selectboxes y Dropdowns) */
@@ -269,7 +269,6 @@ def calcular_indicadores(df):
 
     return df
 
-# Función auxiliar para extraer de forma segura un valor numérico flotante
 def extraer_valor_seguro(serie_o_df):
     try:
         val = limpiar_serie(serie_o_df)
@@ -282,7 +281,6 @@ def extraer_valor_seguro(serie_o_df):
     except Exception:
         return 0.0
 
-# Función auxiliar para resolver nombres comunes a Tickers válidos en yfinance
 def resolver_ticker_ingresado(input_str, dic_activos):
     clean = input_str.strip()
     if clean in dic_activos:
@@ -292,7 +290,6 @@ def resolver_ticker_ingresado(input_str, dic_activos):
             return ticker
     return clean.upper()
 
-# Gráfico institucional con diseño dinámico
 def mostrar_grafico_institucional(ticker, nombre_activo):
     st.markdown("---")
     st.markdown(f"""
@@ -696,7 +693,6 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
                             "Sentimiento Táctico": icon_sig
                         })
             
-            # Respaldo robusto si precio global sigue en 0
             if precio_actual_global == 0.0:
                 df_fallback = descargar_datos(ticker_input, intervalo="1d", periodo="1mo")
                 if df_fallback is not None and not df_fallback.empty:
