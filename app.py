@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilo visual institucional ultra nítido y de alta legibilidad
+# Estilo visual institucional ultra nítido y de alta legibilidad (Dark Mode Pro con Dropdowns corregidos)
 st.markdown("""
     <style>
     .stApp {
@@ -21,10 +21,32 @@ st.markdown("""
         color: #ffffff !important;
     }
     /* Forzar tipografía clara y de alta visibilidad en toda la interfaz */
-    p, span, label, div, h1, h2, h3, h4, h5, h6, .stMarkdown {
+    p, span, label, div, h1, h2, h3, h4, h5, h6, .stMarkdown, .streamlit-expanderHeader {
         color: #f8fafc !important;
     }
-    /* Estilos específicos para la barra lateral y textos secundarios */
+    /* Corrección absoluta para los menús desplegables (Selectboxes y Dropdowns) */
+    div[data-baseweb="select"] > div {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        border-color: #334155 !important;
+    }
+    div[data-baseweb="menu"], div[role="listbox"], ul[role="listbox"] {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+    }
+    div[data-baseweb="option"], option, div[role="option"] {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+    }
+    div[data-baseweb="option"]:hover {
+        background-color: #4f46e5 !important;
+        color: #ffffff !important;
+    }
+    input, textarea, select {
+        color: #ffffff !important;
+        background-color: #0f172a !important;
+    }
+    /* Estilos específicos para la barra lateral */
     [data-testid="stSidebar"] {
         background-color: #080c14;
         border-right: 1px solid #1e293b;
@@ -32,7 +54,6 @@ st.markdown("""
     [data-testid="stSidebar"] label, [data-testid="stSidebar"] span, [data-testid="stSidebar"] p {
         color: #ffffff !important;
         font-weight: 500 !important;
-        font-size: 1rem !important;
     }
     /* Banner Principal Estilizado */
     .main-header {
@@ -69,10 +90,6 @@ st.markdown("""
         background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(79, 70, 229, 0.6);
-    }
-    /* Textos descriptivos secundarios con mayor brillo */
-    .desc-text, span, small {
-        color: #cbd5e1 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -243,6 +260,19 @@ def calcular_indicadores(df):
 
     return df
 
+# Función auxiliar para resolver nombres comunes a Tickers válidos en yfinance
+def resolver_ticker_ingresado(input_str, dic_activos):
+    clean = input_str.strip()
+    # Si coincide exactamente con un ticker
+    if clean in dic_activos:
+        return clean
+    # Buscar si escribió parte del nombre o el ticker en minúsculas
+    for ticker, nombre in dic_activos.items():
+        if clean.lower() in ticker.lower() or clean.lower() in nombre.lower():
+            return ticker
+    # Devolver en mayúsculas por defecto
+    return clean.upper()
+
 # Gráfico institucional con diseño dinámico
 def mostrar_grafico_institucional(ticker, nombre_activo):
     st.markdown("---")
@@ -255,36 +285,36 @@ def mostrar_grafico_institucional(ticker, nombre_activo):
     df_chart = descargar_datos(ticker, intervalo="1d", periodo="6mo")
     if df_chart is not None and not df_chart.empty:
         df_chart = calcular_indicadores(df_chart)
-        
-        fig = make_subplots(rows=3, cols=1, shared_xaxes=True, 
-                            vertical_spacing=0.03, row_heights=[0.55, 0.25, 0.2])
-        
-        opn = limpiar_serie(df_chart['Open'])
-        hgh = limpiar_serie(df_chart['High'])
-        lw = limpiar_serie(df_chart['Low'])
-        cls = limpiar_serie(df_chart['Close'])
-        rsi_s = limpiar_serie(df_chart['RSI'])
-        sq_s = limpiar_serie(df_chart['Squeeze_Mom'])
+        if df_chart is not None:
+            fig = make_subplots(rows=3, cols=1, shared_xaxes=True, 
+                                vertical_spacing=0.03, row_heights=[0.55, 0.25, 0.2])
+            
+            opn = limpiar_serie(df_chart['Open'])
+            hgh = limpiar_serie(df_chart['High'])
+            lw = limpiar_serie(df_chart['Low'])
+            cls = limpiar_serie(df_chart['Close'])
+            rsi_s = limpiar_serie(df_chart['RSI'])
+            sq_s = limpiar_serie(df_chart['Squeeze_Mom'])
 
-        fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio"), row=1, col=1)
-        
-        ult_sig = limpiar_serie(df_chart['Signal']).iloc[-1]
-        if ult_sig == "COMPRA":
-            fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="#10b981", size=16, symbol="circle"), name="Señal Alcista (🟢)"), row=1, col=1)
-        elif ult_sig == "VENTA":
-            fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="#ef4444", size=16, symbol="circle"), name="Señal Bajista (🔴)"), row=1, col=1)
+            fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio"), row=1, col=1)
+            
+            ult_sig = limpiar_serie(df_chart['Signal']).iloc[-1]
+            if ult_sig == "COMPRA":
+                fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="#10b981", size=16, symbol="circle"), name="Señal Alcista (🟢)"), row=1, col=1)
+            elif ult_sig == "VENTA":
+                fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="#ef4444", size=16, symbol="circle"), name="Señal Bajista (🔴)"), row=1, col=1)
 
-        fig.add_trace(go.Scatter(x=df_chart.index, y=rsi_s, line=dict(color='#38bdf8', width=2), name="RSI (14)"), row=2, col=1)
-        fig.add_hline(y=70, line_dash="dash", line_color="#ef4444", row=2, col=1)
-        fig.add_hline(y=30, line_dash="dash", line_color="#10b981", row=2, col=1)
+            fig.add_trace(go.Scatter(x=df_chart.index, y=rsi_s, line=dict(color='#38bdf8', width=2), name="RSI (14)"), row=2, col=1)
+            fig.add_hline(y=70, line_dash="dash", line_color="#ef4444", row=2, col=1)
+            fig.add_hline(y=30, line_dash="dash", line_color="#10b981", row=2, col=1)
 
-        colors = ['#10b981' if val >= 0 else '#ef4444' for val in sq_s]
-        fig.add_trace(go.Bar(x=df_chart.index, y=sq_s, marker_color=colors, name="Squeeze Momentum"), row=3, col=1)
-        
-        fig.update_layout(height=780, template="plotly_dark", paper_bgcolor="#030712", plot_bgcolor="#030712", title_text="", xaxis_rangeslider_visible=False)
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.error("No se pudieron cargar los datos del gráfico para este activo.")
+            colors = ['#10b981' if val >= 0 else '#ef4444' for val in sq_s]
+            fig.add_trace(go.Bar(x=df_chart.index, y=sq_s, marker_color=colors, name="Squeeze Momentum"), row=3, col=1)
+            
+            fig.update_layout(height=780, template="plotly_dark", paper_bgcolor="#030712", plot_bgcolor="#030712", title_text="", xaxis_rangeslider_visible=False)
+            st.plotly_chart(fig, use_container_width=True)
+            return
+    st.error(f"No se pudieron cargar los datos del gráfico para el ticker `{ticker}`.")
 
 # -------------------------------------------------------------------------
 # 3. SENTIMIENTO GLOBAL
@@ -393,7 +423,7 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
             mostrar_grafico_institucional(activo_m1_sel, nombre_sel)
 
 # -------------------------------------------------------------------------
-# MÓDULO 2: DETECTOR DE DIVERGENCIAS & SOBRECOMPRA/SOBREVENTA MULTITEMPORAL
+# MÓDULO 2: DETECTOR DE DIVERGENCIAS & SOBRECOMPRA/SOBREVENTA
 # -------------------------------------------------------------------------
 elif modulo == "2. Detector de Divergencias & Sobrecompra/Sobreventa":
     st.subheader("🎯 Detector Multitemporal: Sobrecompra, Sobreventa y Divergencias")
@@ -587,17 +617,20 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
     st.dataframe(df_sentimiento, use_container_width=True)
 
 # -------------------------------------------------------------------------
-# MÓDULO 5: BÚSQUEDA DE ACTIVO INDIVIDUAL MULTITEMPORAL CON DIVERGENCIAS
+# MÓDULO 5: BÚSQUEDA DE ACTIVO INDIVIDUAL MULTITEMPORAL CORREGIDA
 # -------------------------------------------------------------------------
 elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
     st.subheader("🔎 Buscador Institucional de Activo & Desglose Multitemporal (Divergencias)")
-    st.write("Introduce cualquier símbolo (ej. `TSLA`, `BTC-USD`, `NVDA`, `SPY`, `GC=F`) para analizar su precio, sentimiento y estado en cada temporalidad estudiada.")
+    st.write("Introduce el nombre o símbolo (ej. `TSLA`, `NVIDIA`, `BTC-USD`, `Apple`, `GC=F`) para analizar su precio, sentimiento y estado en cada temporalidad.")
     
     col_input1, col_input2 = st.columns([2, 1])
     with col_input1:
-        ticker_input = st.text_input("Introduce el Ticker del Activo:", value="TSLA").upper().strip()
+        input_usuario = st.text_input("Introduce el Ticker o Nombre del Activo:", value="NVDA")
 
     if st.button("🚀 Analizar Activo en Todas las Temporalidades"):
+        # Resolver ticker inteligente
+        ticker_input = resolver_ticker_ingresado(input_usuario, diccionario_activos)
+        
         with st.spinner(f"Analizando {ticker_input} en 1h, 4h, 1d y 1w..."):
             
             temporalidades_estudio = ["1h", "4h", "1d", "1w"]
@@ -610,7 +643,7 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
             except Exception:
                 pass
             
-            nombre_oficial = info_fund.get('longName', info_fund.get('shortName', ticker_input))
+            nombre_oficial = info_fund.get('longName', info_fund.get('shortName', diccionario_activos.get(ticker_input, ticker_input)))
             market_cap = info_fund.get('marketCap', 'No disponible')
             if isinstance(market_cap, (int, float)):
                 market_cap = f"${market_cap:,.0f}"
@@ -671,7 +704,7 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
                 df_multi_res = pd.DataFrame(resumen_multi)
                 st.dataframe(df_multi_res, use_container_width=True)
             else:
-                st.error("No se pudieron calcular los indicadores para las temporalidades seleccionadas.")
+                st.error(f"No se pudieron calcular los indicadores para `{ticker_input}`. Comprueba que el símbolo sea correcto (ej. `NVDA`, `TSLA`, `BTC-USD`).")
 
             st.markdown("---")
             st.markdown("### 📰 Fundamentales & Noticias Recientes del Activo")
