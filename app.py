@@ -13,20 +13,34 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilo visual institucional ultra moderno y atractivo (Fintech Pro UI v2)
+# Estilo visual institucional ultra nítido y de alta legibilidad
 st.markdown("""
     <style>
     .stApp {
         background-color: #030712;
-        color: #f3f4f6;
+        color: #ffffff !important;
+    }
+    /* Forzar tipografía clara y de alta visibilidad en toda la interfaz */
+    p, span, label, div, h1, h2, h3, h4, h5, h6, .stMarkdown {
+        color: #f8fafc !important;
+    }
+    /* Estilos específicos para la barra lateral y textos secundarios */
+    [data-testid="stSidebar"] {
+        background-color: #080c14;
+        border-right: 1px solid #1e293b;
+    }
+    [data-testid="stSidebar"] label, [data-testid="stSidebar"] span, [data-testid="stSidebar"] p {
+        color: #ffffff !important;
+        font-weight: 500 !important;
+        font-size: 1rem !important;
     }
     /* Banner Principal Estilizado */
     .main-header {
-        background: linear-gradient(135deg, #312e81 1e%, #1e1b4b 50%, #090d16 100%);
+        background: linear-gradient(135deg, #312e81 0%, #1e1b4b 50%, #090d16 100%);
         padding: 30px;
         border-radius: 18px;
         border: 1px solid #4f46e5;
-        box-shadow: 0 20px 30px -10px rgba(79, 70, 229, 0.3), 0 10px 15px -5px rgba(0, 0, 0, 0.7);
+        box-shadow: 0 20px 30px -10px rgba(79, 70, 229, 0.3);
         color: #ffffff;
         text-align: center;
         margin-bottom: 30px;
@@ -36,20 +50,15 @@ st.markdown("""
         background: linear-gradient(145deg, #0f172a 0%, #111827 100%);
         padding: 24px;
         border-radius: 14px;
-        border: 1px solid #1f2937;
+        border: 1px solid #334155;
         box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5);
         margin-bottom: 20px;
-        transition: all 0.3s ease;
-    }
-    .card:hover {
-        border-color: #6366f1;
-        box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.25);
     }
     /* Botones Mejorados */
     .stButton>button {
         background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-        color: white;
-        font-weight: 600;
+        color: white !important;
+        font-weight: 700 !important;
         border-radius: 10px;
         border: none;
         padding: 12px 28px;
@@ -61,18 +70,17 @@ st.markdown("""
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(79, 70, 229, 0.6);
     }
-    /* Barra Lateral Estilizada */
-    [data-testid="stSidebar"] {
-        background-color: #090d16;
-        border-right: 1px solid #1f2937;
+    /* Textos descriptivos secundarios con mayor brillo */
+    .desc-text, span, small {
+        color: #cbd5e1 !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
     <div class="main-header">
-        <h1 style="font-size: 2.6rem; margin-bottom: 8px; letter-spacing: -0.5px; font-weight: 800;">⚡ Sistema de Inteligencia Financiera Pro</h1>
-        <p style="color: #94a3b8; font-size: 1.15rem; margin: 0; font-weight: 400;">Plataforma Cuantitativa Avanzada: Trivergencias, Escáner 300 Activos & Análisis Multitemporal</p>
+        <h1 style="font-size: 2.6rem; margin-bottom: 8px; font-weight: 800; color: #ffffff !important;">⚡ Sistema de Inteligencia Financiera Pro</h1>
+        <p style="color: #e2e8f0 !important; font-size: 1.15rem; margin: 0; font-weight: 500;">Plataforma Cuantitativa Avanzada: Trivergencias, Escáner 300 Activos & Análisis Multitemporal</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -161,7 +169,7 @@ def obtener_300_activos():
     return diccionario_activos
 
 # -------------------------------------------------------------------------
-# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS (Blindado contra MultiIndex)
+# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS
 # -------------------------------------------------------------------------
 @st.cache_data(ttl=900)
 def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
@@ -240,7 +248,7 @@ def mostrar_grafico_institucional(ticker, nombre_activo):
     st.markdown("---")
     st.markdown(f"""
         <div style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); padding: 18px 22px; border-radius: 12px; border-left: 5px solid #6366f1; margin-bottom: 20px;">
-            <h3 style="margin: 0; color: #ffffff; font-size: 1.25rem;">📊 Gráfico Institucional & Osciladores: {nombre_activo} (<span style="color: #818cf8;">{ticker}</span>)</h3>
+            <h3 style="margin: 0; color: #ffffff !important; font-size: 1.25rem;">📊 Gráfico Institucional & Osciladores: {nombre_activo} (<span style="color: #818cf8;">{ticker}</span>)</h3>
         </div>
     """, unsafe_allow_html=True)
     
@@ -541,7 +549,7 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
             <h2 style="margin: 5px 0;">Índice de Miedo y Codicia</h2>
             <h1 style="color: {'#10b981' if val_cmc > 50 else '#ef4444'}; font-size: 52px; margin: 10px 0;">{val_cmc}</h1>
             <h3 style="text-transform: uppercase; letter-spacing: 1px;">{txt_cmc}</h3>
-            <p style="color: #94a3b8; font-size: 0.9rem;">Basado en volatilidad, volumen, redes sociales y dominio.</p>
+            <p style="color: #cbd5e1; font-size: 0.9rem;">Basado en volatilidad, volumen, redes sociales y dominio.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -554,7 +562,7 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
             <h2 style="margin: 5px 0;">Índice de Sentimiento Bursátil</h2>
             <h1 style="color: {'#10b981' if val_cnn > 50 else '#ef4444'}; font-size: 52px; margin: 10px 0;">{val_cnn}</h1>
             <h3 style="text-transform: uppercase; letter-spacing: 1px;">{str(txt_cnn)}</h3>
-            <p style="color: #94a3b8; font-size: 0.9rem;">Indicador compuesto de impulso, opciones put/call y refugio.</p>
+            <p style="color: #cbd5e1; font-size: 0.9rem;">Indicador compuesto de impulso, opciones put/call y refugio.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -595,7 +603,6 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
             temporalidades_estudio = ["1h", "4h", "1d", "1w"]
             resumen_multi = []
             
-            # Descargar info fundamental general
             ticker_obj = yf.Ticker(ticker_input)
             info_fund = {}
             try:
@@ -639,13 +646,11 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
                         })
             
             if precio_actual_global == 0.0:
-                # Fallback por si 1d no cargó
                 df_fallback = descargar_datos(ticker_input, intervalo="1d", periodo="1mo")
                 if df_fallback is not None and not df_fallback.empty:
                     c_fb = limpiar_serie(df_fallback['Close'])
                     precio_actual_global = float(c_fb.iloc[-1])
 
-            # Mostrar Tarjeta Resumen Superior
             st.markdown("---")
             st.markdown(f"""
                 <div class="card">
@@ -661,7 +666,6 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
             with col_m3:
                 st.metric("Instrumento / Símbolo", ticker_input)
 
-            # Mostrar Tabla Multitemporal con Divergencias y Trivergencias
             st.markdown("### 📊 Estado y Divergencias por Temporalidad Estudiada:")
             if resumen_multi:
                 df_multi_res = pd.DataFrame(resumen_multi)
@@ -669,7 +673,6 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
             else:
                 st.error("No se pudieron calcular los indicadores para las temporalidades seleccionadas.")
 
-            # Mostrar Fundamentales / Noticias
             st.markdown("---")
             st.markdown("### 📰 Fundamentales & Noticias Recientes del Activo")
             try:
@@ -690,5 +693,4 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
                 st.markdown("#### 🏢 Descripción del Negocio / Activo:")
                 st.write(desc_negocio[:650] + "...")
 
-            # Renderizar Gráfico Institucional Abajo
             mostrar_grafico_institucional(ticker_input, nombre_oficial)
