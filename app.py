@@ -127,7 +127,7 @@ def obtener_300_activos():
     return diccionario_activos
 
 # -------------------------------------------------------------------------
-# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS (Cryptosoldier Logic)
+# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS (Seguro contra multi-index)
 # -------------------------------------------------------------------------
 @st.cache_data(ttl=900)
 def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
@@ -141,22 +141,19 @@ def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
     except Exception:
         return None
 
+def limpiar_serie(serie):
+    if isinstance(serie, pd.DataFrame):
+        serie = serie.iloc[:, 0]
+    return pd.Series(serie).squeeze()
+
 def calcular_indicadores(df):
     if df is None or len(df) < 50:
         return None
     
-    close = df['Close']
-    if isinstance(close, pd.DataFrame):
-        close = close.iloc[:, 0]
-    high = df['High']
-    if isinstance(high, pd.DataFrame):
-        high = high.iloc[:, 0]
-    low = df['Low']
-    if isinstance(low, pd.DataFrame):
-        low = low.iloc[:, 0]
-    vol = df['Volume']
-    if isinstance(vol, pd.DataFrame):
-        vol = vol.iloc[:, 0]
+    close = limpiar_serie(df['Close'])
+    high = limpiar_serie(df['High'])
+    low = limpiar_serie(df['Low'])
+    vol = limpiar_serie(df['Volume'])
 
     # 1. RSI de 14 periodos
     delta = close.diff()
@@ -182,11 +179,11 @@ def calcular_indicadores(df):
 
     p_actual = float(close.iloc[-1])
     p_anterior = float(close.iloc[-5])
-    rsi_val = float(df['RSI'].iloc[-1])
-    rsi_prev = float(df['RSI'].iloc[-5])
-    sq_val = float(df['Squeeze_Mom'].iloc[-1])
-    sq_prev = float(df['Squeeze_Mom'].iloc[-2])
-    vol_r = float(df['Vol_Ratio'].iloc[-1])
+    rsi_val = float(limpiar_serie(df['RSI']).iloc[-1])
+    rsi_prev = float(limpiar_serie(df['RSI']).iloc[-5])
+    sq_val = float(limpiar_serie(df['Squeeze_Mom']).iloc[-1])
+    sq_prev = float(limpiar_serie(df['Squeeze_Mom']).iloc[-2])
+    vol_r = float(limpiar_serie(df['Vol_Ratio']).iloc[-1])
 
     if p_actual < p_anterior and rsi_val > rsi_prev:
         df['Divergencia'] = "Divergencia Alcista (Precio 📉 / RSI 📈)"
@@ -218,18 +215,16 @@ def mostrar_grafico_institucional(ticker, nombre_activo):
         fig = make_subplots(rows=3, cols=1, shared_xaxes=True, 
                             vertical_spacing=0.03, row_heights=[0.55, 0.25, 0.2])
         
-        opn = df_chart['Open'].iloc[:, 0] if isinstance(df_chart['Open'], pd.DataFrame) else df_chart['Open']
-        hgh = df_chart['High'].iloc[:, 0] if isinstance(df_chart['High'], pd.DataFrame) else df_chart['High']
-        lw = df_chart['Low'].iloc[:, 0] if isinstance(df_chart['Low'], pd.DataFrame) else df_chart['Low']
-        cls = df_chart['Close'].iloc[:, 0] if isinstance(df_chart['Close'], pd.DataFrame) else df_chart['Close']
-        rsi_s = df_chart['RSI'].iloc[:, 0] if isinstance(df_chart['RSI'], pd.Series) else df_chart['RSI']
-        sq_s = df_chart['Squeeze_Mom'].iloc[:, 0] if isinstance(df_chart['Squeeze_Mom'], pd.Series) else df_chart['Squeeze_Mom']
+        opn = limpiar_serie(df_chart['Open'])
+        hgh = limpiar_serie(df_chart['High'])
+        lw = limpiar_serie(df_chart['Low'])
+        cls = limpiar_serie(df_chart['Close'])
+        rsi_s = limpiar_serie(df_chart['RSI'])
+        sq_s = limpiar_serie(df_chart['Squeeze_Mom'])
 
         fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio"), row=1, col=1)
         
-        ult_sig = df_chart['Signal'].iloc[-1]
-        if isinstance(ult_sig, pd.Series):
-            ult_sig = ult_sig.iloc[0]
+        ult_sig = limpiar_serie(df_chart['Signal']).iloc[-1]
         
         if ult_sig == "COMPRA":
             fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="green", size=14, symbol="circle"), name="Señal Alcista (🟢)"), row=1, col=1)
@@ -252,7 +247,7 @@ def mostrar_grafico_institucional(ticker, nombre_activo):
 # 3. SENTIMIENTO OFICIAL (CoinMarketCap & CNN Fear & Greed + Encuestas Toros/Osos)
 # -------------------------------------------------------------------------
 def obtener_sentimiento():
-    crypto_fg = {"value": 19, "text": "Miedo extremo"}
+    crypto_fg = {"value": 13, "text": "Extreme Fear"}
     try:
         res = requests.get("https://api.alternative.me/fng/?limit=1", timeout=3)
         if res.status_code == 200:
@@ -315,10 +310,10 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
                 df_ind = calcular_indicadores(df)
                 if df_ind is not None and not df_ind.empty:
                     ultimo = df_ind.iloc[-1]
-                    close_val = ultimo['Close'].iloc[0] if isinstance(ultimo['Close'], pd.Series) else ultimo['Close']
-                    rsi_val = ultimo['RSI'].iloc[0] if isinstance(ultimo['RSI'], pd.Series) else ultimo['RSI']
+                    close_val = limpiar_serie(ultimo['Close'])
+                    rsi_val = limpiar_serie(ultimo['RSI'])
                     
-                    sig = str(ultimo['Signal'])
+                    sig = str(limpiar_serie(ultimo['Signal']))
                     icon_signal = "⚪ NEUTRAL"
                     if sig == "COMPRA":
                         icon_signal = "🟢 COMPRA"
@@ -330,8 +325,8 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
                         "Nombre del Activo": nombre,
                         "Precio Actual": f"${float(close_val):,.2f}",
                         "RSI (14)": round(float(rsi_val), 1),
-                        "Divergencia": str(ultimo['Divergencia']),
-                        "Trivergencia": str(ultimo['Trivergencia']),
+                        "Divergencia": str(limpiar_serie(ultimo['Divergencia'])),
+                        "Trivergencia": str(limpiar_serie(ultimo['Trivergencia'])),
                         "Señal Táctica": icon_signal
                     })
             barra.progress((i + 1) / total)
@@ -371,11 +366,11 @@ elif modulo == "2. Detector de Señales & Divergencias":
                     df_ind = calcular_indicadores(df)
                     if df_ind is not None:
                         ult = df_ind.iloc[-1]
-                        if ult['Signal'] in ["COMPRA", "VENTA"]:
-                            close_v = ult['Close'].iloc[0] if isinstance(ult['Close'], pd.Series) else ult['Close']
-                            rsi_v = ult['RSI'].iloc[0] if isinstance(ult['RSI'], pd.Series) else ult['RSI']
+                        if limpiar_serie(ult['Signal']) in ["COMPRA", "VENTA"]:
+                            close_v = limpiar_serie(ult['Close'])
+                            rsi_v = limpiar_serie(ult['RSI'])
                             
-                            sig = str(ult['Signal'])
+                            sig = str(limpiar_serie(ult['Signal']))
                             icon_signal = "🟢 COMPRA" if sig == "COMPRA" else "🔴 VENTA"
 
                             senales_activas.append({
@@ -384,8 +379,8 @@ elif modulo == "2. Detector de Señales & Divergencias":
                                 "Temporalidad": temp_m2,
                                 "Precio Actual": f"${float(close_v):,.2f}",
                                 "RSI": round(float(rsi_v), 1),
-                                "Divergencia": str(ult['Divergencia']),
-                                "Trivergencia": str(ult['Trivergencia']),
+                                "Divergencia": str(limpiar_serie(ult['Divergencia'])),
+                                "Trivergencia": str(limpiar_serie(ult['Trivergencia'])),
                                 "Señal": icon_signal
                             })
         
@@ -424,7 +419,7 @@ elif modulo == "3. Confluencia Multitemporal & Gráfico con Alertas":
                     if df is not None:
                         df_i = calcular_indicadores(df)
                         if df_i is not None:
-                            if df_i.iloc[-1]['Signal'] in ["COMPRA", "VENTA"]:
+                            if limpiar_serie(df_i.iloc[-1]['Signal']) in ["COMPRA", "VENTA"]:
                                 temps_activas.append(t)
                 
                 if len(temps_activas) >= 2:
@@ -468,7 +463,7 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
         <div class="card" style="text-align: center;">
             <h2>Índice de Miedo y Codicia CMC</h2>
             <h1 style="color: {'#00ffcc' if val_cmc > 50 else '#ff4d4d'}; font-size: 48px;">{val_cmc}</h1>
-            <h3>{txt_cmc.upper()}</h3>
+            <h3>{str(txt_cmc).upper()}</h3>
             <p>Basado en volatilidad, volumen de mercado, redes sociales y dominio de BTC.</p>
         </div>
         """, unsafe_allow_html=True)
@@ -478,13 +473,6 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
         val_cnn = stock_sent['value']
         txt_cnn = stock_sent['text']
         st.markdown(f"""
-        <div class="card" style="text-align: center;">
-            <h2>Índice CNN Fear & Greed</h2>
-            <h1 style="color: {'#00ffcc' if val_cnn > 50 else '#ff4d4d'}; font-size: 48px;">{val_cnn}</h1>
-            <h3>{str(txt_cnn).upper()}</h3>
-            <p>Indicador compuesto de impulso bursátil, opciones put/call y demanda de refugio seguro.</p>
-        </div>
-        """, unsafe_applies_html=True) if "unsafe_applies_html" in globals() else st.markdown(f"""
         <div class="card" style="text-align: center;">
             <h2>Índice CNN Fear & Greed</h2>
             <h1 style="color: {'#00ffcc' if val_cnn > 50 else '#ff4d4d'}; font-size: 48px;">{val_cnn}</h1>
