@@ -13,59 +13,65 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilo visual institucional dinámico, moderno y de alto impacto visual (Dark Mode Pro)
+# Estilo visual institucional ultra profesional (Fintech Dark UI Pro)
 st.markdown("""
     <style>
     .stApp {
-        background-color: #07090e;
-        color: #f1f5f9;
+        background-color: #030712;
+        color: #f3f4f6;
     }
     .main-header {
         background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 50%, #020617 100%);
-        padding: 30px;
+        padding: 35px;
         border-radius: 16px;
         border: 1px solid #312e81;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
         color: #ffffff;
         text-align: center;
         font-weight: bold;
         margin-bottom: 30px;
     }
     .card {
-        background: linear-gradient(145deg, #111827 0%, #0f172a 100%);
+        background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 100%);
         padding: 24px;
-        border-radius: 12px;
-        border: 1px solid #1f2937;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        border-radius: 14px;
+        border: 1px solid #334155;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
         margin-bottom: 20px;
-        transition: transform 0.2s ease;
+        transition: all 0.3s ease;
     }
     .card:hover {
-        border-color: #4f46e5;
+        border-color: #6366f1;
+        box-shadow: 0 10px 20px -3px rgba(99, 102, 241, 0.2);
     }
-    .badge-bull {
-        background-color: rgba(16, 185, 129, 0.15);
-        color: #34d399;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-weight: 600;
-        border: 1px solid rgba(52, 211, 153, 0.3);
+    .metric-card {
+        background-color: #0b0f19;
+        border: 1px solid #1e293b;
+        padding: 18px;
+        border-radius: 12px;
+        text-align: center;
     }
-    .badge-bear {
-        background-color: rgba(239, 68, 68, 0.15);
-        color: #f87171;
-        padding: 4px 10px;
-        border-radius: 6px;
+    .stButton>button {
+        background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+        color: white;
         font-weight: 600;
-        border: 1px solid rgba(248, 113, 113, 0.3);
+        border-radius: 8px;
+        border: none;
+        padding: 10px 24px;
+        transition: all 0.2s ease;
+    }
+    .stButton>button:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
     <div class="main-header">
-        <h1 style="font-size: 2.2rem; margin-bottom: 10px;">⚡ Sistema de Inteligencia Financiera Pro (300 Activos)</h1>
-        <p style="color: #94a3b8; font-size: 1.1rem;">Plataforma de Alta Confluencia: Trivergencias Cryptosoldier, Escáner Multitemporal Extremo & Termómetro Global</p>
+        <h1 style="font-size: 2.5rem; margin-bottom: 10px; letter-spacing: -0.5px;">⚡ Sistema de Inteligencia Financiera Pro</h1>
+        <p style="color: #94a3b8; font-size: 1.15rem; font-weight: 400;">Plataforma Cuantitativa Avanzada: Escáner de 300 Activos, Trivergencias Cryptosoldier & Búsqueda Institucional</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -228,12 +234,12 @@ def calcular_indicadores(df):
 
     return df
 
-# Gráfico institucional con diseño dinámico
+# Gráfico institucional con diseño dinámico mejorado
 def mostrar_grafico_institucional(ticker, nombre_activo):
     st.markdown("---")
     st.markdown(f"""
-        <div style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); padding: 15px 20px; border-radius: 10px; border-left: 4px solid #6366f1; margin-bottom: 20px;">
-            <h3 style="margin: 0; color: #ffffff;">📊 Análisis Técnico Avanzado: {nombre_activo} (<span style="color: #818cf8;">{ticker}</span>)</h3>
+        <div style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); padding: 18px 22px; border-radius: 12px; border-left: 5px solid #6366f1; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: #ffffff; font-size: 1.25rem;">📊 Gráfico Institucional & Osciladores: {nombre_activo} (<span style="color: #818cf8;">{ticker}</span>)</h3>
         </div>
     """, unsafe_allow_html=True)
     
@@ -266,13 +272,13 @@ def mostrar_grafico_institucional(ticker, nombre_activo):
         colors = ['#10b981' if val >= 0 else '#ef4444' for val in sq_s]
         fig.add_trace(go.Bar(x=df_chart.index, y=sq_s, marker_color=colors, name="Squeeze Momentum"), row=3, col=1)
         
-        fig.update_layout(height=750, template="plotly_dark", paper_bgcolor="#07090e", plot_bgcolor="#07090e", title_text="", xaxis_rangeslider_visible=False)
+        fig.update_layout(height=780, template="plotly_dark", paper_bgcolor="#030712", plot_bgcolor="#030712", title_text="", xaxis_rangeslider_visible=False)
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.error("No se pudieron cargar los datos del gráfico para este activo.")
 
 # -------------------------------------------------------------------------
-# 3. SENTIMIENTO OFICIAL
+# 3. SENTIMIENTO GLOBAL
 # -------------------------------------------------------------------------
 def obtener_sentimiento():
     crypto_fg = {"value": 19, "text": "Miedo extremo"}
@@ -298,14 +304,15 @@ def obtener_sentimiento():
 # -------------------------------------------------------------------------
 # NAVEGACIÓN LATERAL DE MÓDULOS
 # -------------------------------------------------------------------------
-st.sidebar.markdown("### 🎛️ Panel de Control")
+st.sidebar.markdown("### 🎛️ Panel de Control Pro")
 modulo = st.sidebar.radio(
     "Selecciona un Módulo:",
     [
         "1. Escáner Cuantitativo (300 Activos)",
         "2. Detector de Divergencias & Sobrecompra/Sobreventa",
         "3. Confluencia Multitemporal & Gráfico Pro",
-        "4. Termómetro de Sentimiento & Encuestas"
+        "4. Termómetro de Sentimiento & Encuestas",
+        "5. 🔎 Búsqueda de Activo Individual (Nuevo)"
     ]
 )
 
@@ -373,7 +380,7 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
         simbolos_disponibles = st.session_state['df_escanner']['Símbolo'].tolist()
         activo_m1_sel = st.selectbox("Selecciona cualquier activo del escáner para ver su gráfico detallado:", simbolos_disponibles, key="sel_m1")
         if activo_m1_sel:
-            nombre_sel = diccionario_activos[activo_m1_sel]
+            nombre_sel = diccionario_activos.get(activo_m1_sel, activo_m1_sel)
             mostrar_grafico_institucional(activo_m1_sel, nombre_sel)
 
 # -------------------------------------------------------------------------
@@ -389,14 +396,11 @@ elif modulo == "2. Detector de Divergencias & Sobrecompra/Sobreventa":
         solo_semanal = []
         
         barra_m2 = st.progress(0)
-        # Analizamos un subconjunto representativo de alta liquidez para optimizar velocidad (primeros 150 activos)
         activos_m2 = lista_tickers[:150]
         total_m2 = len(activos_m2)
         
         for idx, ticker in enumerate(activos_m2):
             nombre = diccionario_activos[ticker]
-            
-            # Descargar 3 temporalidades
             df_4h = descargar_datos(ticker, intervalo="4h", periodo="1mo")
             df_1d = descargar_datos(ticker, intervalo="1d", periodo="3mo")
             df_1w = descargar_datos(ticker, intervalo="1w", periodo="1y")
@@ -418,22 +422,18 @@ elif modulo == "2. Detector de Divergencias & Sobrecompra/Sobreventa":
                 if dw is not None and not dw.empty:
                     rsi_1w = float(limpiar_serie(dw['RSI']).iloc[-1])
             
-            # Evaluar condiciones
-            # 1. Triple Confluencia (4h, 1d, 1w en sobrecompra >70 o sobreventa <30 a la vez)
             if rsi_4h is not None and rsi_1d is not None and rsi_1w is not None:
                 if rsi_4h > 70 and rsi_1d > 70 and rsi_1w > 70:
                     triple_confluencia.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🔴 Sobrecompra Extrema (4H + 1D + 1W)", "RSI 4H": round(rsi_4h, 1), "RSI 1D": round(rsi_1d, 1), "RSI 1W": round(rsi_1w, 1)})
                 elif rsi_4h < 30 and rsi_1d < 30 and rsi_1w < 30:
                     triple_confluencia.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🟢 Sobreventa Extrema (4H + 1D + 1W)", "RSI 4H": round(rsi_4h, 1), "RSI 1D": round(rsi_1d, 1), "RSI 1W": round(rsi_1w, 1)})
 
-            # 2. Solo Diario
             if rsi_1d is not None:
                 if rsi_1d > 70:
                     solo_diario.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🔴 Sobrecompra Diaria", "RSI Diario": round(rsi_1d, 1)})
                 elif rsi_1d < 30:
                     solo_diario.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🟢 Sobreventa Diaria", "RSI Diario": round(rsi_1d, 1)})
 
-            # 3. Solo Semanal
             if rsi_1w is not None:
                 if rsi_1w > 70:
                     solo_semanal.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🔴 Sobrecompra Semanal", "RSI Semanal": round(rsi_1w, 1)})
@@ -449,10 +449,8 @@ elif modulo == "2. Detector de Divergencias & Sobrecompra/Sobreventa":
         st.session_state['solo_semanal'] = pd.DataFrame(solo_semanal) if solo_semanal else pd.DataFrame()
         st.success("¡Escaneo multitemporal completado con éxito!")
 
-    # Renderizar resultados guardados en session_state
     if 'triple_confluencia' in st.session_state:
         st.markdown("### 🚨 1. Triple Confluencia Simultánea (4H + Diario + Semanal)")
-        st.write("Activos que se encuentran en condición extrema en las 3 temporalidades a la vez:")
         if not st.session_state['triple_confluencia'].empty:
             st.dataframe(st.session_state['triple_confluencia'], use_container_width=True)
         else:
@@ -472,16 +470,15 @@ elif modulo == "2. Detector de Divergencias & Sobrecompra/Sobreventa":
         else:
             st.info("No se encontraron activos en extremos semanales.")
 
-    # Selector de gráfico interactivo para el Módulo 2
     st.markdown("---")
     st.markdown("### 📊 Consultar Gráfico de Cualquier Activo del Escáner M2")
     activo_m2_sel = st.selectbox("Selecciona un activo para visualizar su estructura técnica y osciladores:", lista_tickers, key="sel_m2_directo")
     if activo_m2_sel:
-        nombre_sel = diccionario_activos[activo_m2_sel]
+        nombre_sel = diccionario_activos.get(activo_m2_sel, activo_m2_sel)
         mostrar_grafico_institucional(activo_m2_sel, nombre_sel)
 
 # -------------------------------------------------------------------------
-# MÓDULO 3: CONFLUENCIA MULTITEMPORAL & GRÁFICO CON ALERTAS
+# MÓDULO 3: CONFLUENCIA MULTITEMPORAL & GRÁFICO PRO
 # -------------------------------------------------------------------------
 elif modulo == "3. Confluencia Multitemporal & Gráfico Pro":
     st.subheader("🧠 Confluencias Multitemporales & Gráfico Institucional con Alertas")
@@ -520,7 +517,7 @@ elif modulo == "3. Confluencia Multitemporal & Gráfico Pro":
         activo_sel = st.selectbox("Selecciona el Activo para ver Gráfico con Alertas:", tickers_encontrados, key="sel_m3")
         
         if activo_sel:
-            nombre_sel = diccionario_activos[activo_sel]
+            nombre_sel = diccionario_activos.get(activo_sel, activo_sel)
             mostrar_grafico_institucional(activo_sel, nombre_sel)
     else:
         st.info("Haz clic en el botón de arriba para iniciar el escaneo de confluencias.")
@@ -576,6 +573,92 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
     fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Neutral %"], name="Neutral", orientation='h', marker_color='#64748b'))
     fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Bearish (Osos %)"], name="Bearish (Osos)", orientation='h', marker_color='#ef4444'))
 
-    fig_sent.update_layout(barmode='stack', template="plotly_dark", paper_bgcolor="#07090e", plot_bgcolor="#07090e", height=350, title_text="Sentiment Votes (Toros vs Neutral vs Osos)", xaxis_title="Porcentaje (%)")
+    fig_sent.update_layout(barmode='stack', template="plotly_dark", paper_bgcolor="#030712", plot_bgcolor="#030712", height=350, title_text="Sentiment Votes (Toros vs Neutral vs Osos)", xaxis_title="Porcentaje (%)")
     st.plotly_chart(fig_sent, use_container_width=True)
     st.dataframe(df_sentimiento, use_container_width=True)
+
+# -------------------------------------------------------------------------
+# MÓDULO 5: BÚSQUEDA DE ACTIVO INDIVIDUAL (NUEVO)
+# -------------------------------------------------------------------------
+elif modulo == "5. 🔎 Búsqueda de Activo Individual (Nuevo)":
+    st.subheader("🔎 Buscador Institucional de Activos (Cripto, Acciones, Índices, Forex)")
+    st.write("Escribe el ticker exacto de Yahoo Finance (ej. `TSLA`, `BTC-USD`, `ETH-USD`, `SPY`, `NVDA`, `GC=F`) o búscalo directamente en el selector.")
+    
+    col_input1, col_input2 = st.columns([2, 1])
+    with col_input1:
+        ticker_input = st.text_input("Introduce el Ticker del Activo:", value="TSLA").upper().strip()
+    with col_input2:
+        temp_input = st.selectbox("Temporalidad:", ["1h", "4h", "1d", "1w"], index=2)
+
+    if st.button("🔍 Analizar Activo"):
+        with st.spinner(f"Consultando cotización, indicadores y fundamentales de {ticker_input}..."):
+            ticker_obj = yf.Ticker(ticker_input)
+            df_indiv = descargar_datos(ticker_input, intervalo=temp_input, periodo="6mo")
+            
+            if df_indiv is not None and not df_indiv.empty:
+                df_calc = calcular_indicadores(df_indiv)
+                ultimo_reg = df_calc.iloc[-1]
+                
+                precio_act = float(limpiar_serie(ultimo_reg['Close']))
+                rsi_act = float(limpiar_serie(ultimo_reg['RSI']))
+                signal_act = str(limpiar_serie(ultimo_reg['Signal']))
+                div_act = str(limpiar_serie(ultimo_reg['Divergencia']))
+                triv_act = str(limpiar_serie(ultimo_reg['Trivergencia']))
+                
+                # Intentar extraer info fundamental de yfinance
+                info_fund = {}
+                try:
+                    info_fund = ticker_obj.info
+                except Exception:
+                    pass
+                
+                nombre_oficial = info_fund.get('longName', info_fund.get('shortName', ticker_input))
+                sector = info_fund.get('sector', 'N/A / Cripto / Índice')
+                industry = info_fund.get('industry', 'N/A')
+                market_cap = info_fund.get('marketCap', 'No disponible')
+                if isinstance(market_cap, (int, float)):
+                    market_cap = f"${market_cap:,.0f}"
+                
+                # Renderizar tarjeta resumen superior tipo Fintech
+                st.markdown("---")
+                st.markdown(f"### 📋 Resumen Cuantitativo: **{nombre_oficial} ({ticker_input})**")
+                
+                m1, m2, m3, m4 = st.columns(4)
+                with m1:
+                    st.metric("Precio Actual", f"${precio_act:,.2f}")
+                with m2:
+                    st.metric("RSI (14)", f"{rsi_act:.1f}")
+                with m3:
+                    color_sig = "🟢 COMPRA" if signal_act == "COMPRA" else ("🔴 VENTA" if signal_act == "VENTA" else "⚪ NEUTRAL")
+                    st.metric("Sentimiento Táctico", color_sig)
+                with m4:
+                    st.metric("Capitalización / Tipo", str(market_cap))
+                
+                # Análisis de Fundamentales y Noticias Recientes
+                st.markdown("---")
+                st.markdown("### 📰 Fundamentales & Noticias Recientes del Activo")
+                try:
+                    noticias = ticker_obj.news
+                    if noticias and len(noticias) > 0:
+                        for n in noticias[:3]:
+                            # Estructura de noticias de yfinance
+                            titulo_n = n.get('title', 'Noticia de Mercado')
+                            publisher_n = n.get('publisher', 'Financial Wire')
+                            link_n = n.get('link', '#')
+                            st.markdown(f"- **[{titulo_n}]({link_n})** — *Fuente: {publisher_n}*")
+                    else:
+                        st.info("No hay noticias recientes destacadas en la API para este ticker en este momento.")
+                except Exception:
+                    st.info("Información de noticias no disponible temporalmente para este ticker.")
+                
+                # Fundamentales descriptivos de la empresa o activo
+                desc_negocio = info_fund.get('longBusinessSummary', None)
+                if desc_negocio:
+                    st.markdown("#### 🏢 Descripción del Negocio / Activo:")
+                    st.write(desc_negocio[:600] + "...")
+                
+                # Renderizar Gráfico Institucional
+                mostrar_grafico_institucional(ticker_input, nombre_official if 'nombre_official' in locals() else ticker_input)
+                
+            else:
+                st.error(f"No se pudieron encontrar datos para el símbolo `{ticker_input}`. Verifica que esté bien escrito (ej. `TSLA`, `BTC-USD`, `AAPL`).")
