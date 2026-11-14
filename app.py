@@ -13,65 +13,66 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilo visual institucional ultra profesional (Fintech Dark UI Pro)
+# Estilo visual institucional ultra moderno y atractivo (Fintech Pro UI v2)
 st.markdown("""
     <style>
     .stApp {
         background-color: #030712;
         color: #f3f4f6;
     }
+    /* Banner Principal Estilizado */
     .main-header {
-        background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 50%, #020617 100%);
-        padding: 35px;
-        border-radius: 16px;
-        border: 1px solid #312e81;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+        background: linear-gradient(135deg, #312e81 1e%, #1e1b4b 50%, #090d16 100%);
+        padding: 30px;
+        border-radius: 18px;
+        border: 1px solid #4f46e5;
+        box-shadow: 0 20px 30px -10px rgba(79, 70, 229, 0.3), 0 10px 15px -5px rgba(0, 0, 0, 0.7);
         color: #ffffff;
         text-align: center;
-        font-weight: bold;
         margin-bottom: 30px;
     }
+    /* Tarjetas de Contenido */
     .card {
-        background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 100%);
+        background: linear-gradient(145deg, #0f172a 0%, #111827 100%);
         padding: 24px;
         border-radius: 14px;
-        border: 1px solid #334155;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+        border: 1px solid #1f2937;
+        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5);
         margin-bottom: 20px;
         transition: all 0.3s ease;
     }
     .card:hover {
         border-color: #6366f1;
-        box-shadow: 0 10px 20px -3px rgba(99, 102, 241, 0.2);
+        box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.25);
     }
-    .metric-card {
-        background-color: #0b0f19;
-        border: 1px solid #1e293b;
-        padding: 18px;
-        border-radius: 12px;
-        text-align: center;
-    }
+    /* Botones Mejorados */
     .stButton>button {
-        background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
         color: white;
         font-weight: 600;
-        border-radius: 8px;
+        border-radius: 10px;
         border: none;
-        padding: 10px 24px;
+        padding: 12px 28px;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
         transition: all 0.2s ease;
     }
     .stButton>button:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.6);
+    }
+    /* Barra Lateral Estilizada */
+    [data-testid="stSidebar"] {
+        background-color: #090d16;
+        border-right: 1px solid #1f2937;
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
     <div class="main-header">
-        <h1 style="font-size: 2.5rem; margin-bottom: 10px; letter-spacing: -0.5px;">⚡ Sistema de Inteligencia Financiera Pro</h1>
-        <p style="color: #94a3b8; font-size: 1.15rem; font-weight: 400;">Plataforma Cuantitativa Avanzada: Escáner de 300 Activos, Trivergencias Cryptosoldier & Búsqueda Institucional</p>
+        <h1 style="font-size: 2.6rem; margin-bottom: 8px; letter-spacing: -0.5px; font-weight: 800;">⚡ Sistema de Inteligencia Financiera Pro</h1>
+        <p style="color: #94a3b8; font-size: 1.15rem; margin: 0; font-weight: 400;">Plataforma Cuantitativa Avanzada: Trivergencias, Escáner 300 Activos & Análisis Multitemporal</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -160,7 +161,7 @@ def obtener_300_activos():
     return diccionario_activos
 
 # -------------------------------------------------------------------------
-# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS
+# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS (Blindado contra MultiIndex)
 # -------------------------------------------------------------------------
 @st.cache_data(ttl=900)
 def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
@@ -234,7 +235,7 @@ def calcular_indicadores(df):
 
     return df
 
-# Gráfico institucional con diseño dinámico mejorado
+# Gráfico institucional con diseño dinámico
 def mostrar_grafico_institucional(ticker, nombre_activo):
     st.markdown("---")
     st.markdown(f"""
@@ -312,7 +313,7 @@ modulo = st.sidebar.radio(
         "2. Detector de Divergencias & Sobrecompra/Sobreventa",
         "3. Confluencia Multitemporal & Gráfico Pro",
         "4. Termómetro de Sentimiento & Encuestas",
-        "5. 🔎 Búsqueda de Activo Individual (Nuevo)"
+        "5. 🔎 Búsqueda de Activo Individual (Multitemporal)"
     ]
 )
 
@@ -345,8 +346,8 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
                 df_ind = calcular_indicadores(df)
                 if df_ind is not None and not df_ind.empty:
                     ultimo = df_ind.iloc[-1]
-                    close_val = limpiar_serie(ultimo['Close'])
-                    rsi_val = limpiar_serie(ultimo['RSI'])
+                    close_val = float(limpiar_serie(ultimo['Close']).iloc[-1]) if hasattr(limpiar_serie(ultimo['Close']), 'iloc') else float(limpiar_serie(ultimo['Close']))
+                    rsi_val = float(limpiar_serie(ultimo['RSI']).iloc[-1]) if hasattr(limpiar_serie(ultimo['RSI']), 'iloc') else float(limpiar_serie(ultimo['RSI']))
                     
                     sig = str(limpiar_serie(ultimo['Signal']))
                     icon_signal = "⚪ NEUTRAL"
@@ -358,8 +359,8 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
                     resultados.append({
                         "Símbolo": ticker,
                         "Nombre del Activo": nombre,
-                        "Precio Actual": f"${float(close_val):,.2f}",
-                        "RSI (14)": round(float(rsi_val), 1),
+                        "Precio Actual": f"${close_val:,.2f}",
+                        "RSI (14)": round(rsi_val, 1),
                         "Divergencia": str(limpiar_serie(ultimo['Divergencia'])),
                         "Trivergencia": str(limpiar_serie(ultimo['Trivergencia'])),
                         "Señal Táctica": icon_signal
@@ -390,13 +391,13 @@ elif modulo == "2. Detector de Divergencias & Sobrecompra/Sobreventa":
     st.subheader("🎯 Detector Multitemporal: Sobrecompra, Sobreventa y Divergencias")
     st.write("Filtra activos con confluencias extremas en 4H, Diario y Semanal, además de tablas dedicadas por temporalidad y gráficos interactivos.")
     
-    if st.button("🔍 Ejecutar Escaneo Multitemporal Extremo (Sobrecarga / Sobreventa)"):
+    if st.button("🔍 Ejecutar Escaneo Multitemporal Extremo"):
         triple_confluencia = []
         solo_diario = []
         solo_semanal = []
         
         barra_m2 = st.progress(0)
-        activos_m2 = lista_tickers[:150]
+        activos_m2 = lista_tickers[:120]
         total_m2 = len(activos_m2)
         
         for idx, ticker in enumerate(activos_m2):
@@ -471,7 +472,7 @@ elif modulo == "2. Detector de Divergencias & Sobrecompra/Sobreventa":
             st.info("No se encontraron activos en extremos semanales.")
 
     st.markdown("---")
-    st.markdown("### 📊 Consultar Gráfico de Cualquier Activo del Escáner M2")
+    st.markdown("### 📊 Consultar Gráfico de Cualquier Activo")
     activo_m2_sel = st.selectbox("Selecciona un activo para visualizar su estructura técnica y osciladores:", lista_tickers, key="sel_m2_directo")
     if activo_m2_sel:
         nombre_sel = diccionario_activos.get(activo_m2_sel, activo_m2_sel)
@@ -487,7 +488,7 @@ elif modulo == "3. Confluencia Multitemporal & Gráfico Pro":
     if st.button("🔍 Escanear Confluencias Multitemporales"):
         multiconfluencias = []
         with st.spinner("Analizando confluencias..."):
-            for ticker in lista_tickers[:120]:
+            for ticker in lista_tickers[:100]:
                 temporalidades = ["1h", "4h", "1d", "1w"]
                 temps_activas = []
                 for t in temporalidades:
@@ -527,7 +528,7 @@ elif modulo == "3. Confluencia Multitemporal & Gráfico Pro":
 # -------------------------------------------------------------------------
 elif modulo == "4. Termómetro de Sentimiento & Encuestas":
     st.subheader("🌡️ Termómetro Global de Sentimiento & Encuestas de Mercado (Toros vs Osos)")
-    st.write("Visualización oficial de los índices de miedo y codicia (CoinMarketCap para Cripto y CNN para Bolsa) junto con el desglose semanal de sentimiento de los inversores.")
+    st.write("Visualización oficial de los índices de miedo y codicia (CoinMarketCap para Cripto y CNN para Bolsa) junto con el desglose semanal de sentimiento.")
     
     col1, col2 = st.columns(2)
     
@@ -578,87 +579,116 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
     st.dataframe(df_sentimiento, use_container_width=True)
 
 # -------------------------------------------------------------------------
-# MÓDULO 5: BÚSQUEDA DE ACTIVO INDIVIDUAL (NUEVO)
+# MÓDULO 5: BÚSQUEDA DE ACTIVO INDIVIDUAL MULTITEMPORAL CON DIVERGENCIAS
 # -------------------------------------------------------------------------
-elif modulo == "5. 🔎 Búsqueda de Activo Individual (Nuevo)":
-    st.subheader("🔎 Buscador Institucional de Activos (Cripto, Acciones, Índices, Forex)")
-    st.write("Escribe el ticker exacto de Yahoo Finance (ej. `TSLA`, `BTC-USD`, `ETH-USD`, `SPY`, `NVDA`, `GC=F`) o búscalo directamente en el selector.")
+elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
+    st.subheader("🔎 Buscador Institucional de Activo & Desglose Multitemporal (Divergencias)")
+    st.write("Introduce cualquier símbolo (ej. `TSLA`, `BTC-USD`, `NVDA`, `SPY`, `GC=F`) para analizar su precio, sentimiento y estado en cada temporalidad estudiada.")
     
     col_input1, col_input2 = st.columns([2, 1])
     with col_input1:
         ticker_input = st.text_input("Introduce el Ticker del Activo:", value="TSLA").upper().strip()
-    with col_input2:
-        temp_input = st.selectbox("Temporalidad:", ["1h", "4h", "1d", "1w"], index=2)
 
-    if st.button("🔍 Analizar Activo"):
-        with st.spinner(f"Consultando cotización, indicadores y fundamentales de {ticker_input}..."):
-            ticker_obj = yf.Ticker(ticker_input)
-            df_indiv = descargar_datos(ticker_input, intervalo=temp_input, periodo="6mo")
+    if st.button("🚀 Analizar Activo en Todas las Temporalidades"):
+        with st.spinner(f"Analizando {ticker_input} en 1h, 4h, 1d y 1w..."):
             
-            if df_indiv is not None and not df_indiv.empty:
-                df_calc = calcular_indicadores(df_indiv)
-                ultimo_reg = df_calc.iloc[-1]
+            temporalidades_estudio = ["1h", "4h", "1d", "1w"]
+            resumen_multi = []
+            
+            # Descargar info fundamental general
+            ticker_obj = yf.Ticker(ticker_input)
+            info_fund = {}
+            try:
+                info_fund = ticker_obj.info
+            except Exception:
+                pass
+            
+            nombre_oficial = info_fund.get('longName', info_fund.get('shortName', ticker_input))
+            market_cap = info_fund.get('marketCap', 'No disponible')
+            if isinstance(market_cap, (int, float)):
+                market_cap = f"${market_cap:,.0f}"
+
+            precio_actual_global = 0.0
+
+            for temp in temporalidades_estudio:
+                per = "1mo" if temp == "1h" else ("3mo" if temp == "4h" or temp == "1d" else "1y")
+                df_t = descargar_datos(ticker_input, intervalo=temp, periodo=per)
                 
-                precio_act = float(limpiar_serie(ultimo_reg['Close']))
-                rsi_act = float(limpiar_serie(ultimo_reg['RSI']))
-                signal_act = str(limpiar_serie(ultimo_reg['Signal']))
-                div_act = str(limpiar_serie(ultimo_reg['Divergencia']))
-                triv_act = str(limpiar_serie(ultimo_reg['Trivergencia']))
-                
-                # Intentar extraer info fundamental de yfinance
-                info_fund = {}
-                try:
-                    info_fund = ticker_obj.info
-                except Exception:
-                    pass
-                
-                nombre_oficial = info_fund.get('longName', info_fund.get('shortName', ticker_input))
-                sector = info_fund.get('sector', 'N/A / Cripto / Índice')
-                industry = info_fund.get('industry', 'N/A')
-                market_cap = info_fund.get('marketCap', 'No disponible')
-                if isinstance(market_cap, (int, float)):
-                    market_cap = f"${market_cap:,.0f}"
-                
-                # Renderizar tarjeta resumen superior tipo Fintech
-                st.markdown("---")
-                st.markdown(f"### 📋 Resumen Cuantitativo: **{nombre_oficial} ({ticker_input})**")
-                
-                m1, m2, m3, m4 = st.columns(4)
-                with m1:
-                    st.metric("Precio Actual", f"${precio_act:,.2f}")
-                with m2:
-                    st.metric("RSI (14)", f"{rsi_act:.1f}")
-                with m3:
-                    color_sig = "🟢 COMPRA" if signal_act == "COMPRA" else ("🔴 VENTA" if signal_act == "VENTA" else "⚪ NEUTRAL")
-                    st.metric("Sentimiento Táctico", color_sig)
-                with m4:
-                    st.metric("Capitalización / Tipo", str(market_cap))
-                
-                # Análisis de Fundamentales y Noticias Recientes
-                st.markdown("---")
-                st.markdown("### 📰 Fundamentales & Noticias Recientes del Activo")
-                try:
-                    noticias = ticker_obj.news
-                    if noticias and len(noticias) > 0:
-                        for n in noticias[:3]:
-                            # Estructura de noticias de yfinance
-                            titulo_n = n.get('title', 'Noticia de Mercado')
-                            publisher_n = n.get('publisher', 'Financial Wire')
-                            link_n = n.get('link', '#')
-                            st.markdown(f"- **[{titulo_n}]({link_n})** — *Fuente: {publisher_n}*")
-                    else:
-                        st.info("No hay noticias recientes destacadas en la API para este ticker en este momento.")
-                except Exception:
-                    st.info("Información de noticias no disponible temporalmente para este ticker.")
-                
-                # Fundamentales descriptivos de la empresa o activo
-                desc_negocio = info_fund.get('longBusinessSummary', None)
-                if desc_negocio:
-                    st.markdown("#### 🏢 Descripción del Negocio / Activo:")
-                    st.write(desc_negocio[:600] + "...")
-                
-                # Renderizar Gráfico Institucional
-                mostrar_grafico_institucional(ticker_input, nombre_official if 'nombre_official' in locals() else ticker_input)
-                
+                if df_t is not None and not df_t.empty:
+                    df_c = calcular_indicadores(df_t)
+                    if df_c is not None and not df_c.empty:
+                        ult = df_c.iloc[-1]
+                        cls_val = float(limpiar_serie(ult['Close']).iloc[-1]) if hasattr(limpiar_serie(ult['Close']), 'iloc') else float(limpiar_serie(ult['Close']))
+                        rsi_val = float(limpiar_serie(ult['RSI']).iloc[-1]) if hasattr(limpiar_serie(ult['RSI']), 'iloc') else float(limpiar_serie(ult['RSI']))
+                        sig_val = str(limpiar_serie(ult['Signal']))
+                        div_val = str(limpiar_serie(ult['Divergencia']))
+                        triv_val = str(limpiar_serie(ult['Trivergencia']))
+                        
+                        if temp == "1d":
+                            precio_actual_global = cls_val
+
+                        icon_sig = "🟢 COMPRA" if sig_val == "COMPRA" else ("🔴 VENTA" if sig_val == "VENTA" else "⚪ NEUTRAL")
+
+                        resumen_multi.append({
+                            "Temporalidad": temp.upper(),
+                            "Precio": f"${cls_val:,.2f}",
+                            "RSI (14)": round(rsi_val, 1),
+                            "Divergencia Detectada": div_val,
+                            "Trivergencia / Estado": triv_val,
+                            "Sentimiento Táctico": icon_sig
+                        })
+            
+            if precio_actual_global == 0.0:
+                # Fallback por si 1d no cargó
+                df_fallback = descargar_datos(ticker_input, intervalo="1d", periodo="1mo")
+                if df_fallback is not None and not df_fallback.empty:
+                    c_fb = limpiar_serie(df_fallback['Close'])
+                    precio_actual_global = float(c_fb.iloc[-1])
+
+            # Mostrar Tarjeta Resumen Superior
+            st.markdown("---")
+            st.markdown(f"""
+                <div class="card">
+                    <h2 style="color: #818cf8; margin-top: 0;">📋 Resumen Cuantitativo: {nombre_oficial} ({ticker_input})</h2>
+                </div>
+            """, unsafe_allow_html=True)
+
+            col_m1, col_m2, col_m3 = st.columns(3)
+            with col_m1:
+                st.metric("Precio Actual", f"${precio_actual_global:,.2f}")
+            with col_m2:
+                st.metric("Capitalización de Mercado", str(market_cap))
+            with col_m3:
+                st.metric("Instrumento / Símbolo", ticker_input)
+
+            # Mostrar Tabla Multitemporal con Divergencias y Trivergencias
+            st.markdown("### 📊 Estado y Divergencias por Temporalidad Estudiada:")
+            if resumen_multi:
+                df_multi_res = pd.DataFrame(resumen_multi)
+                st.dataframe(df_multi_res, use_container_width=True)
             else:
-                st.error(f"No se pudieron encontrar datos para el símbolo `{ticker_input}`. Verifica que esté bien escrito (ej. `TSLA`, `BTC-USD`, `AAPL`).")
+                st.error("No se pudieron calcular los indicadores para las temporalidades seleccionadas.")
+
+            # Mostrar Fundamentales / Noticias
+            st.markdown("---")
+            st.markdown("### 📰 Fundamentales & Noticias Recientes del Activo")
+            try:
+                noticias = ticker_obj.news
+                if noticias and len(noticias) > 0:
+                    for n in noticias[:3]:
+                        titulo_n = n.get('title', 'Noticia de Mercado')
+                        publisher_n = n.get('publisher', 'Financial Wire')
+                        link_n = n.get('link', '#')
+                        st.markdown(f"- **[{titulo_n}]({link_n})** — *Fuente: {publisher_n}*")
+                else:
+                    st.info("No hay noticias recientes destacadas en la API para este ticker en este momento.")
+            except Exception:
+                st.info("Información de noticias no disponible temporalmente.")
+
+            desc_negocio = info_fund.get('longBusinessSummary', None)
+            if desc_negocio:
+                st.markdown("#### 🏢 Descripción del Negocio / Activo:")
+                st.write(desc_negocio[:650] + "...")
+
+            # Renderizar Gráfico Institucional Abajo
+            mostrar_grafico_institucional(ticker_input, nombre_oficial)
