@@ -13,34 +13,61 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilo visual institucional estrictamente profesional y fondo negro total
+# Estilo visual institucional dinámico, moderno y de alto impacto visual (Dark Mode Pro)
 st.markdown("""
     <style>
     .stApp {
-        background-color: #0b0e14;
-        color: #e6e6e6;
+        background-color: #07090e;
+        color: #f1f5f9;
     }
     .main-header {
-        background: linear-gradient(90deg, #131722 0%, #1e222d 100%);
-        padding: 25px;
-        border-radius: 10px;
-        border: 1px solid #2a2e39;
+        background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 50%, #020617 100%);
+        padding: 30px;
+        border-radius: 16px;
+        border: 1px solid #312e81;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
         color: #ffffff;
         text-align: center;
         font-weight: bold;
-        margin-bottom: 25px;
+        margin-bottom: 30px;
     }
     .card {
-        background-color: #131722;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #2a2e39;
-        margin-bottom: 15px;
+        background: linear-gradient(145deg, #111827 0%, #0f172a 100%);
+        padding: 24px;
+        border-radius: 12px;
+        border: 1px solid #1f2937;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        margin-bottom: 20px;
+        transition: transform 0.2s ease;
+    }
+    .card:hover {
+        border-color: #4f46e5;
+    }
+    .badge-bull {
+        background-color: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 600;
+        border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+    .badge-bear {
+        background-color: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 600;
+        border: 1px solid rgba(248, 113, 113, 0.3);
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-header"><h1>⚡ Sistema de Inteligencia Financiera Pro (300 Activos + Gráficos Interactivos)</h1><p>Escáner Institucional, Trivergencias Cryptosoldier, Divergencias, Tacómetro CMC & Encuestas de Mercado</p></div>', unsafe_allow_html=True)
+st.markdown("""
+    <div class="main-header">
+        <h1 style="font-size: 2.2rem; margin-bottom: 10px;">⚡ Sistema de Inteligencia Financiera Pro (300 Activos)</h1>
+        <p style="color: #94a3b8; font-size: 1.1rem;">Plataforma de Alta Confluencia: Trivergencias Cryptosoldier, Escáner Multitemporal Extremo & Termómetro Global</p>
+    </div>
+""", unsafe_allow_html=True)
 
 # -------------------------------------------------------------------------
 # 1. LISTA MAESTRA AMPLIADA A 300 ACTIVOS EXACTOS
@@ -48,7 +75,7 @@ st.markdown('<div class="main-header"><h1>⚡ Sistema de Inteligencia Financiera
 @st.cache_data(ttl=3600)
 def obtener_300_activos():
     diccionario_activos = {
-        # Top 10 Criptomonedas por Market Cap (Estrictamente 10)
+        # Top 10 Criptomonedas por Market Cap
         "BTC-USD": "Bitcoin (USD)", "ETH-USD": "Ethereum (USD)", "SOL-USD": "Solana (USD)", 
         "BNB-USD": "Binance Coin (USD)", "XRP-USD": "Ripple (USD)", "ADA-USD": "Cardano (USD)", 
         "DOGE-USD": "Dogecoin (USD)", "TRX-USD": "Tron (USD)", "LINK-USD": "Chainlink (USD)", "SUI-USD": "Sui (USD)",
@@ -127,7 +154,7 @@ def obtener_300_activos():
     return diccionario_activos
 
 # -------------------------------------------------------------------------
-# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS (Seguro contra multi-index)
+# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS
 # -------------------------------------------------------------------------
 @st.cache_data(ttl=900)
 def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
@@ -147,7 +174,7 @@ def limpiar_serie(serie):
     return pd.Series(serie).squeeze()
 
 def calcular_indicadores(df):
-    if df is None or len(df) < 50:
+    if df is None or len(df) < 30:
         return None
     
     close = limpiar_serie(df['Close'])
@@ -155,21 +182,18 @@ def calcular_indicadores(df):
     low = limpiar_serie(df['Low'])
     vol = limpiar_serie(df['Volume'])
 
-    # 1. RSI de 14 periodos
     delta = close.diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
     rs = gain / loss
     df['RSI'] = 100 - (100 / (1 + rs))
 
-    # 2. Squeeze Momentum Indicator
     ma20 = close.rolling(window=20).mean()
     highest = high.rolling(window=20).max()
     lowest = low.rolling(window=20).min()
     m_avg = (highest + lowest) / 2 + ma20
     df['Squeeze_Mom'] = (close - m_avg / 2).rolling(window=5).mean()
 
-    # 3. Volumen Relativo
     vol_ma20 = vol.rolling(window=20).mean()
     df['Vol_Ratio'] = vol / vol_ma20
 
@@ -177,36 +201,41 @@ def calcular_indicadores(df):
     df['Trivergencia'] = "Flujo Normal"
     df['Signal'] = "NEUTRAL"
 
-    p_actual = float(close.iloc[-1])
-    p_anterior = float(close.iloc[-5])
-    rsi_val = float(limpiar_serie(df['RSI']).iloc[-1])
-    rsi_prev = float(limpiar_serie(df['RSI']).iloc[-5])
-    sq_val = float(limpiar_serie(df['Squeeze_Mom']).iloc[-1])
-    sq_prev = float(limpiar_serie(df['Squeeze_Mom']).iloc[-2])
-    vol_r = float(limpiar_serie(df['Vol_Ratio']).iloc[-1])
+    if len(close) >= 5:
+        p_actual = float(close.iloc[-1])
+        p_anterior = float(close.iloc[-5])
+        rsi_val = float(limpiar_serie(df['RSI']).iloc[-1])
+        rsi_prev = float(limpiar_serie(df['RSI']).iloc[-5])
+        sq_val = float(limpiar_serie(df['Squeeze_Mom']).iloc[-1])
+        sq_prev = float(limpiar_serie(df['Squeeze_Mom']).iloc[-2])
+        vol_r = float(limpiar_serie(df['Vol_Ratio']).iloc[-1])
 
-    if p_actual < p_anterior and rsi_val > rsi_prev:
-        df['Divergencia'] = "Divergencia Alcista (Precio 📉 / RSI 📈)"
-        if sq_val > sq_prev and vol_r > 0.8:
-            df['Trivergencia'] = "Trivergencia Alcista Confirmada (🟢)"
-            df['Signal'] = "COMPRA"
-        else:
-            df['Signal'] = "COMPRA"
+        if p_actual < p_anterior and rsi_val > rsi_prev:
+            df['Divergencia'] = "Divergencia Alcista (Precio 📉 / RSI 📈)"
+            if sq_val > sq_prev and vol_r > 0.8:
+                df['Trivergencia'] = "Trivergencia Alcista Confirmada (🟢)"
+                df['Signal'] = "COMPRA"
+            else:
+                df['Signal'] = "COMPRA"
 
-    elif p_actual > p_anterior and rsi_val < rsi_prev:
-        df['Divergencia'] = "Divergencia Bajista (Precio 📈 / RSI 📉)"
-        if sq_val < sq_prev and vol_r > 0.8:
-            df['Trivergencia'] = "Trivergencia Bajista Confirmada (🔴)"
-            df['Signal'] = "VENTA"
-        else:
-            df['Signal'] = "VENTA"
+        elif p_actual > p_anterior and rsi_val < rsi_prev:
+            df['Divergencia'] = "Divergencia Bajista (Precio 📈 / RSI 📉)"
+            if sq_val < sq_prev and vol_r > 0.8:
+                df['Trivergencia'] = "Trivergencia Bajista Confirmada (🔴)"
+                df['Signal'] = "VENTA"
+            else:
+                df['Signal'] = "VENTA"
 
     return df
 
-# Función auxiliar para renderizar el gráfico institucional completo con alertas
+# Gráfico institucional con diseño dinámico
 def mostrar_grafico_institucional(ticker, nombre_activo):
     st.markdown("---")
-    st.markdown(f"### 📊 Gráfico Institucional con Trivergencias para: **{nombre_activo} ({ticker})**")
+    st.markdown(f"""
+        <div style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); padding: 15px 20px; border-radius: 10px; border-left: 4px solid #6366f1; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: #ffffff;">📊 Análisis Técnico Avanzado: {nombre_activo} (<span style="color: #818cf8;">{ticker}</span>)</h3>
+        </div>
+    """, unsafe_allow_html=True)
     
     df_chart = descargar_datos(ticker, intervalo="1d", periodo="6mo")
     if df_chart is not None and not df_chart.empty:
@@ -225,29 +254,28 @@ def mostrar_grafico_institucional(ticker, nombre_activo):
         fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio"), row=1, col=1)
         
         ult_sig = limpiar_serie(df_chart['Signal']).iloc[-1]
-        
         if ult_sig == "COMPRA":
-            fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="green", size=14, symbol="circle"), name="Señal Alcista (🟢)"), row=1, col=1)
+            fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="#10b981", size=16, symbol="circle"), name="Señal Alcista (🟢)"), row=1, col=1)
         elif ult_sig == "VENTA":
-            fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="red", size=14, symbol="circle"), name="Señal Bajista (🔴)"), row=1, col=1)
+            fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="#ef4444", size=16, symbol="circle"), name="Señal Bajista (🔴)"), row=1, col=1)
 
-        fig.add_trace(go.Scatter(x=df_chart.index, y=rsi_s, line=dict(color='#00ffcc', width=1.5), name="RSI (14)"), row=2, col=1)
-        fig.add_hline(y=70, line_dash="dash", line_color="red", row=2, col=1)
-        fig.add_hline(y=30, line_dash="dash", line_color="green", row=2, col=1)
+        fig.add_trace(go.Scatter(x=df_chart.index, y=rsi_s, line=dict(color='#38bdf8', width=2), name="RSI (14)"), row=2, col=1)
+        fig.add_hline(y=70, line_dash="dash", line_color="#ef4444", row=2, col=1)
+        fig.add_hline(y=30, line_dash="dash", line_color="#10b981", row=2, col=1)
 
-        colors = ['green' if val >= 0 else 'red' for val in sq_s]
+        colors = ['#10b981' if val >= 0 else '#ef4444' for val in sq_s]
         fig.add_trace(go.Bar(x=df_chart.index, y=sq_s, marker_color=colors, name="Squeeze Momentum"), row=3, col=1)
         
-        fig.update_layout(height=750, template="plotly_dark", title_text=f"Análisis Técnico con Divergencias: {ticker}", xaxis_rangeslider_visible=False)
+        fig.update_layout(height=750, template="plotly_dark", paper_bgcolor="#07090e", plot_bgcolor="#07090e", title_text="", xaxis_rangeslider_visible=False)
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.error("No se pudieron cargar los datos del gráfico para este activo.")
 
 # -------------------------------------------------------------------------
-# 3. SENTIMIENTO OFICIAL (CoinMarketCap & CNN Fear & Greed + Encuestas Toros/Osos)
+# 3. SENTIMIENTO OFICIAL
 # -------------------------------------------------------------------------
 def obtener_sentimiento():
-    crypto_fg = {"value": 13, "text": "Extreme Fear"}
+    crypto_fg = {"value": 19, "text": "Miedo extremo"}
     try:
         res = requests.get("https://api.alternative.me/fng/?limit=1", timeout=3)
         if res.status_code == 200:
@@ -270,21 +298,21 @@ def obtener_sentimiento():
 # -------------------------------------------------------------------------
 # NAVEGACIÓN LATERAL DE MÓDULOS
 # -------------------------------------------------------------------------
-st.sidebar.markdown("### 🎛️ Panel de Módulos")
+st.sidebar.markdown("### 🎛️ Panel de Control")
 modulo = st.sidebar.radio(
     "Selecciona un Módulo:",
     [
         "1. Escáner Cuantitativo (300 Activos)",
-        "2. Detector de Señales & Divergencias",
-        "3. Confluencia Multitemporal & Gráfico con Alertas",
+        "2. Detector de Divergencias & Sobrecompra/Sobreventa",
+        "3. Confluencia Multitemporal & Gráfico Pro",
         "4. Termómetro de Sentimiento & Encuestas"
     ]
 )
 
 crypto_sent, stock_sent = obtener_sentimiento()
 st.sidebar.markdown("---")
-st.sidebar.markdown(f"🌡️ **Cripto (CMC):** {crypto_sent['value']} ({crypto_sent['text']})")
-st.sidebar.markdown(f"📉 **Bolsa (CNN):** {stock_sent['value']} ({stock_sent['text']})")
+st.sidebar.markdown(f"🌡️ **Cripto (CMC):** `{crypto_sent['value']}` ({crypto_sent['text']})")
+st.sidebar.markdown(f"📉 **Bolsa (CNN):** `{stock_sent['value']}` ({stock_sent['text']})")
 
 diccionario_activos = obtener_300_activos()
 lista_tickers = list(diccionario_activos.keys())
@@ -349,69 +377,120 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
             mostrar_grafico_institucional(activo_m1_sel, nombre_sel)
 
 # -------------------------------------------------------------------------
-# MÓDULO 2: DETECTOR DE SEÑALES & DIVERGENCIAS
+# MÓDULO 2: DETECTOR DE DIVERGENCIAS & SOBRECOMPRA/SOBREVENTA MULTITEMPORAL
 # -------------------------------------------------------------------------
-elif modulo == "2. Detector de Señales & Divergencias":
-    st.subheader("🎯 Detector de Divergencias y Trivergencias Activas")
-    st.write("Filtro exclusivo de activos que presentan desacoples estructurales activos entre precio e indicadores.")
+elif modulo == "2. Detector de Divergencias & Sobrecompra/Sobreventa":
+    st.subheader("🎯 Detector Multitemporal: Sobrecompra, Sobreventa y Divergencias")
+    st.write("Filtra activos con confluencias extremas en 4H, Diario y Semanal, además de tablas dedicadas por temporalidad y gráficos interactivos.")
     
-    temp_m2 = st.selectbox("Selecciona Temporalidad de Escaneo:", ["1h", "4h", "1d", "1w"], index=2, key="m2_temp")
-    
-    if st.button("🔍 Buscar Divergencias en el Mercado"):
-        senales_activas = []
-        with st.spinner("Escaneando divergencias y trivergencias reales..."):
-            for ticker in lista_tickers:
-                df = descargar_datos(ticker, intervalo=temp_m2, periodo="2mo")
-                if df is not None:
-                    df_ind = calcular_indicadores(df)
-                    if df_ind is not None:
-                        ult = df_ind.iloc[-1]
-                        if limpiar_serie(ult['Signal']) in ["COMPRA", "VENTA"]:
-                            close_v = limpiar_serie(ult['Close'])
-                            rsi_v = limpiar_serie(ult['RSI'])
-                            
-                            sig = str(limpiar_serie(ult['Signal']))
-                            icon_signal = "🟢 COMPRA" if sig == "COMPRA" else "🔴 VENTA"
-
-                            senales_activas.append({
-                                "Símbolo": ticker,
-                                "Nombre del Activo": diccionario_activos[ticker],
-                                "Temporalidad": temp_m2,
-                                "Precio Actual": f"${float(close_v):,.2f}",
-                                "RSI": round(float(rsi_v), 1),
-                                "Divergencia": str(limpiar_serie(ult['Divergencia'])),
-                                "Trivergencia": str(limpiar_serie(ult['Trivergencia'])),
-                                "Señal": icon_signal
-                            })
+    if st.button("🔍 Ejecutar Escaneo Multitemporal Extremo (Sobrecarga / Sobreventa)"):
+        triple_confluencia = []
+        solo_diario = []
+        solo_semanal = []
         
-        if senales_activas:
-            df_m2 = pd.DataFrame(senales_activas)
-            st.session_state['df_m2'] = df_m2
-            st.markdown(f"### Activos con Divergencia/Trivergencia en: {temp_m2}")
+        barra_m2 = st.progress(0)
+        # Analizamos un subconjunto representativo de alta liquidez para optimizar velocidad (primeros 150 activos)
+        activos_m2 = lista_tickers[:150]
+        total_m2 = len(activos_m2)
+        
+        for idx, ticker in enumerate(activos_m2):
+            nombre = diccionario_activos[ticker]
+            
+            # Descargar 3 temporalidades
+            df_4h = descargar_datos(ticker, intervalo="4h", periodo="1mo")
+            df_1d = descargar_datos(ticker, intervalo="1d", periodo="3mo")
+            df_1w = descargar_datos(ticker, intervalo="1w", periodo="1y")
+            
+            rsi_4h, rsi_1d, rsi_1w = None, None, None
+            
+            if df_4h is not None and not df_4h.empty:
+                d4 = calcular_indicadores(df_4h)
+                if d4 is not None and not d4.empty:
+                    rsi_4h = float(limpiar_serie(d4['RSI']).iloc[-1])
+            
+            if df_1d is not None and not df_1d.empty:
+                d1 = calcular_indicadores(df_1d)
+                if d1 is not None and not d1.empty:
+                    rsi_1d = float(limpiar_serie(d1['RSI']).iloc[-1])
+            
+            if df_1w is not None and not df_1w.empty:
+                dw = calcular_indicadores(df_1w)
+                if dw is not None and not dw.empty:
+                    rsi_1w = float(limpiar_serie(dw['RSI']).iloc[-1])
+            
+            # Evaluar condiciones
+            # 1. Triple Confluencia (4h, 1d, 1w en sobrecompra >70 o sobreventa <30 a la vez)
+            if rsi_4h is not None and rsi_1d is not None and rsi_1w is not None:
+                if rsi_4h > 70 and rsi_1d > 70 and rsi_1w > 70:
+                    triple_confluencia.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🔴 Sobrecompra Extrema (4H + 1D + 1W)", "RSI 4H": round(rsi_4h, 1), "RSI 1D": round(rsi_1d, 1), "RSI 1W": round(rsi_1w, 1)})
+                elif rsi_4h < 30 and rsi_1d < 30 and rsi_1w < 30:
+                    triple_confluencia.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🟢 Sobreventa Extrema (4H + 1D + 1W)", "RSI 4H": round(rsi_4h, 1), "RSI 1D": round(rsi_1d, 1), "RSI 1W": round(rsi_1w, 1)})
+
+            # 2. Solo Diario
+            if rsi_1d is not None:
+                if rsi_1d > 70:
+                    solo_diario.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🔴 Sobrecompra Diaria", "RSI Diario": round(rsi_1d, 1)})
+                elif rsi_1d < 30:
+                    solo_diario.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🟢 Sobreventa Diaria", "RSI Diario": round(rsi_1d, 1)})
+
+            # 3. Solo Semanal
+            if rsi_1w is not None:
+                if rsi_1w > 70:
+                    solo_semanal.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🔴 Sobrecompra Semanal", "RSI Semanal": round(rsi_1w, 1)})
+                elif rsi_1w < 30:
+                    solo_semanal.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🟢 Sobreventa Semanal", "RSI Semanal": round(rsi_1w, 1)})
+
+            barra_m2.progress((idx + 1) / total_m2)
+            
+        barra_m2.empty()
+        
+        st.session_state['triple_confluencia'] = pd.DataFrame(triple_confluencia) if triple_confluencia else pd.DataFrame()
+        st.session_state['solo_diario'] = pd.DataFrame(solo_diario) if solo_diario else pd.DataFrame()
+        st.session_state['solo_semanal'] = pd.DataFrame(solo_semanal) if solo_semanal else pd.DataFrame()
+        st.success("¡Escaneo multitemporal completado con éxito!")
+
+    # Renderizar resultados guardados en session_state
+    if 'triple_confluencia' in st.session_state:
+        st.markdown("### 🚨 1. Triple Confluencia Simultánea (4H + Diario + Semanal)")
+        st.write("Activos que se encuentran en condición extrema en las 3 temporalidades a la vez:")
+        if not st.session_state['triple_confluencia'].empty:
+            st.dataframe(st.session_state['triple_confluencia'], use_container_width=True)
         else:
-            st.session_state['df_m2'] = None
-            st.info("No se encontraron divergencias activas en este instante con los filtros actuales.")
+            st.info("No hay activos cumpliendo la triple confluencia exacta en este instante.")
 
-    if 'df_m2' in st.session_state and st.session_state['df_m2'] is not None and not st.session_state['df_m2'].empty:
-        st.dataframe(st.session_state['df_m2'], use_container_width=True)
-        
-        simbolos_m2 = st.session_state['df_m2']['Símbolo'].tolist()
-        activo_m2_sel = st.selectbox("Selecciona un activo de la tabla de señales para ver su gráfico institucional:", simbolos_m2, key="sel_m2")
-        if activo_m2_sel:
-            nombre_sel = diccionario_activos[activo_m2_sel]
-            mostrar_grafico_institucional(activo_m2_sel, nombre_sel)
+    if 'solo_diario' in st.session_state:
+        st.markdown("### 📅 2. Activos en Sobrecompra / Sobreventa (Gráfico Diario 1D)")
+        if not st.session_state['solo_diario'].empty:
+            st.dataframe(st.session_state['solo_diario'], use_container_width=True)
+        else:
+            st.info("No se encontraron activos en extremos diarios.")
+
+    if 'solo_semanal' in st.session_state:
+        st.markdown("### 📈 3. Activos en Sobrecompra / Sobreventa (Gráfico Semanal 1W)")
+        if not st.session_state['solo_semanal'].empty:
+            st.dataframe(st.session_state['solo_semanal'], use_container_width=True)
+        else:
+            st.info("No se encontraron activos en extremos semanales.")
+
+    # Selector de gráfico interactivo para el Módulo 2
+    st.markdown("---")
+    st.markdown("### 📊 Consultar Gráfico de Cualquier Activo del Escáner M2")
+    activo_m2_sel = st.selectbox("Selecciona un activo para visualizar su estructura técnica y osciladores:", lista_tickers, key="sel_m2_directo")
+    if activo_m2_sel:
+        nombre_sel = diccionario_activos[activo_m2_sel]
+        mostrar_grafico_institucional(activo_m2_sel, nombre_sel)
 
 # -------------------------------------------------------------------------
 # MÓDULO 3: CONFLUENCIA MULTITEMPORAL & GRÁFICO CON ALERTAS
 # -------------------------------------------------------------------------
-elif modulo == "3. Confluencia Multitemporal & Gráfico con Alertas":
+elif modulo == "3. Confluencia Multitemporal & Gráfico Pro":
     st.subheader("🧠 Confluencias Multitemporales & Gráfico Institucional con Alertas")
     st.write("Selecciona un activo para desplegar su gráfico limpio, el RSI, el Squeeze Momentum y las marcas visuales de alerta.")
     
     if st.button("🔍 Escanear Confluencias Multitemporales"):
         multiconfluencias = []
         with st.spinner("Analizando confluencias..."):
-            for ticker in lista_tickers[:150]:
+            for ticker in lista_tickers[:120]:
                 temporalidades = ["1h", "4h", "1d", "1w"]
                 temps_activas = []
                 for t in temporalidades:
@@ -444,7 +523,7 @@ elif modulo == "3. Confluencia Multitemporal & Gráfico con Alertas":
             nombre_sel = diccionario_activos[activo_sel]
             mostrar_grafico_institucional(activo_sel, nombre_sel)
     else:
-        st.info("Haz clic en el botón de arriba para iniciar el escaneo.")
+        st.info("Haz clic en el botón de arriba para iniciar el escaneo de confluencias.")
 
 # -------------------------------------------------------------------------
 # MÓDULO 4: TERMÓMETRO DE SENTIMIENTO & ENCUESTAS
@@ -456,33 +535,33 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("### 🪙 Criptomonedas (CoinMarketCap)")
         val_cmc = crypto_sent['value']
         txt_cmc = crypto_sent['text']
         st.markdown(f"""
         <div class="card" style="text-align: center;">
-            <h2>Índice de Miedo y Codicia CMC</h2>
-            <h1 style="color: {'#00ffcc' if val_cmc > 50 else '#ff4d4d'}; font-size: 48px;">{val_cmc}</h1>
-            <h3>{str(txt_cmc).upper()}</h3>
-            <p>Basado en volatilidad, volumen de mercado, redes sociales y dominio de BTC.</p>
+            <h3 style="color: #818cf8; margin-top: 0;">🪙 Criptomonedas (CoinMarketCap)</h3>
+            <h2 style="margin: 5px 0;">Índice de Miedo y Codicia</h2>
+            <h1 style="color: {'#10b981' if val_cmc > 50 else '#ef4444'}; font-size: 52px; margin: 10px 0;">{val_cmc}</h1>
+            <h3 style="text-transform: uppercase; letter-spacing: 1px;">{txt_cmc}</h3>
+            <p style="color: #94a3b8; font-size: 0.9rem;">Basado en volatilidad, volumen, redes sociales y dominio.</p>
         </div>
         """, unsafe_allow_html=True)
 
     with col2:
-        st.markdown("### 📈 Bolsa Tradicional (CNN Fear & Greed)")
         val_cnn = stock_sent['value']
         txt_cnn = stock_sent['text']
         st.markdown(f"""
         <div class="card" style="text-align: center;">
-            <h2>Índice CNN Fear & Greed</h2>
-            <h1 style="color: {'#00ffcc' if val_cnn > 50 else '#ff4d4d'}; font-size: 48px;">{val_cnn}</h1>
-            <h3>{str(txt_cnn).upper()}</h3>
-            <p>Indicador compuesto de impulso bursátil, opciones put/call y demanda de refugio seguro.</p>
+            <h3 style="color: #38bdf8; margin-top: 0;">📈 Bolsa Tradicional (CNN Fear & Greed)</h3>
+            <h2 style="margin: 5px 0;">Índice de Sentimiento Bursátil</h2>
+            <h1 style="color: {'#10b981' if val_cnn > 50 else '#ef4444'}; font-size: 52px; margin: 10px 0;">{val_cnn}</h1>
+            <h3 style="text-transform: uppercase; letter-spacing: 1px;">{str(txt_cnn)}</h3>
+            <p style="color: #94a3b8; font-size: 0.9rem;">Indicador compuesto de impulso, opciones put/call y refugio.</p>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("### 📊 Encuesta de Sentimiento de Inversores (Toros vs Osos / Bullish vs Bearish)")
+    st.markdown("### 📊 Encuesta de Sentimiento de Inversores (Toros vs Osos)")
     st.write("Histórico semanal del sentimiento de los participantes del mercado:")
 
     df_sentimiento = pd.DataFrame({
@@ -493,10 +572,10 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
     })
 
     fig_sent = go.Figure()
-    fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Bullish (Toros %)"], name="Bullish (Toros)", orientation='h', marker_color='green'))
-    fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Neutral %"], name="Neutral", orientation='h', marker_color='gray'))
-    fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Bearish (Osos %)"], name="Bearish (Osos)", orientation='h', marker_color='red'))
+    fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Bullish (Toros %)"], name="Bullish (Toros)", orientation='h', marker_color='#10b981'))
+    fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Neutral %"], name="Neutral", orientation='h', marker_color='#64748b'))
+    fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Bearish (Osos %)"], name="Bearish (Osos)", orientation='h', marker_color='#ef4444'))
 
-    fig_sent.update_layout(barmode='stack', template="plotly_dark", height=350, title_text="Sentiment Votes (Toros vs Neutral vs Osos)", xaxis_title="Porcentaje (%)")
+    fig_sent.update_layout(barmode='stack', template="plotly_dark", paper_bgcolor="#07090e", plot_bgcolor="#07090e", height=350, title_text="Sentiment Votes (Toros vs Neutral vs Osos)", xaxis_title="Porcentaje (%)")
     st.plotly_chart(fig_sent, use_container_width=True)
     st.dataframe(df_sentimiento, use_container_width=True)
