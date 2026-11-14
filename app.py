@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilo visual institucional ultra nítido y de alta legibilidad (Dark Mode Pro con Dropdowns corregidos)
+# Estilo visual institucional ultra nítido: Corrección total de alertas, textos y legibilidad
 st.markdown("""
     <style>
     .stApp {
@@ -24,7 +24,16 @@ st.markdown("""
     p, span, label, div, h1, h2, h3, h4, h5, h6, .stMarkdown, .streamlit-expanderHeader {
         color: #f8fafc !important;
     }
-    /* Corrección absoluta para los menús desplegables (Selectboxes y Dropdowns) */
+    /* Corrección absoluta para las cajas de info/advertencia de Streamlit para que no tengan letras invisibles */
+    div.stAlert, div[data-baseweb="notification"], .stInfo, .stSuccess, .stWarning, .stError {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        border: 1px solid #334155 !important;
+    }
+    div.stAlert p, div.stAlert span, .stInfo p, .stSuccess p, .stWarning p, .stError p {
+        color: #ffffff !important;
+    }
+    /* Corrección para los menús desplegables (Selectboxes y Dropdowns) */
     div[data-baseweb="select"] > div {
         background-color: #0f172a !important;
         color: #ffffff !important;
@@ -186,7 +195,7 @@ def obtener_300_activos():
     return diccionario_activos
 
 # -------------------------------------------------------------------------
-# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS
+# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS (Blindado contra nan)
 # -------------------------------------------------------------------------
 @st.cache_data(ttl=900)
 def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
@@ -260,17 +269,27 @@ def calcular_indicadores(df):
 
     return df
 
+# Función auxiliar para extraer de forma segura un valor numérico flotante
+def extraer_valor_seguro(serie_o_df):
+    try:
+        val = limpiar_serie(serie_o_df)
+        if hasattr(val, 'iloc'):
+            val = val.iloc[-1]
+        res = float(val)
+        if np.isnan(res):
+            return 0.0
+        return res
+    except Exception:
+        return 0.0
+
 # Función auxiliar para resolver nombres comunes a Tickers válidos en yfinance
 def resolver_ticker_ingresado(input_str, dic_activos):
     clean = input_str.strip()
-    # Si coincide exactamente con un ticker
     if clean in dic_activos:
         return clean
-    # Buscar si escribió parte del nombre o el ticker en minúsculas
     for ticker, nombre in dic_activos.items():
         if clean.lower() in ticker.lower() or clean.lower() in nombre.lower():
             return ticker
-    # Devolver en mayúsculas por defecto
     return clean.upper()
 
 # Gráfico institucional con diseño dinámico
@@ -298,11 +317,11 @@ def mostrar_grafico_institucional(ticker, nombre_activo):
 
             fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio"), row=1, col=1)
             
-            ult_sig = limpiar_serie(df_chart['Signal']).iloc[-1]
+            ult_sig = str(limpiar_serie(df_chart['Signal']).iloc[-1])
             if ult_sig == "COMPRA":
-                fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="#10b981", size=16, symbol="circle"), name="Señal Alcista (🟢)"), row=1, col=1)
+                fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[extraer_valor_seguro(cls)], mode="markers", marker=dict(color="#10b981", size=16, symbol="circle"), name="Señal Alcista (🟢)"), row=1, col=1)
             elif ult_sig == "VENTA":
-                fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[cls.iloc[-1]], mode="markers", marker=dict(color="#ef4444", size=16, symbol="circle"), name="Señal Bajista (🔴)"), row=1, col=1)
+                fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[extraer_valor_seguro(cls)], mode="markers", marker=dict(color="#ef4444", size=16, symbol="circle"), name="Señal Bajista (🔴)"), row=1, col=1)
 
             fig.add_trace(go.Scatter(x=df_chart.index, y=rsi_s, line=dict(color='#38bdf8', width=2), name="RSI (14)"), row=2, col=1)
             fig.add_hline(y=70, line_dash="dash", line_color="#ef4444", row=2, col=1)
@@ -384,8 +403,8 @@ if modulo == "1. Escáner Cuantitativo (300 Activos)":
                 df_ind = calcular_indicadores(df)
                 if df_ind is not None and not df_ind.empty:
                     ultimo = df_ind.iloc[-1]
-                    close_val = float(limpiar_serie(ultimo['Close']).iloc[-1]) if hasattr(limpiar_serie(ultimo['Close']), 'iloc') else float(limpiar_serie(ultimo['Close']))
-                    rsi_val = float(limpiar_serie(ultimo['RSI']).iloc[-1]) if hasattr(limpiar_serie(ultimo['RSI']), 'iloc') else float(limpiar_serie(ultimo['RSI']))
+                    close_val = extraer_valor_seguro(ultimo['Close'])
+                    rsi_val = extraer_valor_seguro(ultimo['RSI'])
                     
                     sig = str(limpiar_serie(ultimo['Signal']))
                     icon_signal = "⚪ NEUTRAL"
@@ -449,17 +468,17 @@ elif modulo == "2. Detector de Divergencias & Sobrecompra/Sobreventa":
             if df_4h is not None and not df_4h.empty:
                 d4 = calcular_indicadores(df_4h)
                 if d4 is not None and not d4.empty:
-                    rsi_4h = float(limpiar_serie(d4['RSI']).iloc[-1])
+                    rsi_4h = extraer_valor_seguro(d4['RSI'])
             
             if df_1d is not None and not df_1d.empty:
                 d1 = calcular_indicadores(df_1d)
                 if d1 is not None and not d1.empty:
-                    rsi_1d = float(limpiar_serie(d1['RSI']).iloc[-1])
+                    rsi_1d = extraer_valor_seguro(d1['RSI'])
             
             if df_1w is not None and not df_1w.empty:
                 dw = calcular_indicadores(df_1w)
                 if dw is not None and not dw.empty:
-                    rsi_1w = float(limpiar_serie(dw['RSI']).iloc[-1])
+                    rsi_1w = extraer_valor_seguro(dw['RSI'])
             
             if rsi_4h is not None and rsi_1d is not None and rsi_1w is not None:
                 if rsi_4h > 70 and rsi_1d > 70 and rsi_1w > 70:
@@ -625,10 +644,9 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
     
     col_input1, col_input2 = st.columns([2, 1])
     with col_input1:
-        input_usuario = st.text_input("Introduce el Ticker o Nombre del Activo:", value="NVDA")
+        input_usuario = st.text_input("Introduce el Ticker o Nombre del Activo:", value="TSLA")
 
     if st.button("🚀 Analizar Activo en Todas las Temporalidades"):
-        # Resolver ticker inteligente
         ticker_input = resolver_ticker_ingresado(input_usuario, diccionario_activos)
         
         with st.spinner(f"Analizando {ticker_input} en 1h, 4h, 1d y 1w..."):
@@ -658,8 +676,8 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
                     df_c = calcular_indicadores(df_t)
                     if df_c is not None and not df_c.empty:
                         ult = df_c.iloc[-1]
-                        cls_val = float(limpiar_serie(ult['Close']).iloc[-1]) if hasattr(limpiar_serie(ult['Close']), 'iloc') else float(limpiar_serie(ult['Close']))
-                        rsi_val = float(limpiar_serie(ult['RSI']).iloc[-1]) if hasattr(limpiar_serie(ult['RSI']), 'iloc') else float(limpiar_serie(ult['RSI']))
+                        cls_val = extraer_valor_seguro(ult['Close'])
+                        rsi_val = extraer_valor_seguro(ult['RSI'])
                         sig_val = str(limpiar_serie(ult['Signal']))
                         div_val = str(limpiar_serie(ult['Divergencia']))
                         triv_val = str(limpiar_serie(ult['Trivergencia']))
@@ -678,11 +696,11 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
                             "Sentimiento Táctico": icon_sig
                         })
             
+            # Respaldo robusto si precio global sigue en 0
             if precio_actual_global == 0.0:
                 df_fallback = descargar_datos(ticker_input, intervalo="1d", periodo="1mo")
                 if df_fallback is not None and not df_fallback.empty:
-                    c_fb = limpiar_serie(df_fallback['Close'])
-                    precio_actual_global = float(c_fb.iloc[-1])
+                    precio_actual_global = extraer_valor_seguro(df_fallback['Close'])
 
             st.markdown("---")
             st.markdown(f"""
