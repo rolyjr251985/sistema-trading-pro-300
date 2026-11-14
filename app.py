@@ -190,7 +190,7 @@ def calcular_indicadores(df):
 
     if p_actual < p_anterior and rsi_val > rsi_prev:
         df['Divergencia'] = "Divergencia Alcista (Precio 📉 / RSI 📈)"
-        if sq_val > sq_prev and vol_r > 1.0:
+        if sq_val > sq_prev and vol_r > 0.8:
             df['Trivergencia'] = "Trivergencia Alcista Confirmada (🟢)"
             df['Signal'] = "COMPRA"
         else:
@@ -198,7 +198,7 @@ def calcular_indicadores(df):
 
     elif p_actual > p_anterior and rsi_val < rsi_prev:
         df['Divergencia'] = "Divergencia Bajista (Precio 📈 / RSI 📉)"
-        if sq_val < sq_prev and vol_r > 1.0:
+        if sq_val < sq_prev and vol_r > 0.8:
             df['Trivergencia'] = "Trivergencia Bajista Confirmada (🔴)"
             df['Signal'] = "VENTA"
         else:
@@ -211,7 +211,6 @@ def mostrar_grafico_institucional(ticker, nombre_activo):
     st.markdown("---")
     st.markdown(f"### 📊 Gráfico Institucional con Trivergencias para: **{nombre_activo} ({ticker})**")
     
-    # CORREGIDO: periodo="6mo" en lugar de period="6mo"
     df_chart = descargar_datos(ticker, intervalo="1d", periodo="6mo")
     if df_chart is not None and not df_chart.empty:
         df_chart = calcular_indicadores(df_chart)
@@ -223,8 +222,8 @@ def mostrar_grafico_institucional(ticker, nombre_activo):
         hgh = df_chart['High'].iloc[:, 0] if isinstance(df_chart['High'], pd.DataFrame) else df_chart['High']
         lw = df_chart['Low'].iloc[:, 0] if isinstance(df_chart['Low'], pd.DataFrame) else df_chart['Low']
         cls = df_chart['Close'].iloc[:, 0] if isinstance(df_chart['Close'], pd.DataFrame) else df_chart['Close']
-        rsi_s = df_chart['RSI'].iloc[:, 0] if isinstance(df_chart['RSI'], pd.DataFrame) else df_chart['RSI']
-        sq_s = df_chart['Squeeze_Mom'].iloc[:, 0] if isinstance(df_chart['Squeeze_Mom'], pd.DataFrame) else df_chart['Squeeze_Mom']
+        rsi_s = df_chart['RSI'].iloc[:, 0] if isinstance(df_chart['RSI'], pd.Series) else df_chart['RSI']
+        sq_s = df_chart['Squeeze_Mom'].iloc[:, 0] if isinstance(df_chart['Squeeze_Mom'], pd.Series) else df_chart['Squeeze_Mom']
 
         fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio"), row=1, col=1)
         
@@ -479,6 +478,13 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
         val_cnn = stock_sent['value']
         txt_cnn = stock_sent['text']
         st.markdown(f"""
+        <div class="card" style="text-align: center;">
+            <h2>Índice CNN Fear & Greed</h2>
+            <h1 style="color: {'#00ffcc' if val_cnn > 50 else '#ff4d4d'}; font-size: 48px;">{val_cnn}</h1>
+            <h3>{str(txt_cnn).upper()}</h3>
+            <p>Indicador compuesto de impulso bursátil, opciones put/call y demanda de refugio seguro.</p>
+        </div>
+        """, unsafe_applies_html=True) if "unsafe_applies_html" in globals() else st.markdown(f"""
         <div class="card" style="text-align: center;">
             <h2>Índice CNN Fear & Greed</h2>
             <h1 style="color: {'#00ffcc' if val_cnn > 50 else '#ff4d4d'}; font-size: 48px;">{val_cnn}</h1>
