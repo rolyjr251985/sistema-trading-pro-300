@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilo visual institucional ultra nítido: Corrección total de alertas y legibilidad
+# Estilo visual institucional ultra nítido: Corrección total de menús flotantes, popovers y legibilidad
 st.markdown("""
     <style>
     .stApp {
@@ -24,7 +24,7 @@ st.markdown("""
     p, span, label, div, h1, h2, h3, h4, h5, h6, .stMarkdown, .streamlit-expanderHeader {
         color: #f8fafc !important;
     }
-    /* CORRECCIÓN DEFINITIVA PARA CAJAS DE INFO Y ALERTAS (st.info, st.success, etc.) */
+    /* CORRECCIÓN DEFINITIVA PARA MENÚS FLOTANTES, POPOVERS Y TABLAS */
     div.stAlert, div[data-baseweb="notification"], div.stInfo, div.stSuccess, div.stWarning, div.stError {
         background-color: #0f172a !important;
         color: #ffffff !important;
@@ -33,27 +33,28 @@ st.markdown("""
     div.stAlert *, div.stInfo *, div.stSuccess *, div.stWarning *, div.stError * {
         color: #ffffff !important;
     }
-    /* Corrección para los menús desplegables (Selectboxes y Dropdowns) */
-    div[data-baseweb="select"] > div {
+    /* Menús desplegables, popovers flotantes de tablas y toolbars */
+    div[data-baseweb="popover"], div[data-baseweb="menu"], div[role="menu"], ul[role="menu"], div[data-baseweb="select"] > div {
         background-color: #0f172a !important;
         color: #ffffff !important;
         border-color: #334155 !important;
     }
-    div[data-baseweb="menu"], div[role="listbox"], ul[role="listbox"] {
+    div[role="menuitem"], li[role="menuitem"], div[data-baseweb="option"], option, div[role="option"] {
         background-color: #0f172a !important;
         color: #ffffff !important;
     }
-    div[data-baseweb="option"], option, div[role="option"] {
-        background-color: #0f172a !important;
-        color: #ffffff !important;
-    }
-    div[data-baseweb="option"]:hover {
+    div[role="menuitem"]:hover, li[role="menuitem"]:hover, div[data-baseweb="option"]:hover {
         background-color: #4f46e5 !important;
         color: #ffffff !important;
     }
     input, textarea, select {
         color: #ffffff !important;
         background-color: #0f172a !important;
+    }
+    /* Contenedores de Dataframes */
+    .stDataFrame {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
     }
     /* Estilos específicos para la barra lateral */
     [data-testid="stSidebar"] {
