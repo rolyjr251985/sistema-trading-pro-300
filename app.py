@@ -13,89 +13,95 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilo visual institucional ultra nítido: Corrección total, radical y universal de textos, alertas y menús de tablas
+# Estilo visual institucional de fondo blanco y alta legibilidad absoluta
 st.markdown("""
     <style>
+    /* Fondo general de la aplicación en blanco nítido */
     .stApp {
-        background-color: #030712;
-        color: #ffffff !important;
-    }
-    /* Forzar tipografía clara y de alta visibilidad en toda la interfaz */
-    p, span, label, div, h1, h2, h3, h4, h5, h6, .stMarkdown, .streamlit-expanderHeader {
-        color: #f8fafc !important;
+        background-color: #f8fafc !important;
+        color: #0f172a !important;
     }
     
-    /* CORRECCIÓN RADICAL PARA ALERTAS, INFO Y ÉXITO (st.success, st.info, etc.) */
+    /* Forzar tipografía oscura y de alta visibilidad en toda la interfaz */
+    p, span, label, div, h1, h2, h3, h4, h5, h6, .stMarkdown, .streamlit-expanderHeader {
+        color: #0f172a !important;
+    }
+    
+    /* Cajas de Alertas, Info y Éxito en tonos claros perfectamente legibles */
     div.stAlert, div[data-baseweb="notification"], div.stInfo, div.stSuccess, div.stWarning, div.stError {
-        background-color: #0f172a !important;
-        color: #ffffff !important;
-        border: 1px solid #334155 !important;
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
     }
     div.stAlert *, div.stInfo *, div.stSuccess *, div.stWarning *, div.stError *,
     div.stAlert p, div.stInfo p, div.stSuccess p, div.stWarning p, div.stError p,
     div.stAlert span, div.stInfo span, div.stSuccess span {
-        color: #ffffff !important;
+        color: #0f172a !important;
         opacity: 1 !important;
     }
 
-    /* CORRECCIÓN ABSOLUTA PARA MENÚS FLOTANTES, POPOVERS Y SELECTORES DE TABLAS */
+    /* Menús flotantes, popovers y selectores de tablas */
     div[data-baseweb="popover"], div[data-baseweb="menu"], div[role="menu"], ul[role="menu"],
     div[class*="popover"], div[class*="menu"], div[class*="dropdown"], div[class*="select"] {
-        background-color: #0f172a !important;
-        color: #ffffff !important;
-        border-color: #334155 !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border-color: #cbd5e1 !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
     div[role="menuitem"], li[role="menuitem"], div[data-baseweb="option"], option, div[role="option"],
     div[role="menuitem"] *, div[data-baseweb="option"] *, label[data-baseweb="checkbox"] span {
         background-color: transparent !important;
-        color: #ffffff !important;
+        color: #0f172a !important;
     }
     div[role="menuitem"]:hover, li[role="menuitem"]:hover, div[data-baseweb="option"]:hover, div[data-baseweb="option"]:hover * {
-        background-color: #4f46e5 !important;
-        color: #ffffff !important;
+        background-color: #e0e7ff !important;
+        color: #1e1b4b !important;
     }
     
-    /* Inputs y Textareas */
-    input, textarea, select {
-        color: #ffffff !important;
-        background-color: #0f172a !important;
+    /* Inputs, Textareas y Selectboxes */
+    input, textarea, select, div[data-baseweb="select"] > div {
+        color: #0f172a !important;
+        background-color: #ffffff !important;
+        border-color: #cbd5e1 !important;
     }
     
-    /* Contenedores de Dataframes y Toolbar flotante de tablas */
+    /* Contenedores de Dataframes */
     .stDataFrame, div[data-testid="stDataFrame"] {
-        background-color: #0f172a !important;
-        color: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
     }
 
-    /* Estilos específicos para la barra lateral */
+    /* Barra lateral institucional distinguible */
     [data-testid="stSidebar"] {
-        background-color: #080c14;
-        border-right: 1px solid #1e293b;
+        background-color: #0f172a;
+        border-right: 1px solid #cbd5e1;
     }
-    [data-testid="stSidebar"] label, [data-testid="stSidebar"] span, [data-testid="stSidebar"] p {
+    [data-testid="stSidebar"] label, [data-testid="stSidebar"] span, [data-testid="stSidebar"] p, [data-testid="stSidebar"] h3 {
         color: #ffffff !important;
         font-weight: 500 !important;
     }
 
     /* Banner Principal Estilizado */
     .main-header {
-        background: linear-gradient(135deg, #312e81 0%, #1e1b4b 50%, #090d16 100%);
+        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4f46e5 100%);
         padding: 30px;
         border-radius: 18px;
-        border: 1px solid #4f46e5;
-        box-shadow: 0 20px 30px -10px rgba(79, 70, 229, 0.3);
+        box-shadow: 0 20px 30px -10px rgba(79, 70, 229, 0.2);
         color: #ffffff;
         text-align: center;
         margin-bottom: 30px;
     }
+    .main-header h1, .main-header p {
+        color: #ffffff !important;
+    }
 
     /* Tarjetas de Contenido */
     .card {
-        background: linear-gradient(145deg, #0f172a 0%, #111827 100%);
+        background: #ffffff;
         padding: 24px;
         border-radius: 14px;
-        border: 1px solid #334155;
-        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5);
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         margin-bottom: 20px;
     }
 
@@ -107,21 +113,20 @@ st.markdown("""
         border-radius: 10px;
         border: none;
         padding: 12px 28px;
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         transition: all 0.2s ease;
     }
     .stButton>button:hover {
         background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.6);
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
     <div class="main-header">
-        <h1 style="font-size: 2.6rem; margin-bottom: 8px; font-weight: 800; color: #ffffff !important;">⚡ Sistema de Inteligencia Financiera Pro</h1>
-        <p style="color: #e2e8f0 !important; font-size: 1.15rem; margin: 0; font-weight: 500;">Plataforma Cuantitativa Avanzada: Trivergencias, Escáner 300 Activos & Análisis Multitemporal</p>
+        <h1 style="font-size: 2.6rem; margin-bottom: 8px; font-weight: 800;">⚡ Sistema de Inteligencia Financiera Pro</h1>
+        <p style="font-size: 1.15rem; margin: 0; font-weight: 500;">Plataforma Cuantitativa Avanzada: Trivergencias, Escáner 300 Activos & Análisis Multitemporal</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -210,7 +215,7 @@ def obtener_300_activos():
     return diccionario_activos
 
 # -------------------------------------------------------------------------
-# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS (Blindado contra nan)
+# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS
 # -------------------------------------------------------------------------
 @st.cache_data(ttl=900)
 def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
@@ -342,7 +347,7 @@ def mostrar_grafico_institucional(ticker, nombre_activo):
             colors = ['#10b981' if val >= 0 else '#ef4444' for val in sq_s]
             fig.add_trace(go.Bar(x=df_chart.index, y=sq_s, marker_color=colors, name="Squeeze Momentum"), row=3, col=1)
             
-            fig.update_layout(height=780, template="plotly_dark", paper_bgcolor="#030712", plot_bgcolor="#030712", title_text="", xaxis_rangeslider_visible=False)
+            fig.update_layout(height=780, template="plotly_dark", paper_bgcolor="#ffffff", plot_bgcolor="#ffffff", font=dict(color="#0f172a"), title_text="", xaxis_rangeslider_visible=False)
             st.plotly_chart(fig, use_container_width=True)
             return
     st.error(f"No se pudieron cargar los datos del gráfico para el ticker `{ticker}`.")
@@ -606,11 +611,11 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
         txt_cmc = crypto_sent['text']
         st.markdown(f"""
         <div class="card" style="text-align: center;">
-            <h3 style="color: #818cf8; margin-top: 0;">🪙 Criptomonedas (CoinMarketCap)</h3>
-            <h2 style="margin: 5px 0;">Índice de Miedo y Codicia</h2>
+            <h3 style="color: #4f46e5; margin-top: 0;">🪙 Criptomonedas (CoinMarketCap)</h3>
+            <h2 style="margin: 5px 0; color: #0f172a;">Índice de Miedo y Codicia</h2>
             <h1 style="color: {'#10b981' if val_cmc > 50 else '#ef4444'}; font-size: 52px; margin: 10px 0;">{val_cmc}</h1>
-            <h3 style="text-transform: uppercase; letter-spacing: 1px;">{txt_cmc}</h3>
-            <p style="color: #cbd5e1; font-size: 0.9rem;">Basado en volatilidad, volumen, redes sociales y dominio.</p>
+            <h3 style="text-transform: uppercase; letter-spacing: 1px; color: #334155;">{txt_cmc}</h3>
+            <p style="color: #64748b; font-size: 0.9rem;">Basado en volatilidad, volumen, redes sociales y dominio.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -619,11 +624,11 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
         txt_cnn = stock_sent['text']
         st.markdown(f"""
         <div class="card" style="text-align: center;">
-            <h3 style="color: #38bdf8; margin-top: 0;">📈 Bolsa Tradicional (CNN Fear & Greed)</h3>
-            <h2 style="margin: 5px 0;">Índice de Sentimiento Bursátil</h2>
+            <h3 style="color: #0284c7; margin-top: 0;">📈 Bolsa Tradicional (CNN Fear & Greed)</h3>
+            <h2 style="margin: 5px 0; color: #0f172a;">Índice de Sentimiento Bursátil</h2>
             <h1 style="color: {'#10b981' if val_cnn > 50 else '#ef4444'}; font-size: 52px; margin: 10px 0;">{val_cnn}</h1>
-            <h3 style="text-transform: uppercase; letter-spacing: 1px;">{str(txt_cnn)}</h3>
-            <p style="color: #cbd5e1; font-size: 0.9rem;">Indicador compuesto de impulso, opciones put/call y refugio.</p>
+            <h3 style="text-transform: uppercase; letter-spacing: 1px; color: #334155;">{str(txt_cnn)}</h3>
+            <p style="color: #64748b; font-size: 0.9rem;">Indicador compuesto de impulso, opciones put/call y refugio.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -643,7 +648,7 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
     fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Neutral %"], name="Neutral", orientation='h', marker_color='#64748b'))
     fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Bearish (Osos %)"], name="Bearish (Osos)", orientation='h', marker_color='#ef4444'))
 
-    fig_sent.update_layout(barmode='stack', template="plotly_dark", paper_bgcolor="#030712", plot_bgcolor="#030712", height=350, title_text="Sentiment Votes (Toros vs Neutral vs Osos)", xaxis_title="Porcentaje (%)")
+    fig_sent.update_layout(barmode='stack', template="plotly_white", paper_bgcolor="#ffffff", plot_bgcolor="#ffffff", font=dict(color="#0f172a"), height=350, title_text="Sentiment Votes (Toros vs Neutral vs Osos)", xaxis_title="Porcentaje (%)")
     st.plotly_chart(fig_sent, use_container_width=True)
     st.dataframe(df_sentimiento, use_container_width=True)
 
@@ -716,7 +721,7 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
             st.markdown("---")
             st.markdown(f"""
                 <div class="card">
-                    <h2 style="color: #818cf8; margin-top: 0;">📋 Resumen Cuantitativo: {nombre_oficial} ({ticker_input})</h2>
+                    <h2 style="color: #4f46e5; margin-top: 0;">📋 Resumen Cuantitativo: {nombre_oficial} ({ticker_input})</h2>
                 </div>
             """, unsafe_allow_html=True)
 
