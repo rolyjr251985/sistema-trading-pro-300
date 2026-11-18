@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilo visual institucional ultra nítido: Corrección total de menús flotantes, popovers y legibilidad
+# Estilo visual institucional ultra nítido: Corrección universal y absoluta de textos, alertas y menús flotantes
 st.markdown("""
     <style>
     .stApp {
@@ -24,26 +24,30 @@ st.markdown("""
     p, span, label, div, h1, h2, h3, h4, h5, h6, .stMarkdown, .streamlit-expanderHeader {
         color: #f8fafc !important;
     }
-    /* CORRECCIÓN DEFINITIVA PARA MENÚS FLOTANTES, POPOVERS Y TABLAS */
+    /* CORRECCIÓN ABSOLUTA PARA CAJAS DE INFO Y ALERTAS (st.info, st.success, st.warning, st.error) */
     div.stAlert, div[data-baseweb="notification"], div.stInfo, div.stSuccess, div.stWarning, div.stError {
         background-color: #0f172a !important;
         color: #ffffff !important;
         border: 1px solid #334155 !important;
     }
-    div.stAlert *, div.stInfo *, div.stSuccess *, div.stWarning *, div.stError * {
+    div.stAlert *, div.stInfo *, div.stSuccess *, div.stWarning *, div.stError *, 
+    div.stAlert p, div.stInfo p, div.stSuccess p, div.stWarning p, div.stError p, div.stAlert span, div.stInfo span {
         color: #ffffff !important;
+        opacity: 1 !important;
     }
-    /* Menús desplegables, popovers flotantes de tablas y toolbars */
-    div[data-baseweb="popover"], div[data-baseweb="menu"], div[role="menu"], ul[role="menu"], div[data-baseweb="select"] > div {
+    /* CORRECCIÓN PARA MENÚS FLOTANTES, POPOVERS Y TABLAS DE STREAMLIT */
+    div[data-baseweb="popover"], div[data-baseweb="menu"], div[role="menu"], ul[role="menu"], 
+    div[data-baseweb="select"] > div, div[data-baseweb="card"], div[class*="baseui"], section[data-testid="stSidebar"] {
         background-color: #0f172a !important;
         color: #ffffff !important;
         border-color: #334155 !important;
     }
-    div[role="menuitem"], li[role="menuitem"], div[data-baseweb="option"], option, div[role="option"] {
+    div[role="menuitem"], li[role="menuitem"], div[data-baseweb="option"], option, div[role="option"], 
+    div[role="menuitem"] *, div[data-baseweb="option"] * {
         background-color: #0f172a !important;
         color: #ffffff !important;
     }
-    div[role="menuitem"]:hover, li[role="menuitem"]:hover, div[data-baseweb="option"]:hover {
+    div[role="menuitem"]:hover, li[role="menuitem"]:hover, div[data-baseweb="option"]:hover, div[data-baseweb="option"]:hover * {
         background-color: #4f46e5 !important;
         color: #ffffff !important;
     }
@@ -51,8 +55,8 @@ st.markdown("""
         color: #ffffff !important;
         background-color: #0f172a !important;
     }
-    /* Contenedores de Dataframes */
-    .stDataFrame {
+    /* Contenedores de Dataframes y Toolbar flotante de tablas */
+    .stDataFrame, div[data-testid="stDataFrame"] {
         background-color: #0f172a !important;
         color: #ffffff !important;
     }
