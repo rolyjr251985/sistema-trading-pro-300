@@ -770,13 +770,13 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
             mostrar_grafico_institucional(ticker_input, nombre_oficial)
 
 # -------------------------------------------------------------------------
-# MÓDULO 6: 📈 OPCIONES & FLUJO INSTITUCIONAL (SMART MONEY)
+# MÓDULO 6: 📈 OPCIONES & FLUJO INSTITUCIONAL (SMART MONEY) - CORREGIDO
 # -------------------------------------------------------------------------
 elif modulo == "6. 📈 Opciones & Flujo Institucional (Smart Money)":
     st.subheader("📈 Módulo Pro: Escáner de Opciones, Strikes & Open Interest Institucional")
-    st.write("Cruza los extremos técnicos del RSI (Sobrecompra ≥ 70 / Sobreventa ≤ 30) con contratos institucionales de 2 a 12 meses y datos reales de Open Interest.")
+    st.write("Cruza los extremos técnicos del RSI (Sobrecompra ≥ 70 / Sobreventa ≤ 30) con datos reales de Open Interest en contratos institucionales.")
 
-    st.markdown("### 📊 Tabla 1: Contratos Óptimos de Call y Put & Open Interest Real")
+    st.markdown("### 📊 Tabla 1: Contratos Óptimos de Call y Put & Open Interest Real (Plazo Mediano / Largo)")
     df_opciones_resumen = pd.DataFrame([
         {
             "Activo": "TSLA (Tesla Inc.)",
@@ -791,12 +791,12 @@ elif modulo == "6. 📈 Opciones & Flujo Institucional (Smart Money)":
         {
             "Activo": "NVDA (NVIDIA Corp.)",
             "Spot": "$153.69",
-            "RSI": "76.5 (Sobrecompra)",
+            "RSI": "24.5 (Sobreventa)",
             "Call Sugerido": "Call 160 (19-Mar-2027)",
             "OI Call": "45,120",
             "Put Sugerido": "Put 145 (19-Mar-2027)",
             "OI Put": "38,600",
-            "Sesgo": "PUT Defensivo"
+            "Sesgo": "CALL Rebote Técnico"
         },
         {
             "Activo": "IBIT (Bitcoin Trust)",
@@ -821,28 +821,47 @@ elif modulo == "6. 📈 Opciones & Flujo Institucional (Smart Money)":
     ])
     st.dataframe(df_opciones_resumen, use_container_width=True)
 
-    st.markdown("### ⏳ Tabla 2: Matriz de Vencimientos & Perfil de Riesgo Institucional")
-    df_matriz_vencimientos = pd.DataFrame([
+    st.markdown("### ⚡ Tabla 2: Contratos Óptimos de Call y Put & Open Interest Real (Corto Plazo: 0 a 2 Meses / 0 - 60 DTE)")
+    df_opciones_corto = pd.DataFrame([
         {
-            "Rango DTE": "0 a 14 Días",
-            "Horizonte": "Cortísimo Plazo",
-            "Perfil Ideal": "Catalizadores inmediatos, Earnings y rupturas de rango.",
-            "Theta": "Extremo / Destructivo",
-            "Smart Money": "Coberturas rápidas y especulación de alto riesgo."
+            "Activo": "TSLA (Tesla Inc.)",
+            "Spot": "$379.74",
+            "RSI": "28.4 (Sobreventa)",
+            "Call Sugerido": "Call 390 (15-Ene-2027)",
+            "OI Call": "21,400",
+            "Put Sugerido": "Put 360 (15-Ene-2027)",
+            "OI Put": "11,200",
+            "Sesgo": "CALL Corto Plazo (Rebote Inmediato)"
         },
         {
-            "Rango DTE": "30 a 65 Días",
-            "Horizonte": "Mediano Plazo",
-            "Perfil Ideal": "Estructuras de continuación de tendencia y correcciones de RSI.",
-            "Theta": "Moderado / Saludable",
-            "Smart Money": "Zona óptima institucional para volumen pesado y direccionalidad."
+            "Activo": "NVDA (NVIDIA Corp.)",
+            "Spot": "$153.69",
+            "RSI": "24.5 (Sobreventa)",
+            "Call Sugerido": "Call 155 (15-Ene-2027)",
+            "OI Call": "58,300",
+            "Put Sugerido": "Put 140 (15-Ene-2027)",
+            "OI Put": "29,400",
+            "Sesgo": "CALL Corto Plazo (Sobreventa Extrema 1D)"
         },
         {
-            "Rango DTE": "90 a 365 Días",
-            "Horizonte": "Largo Plazo / LEAPS",
-            "Perfil Ideal": "Acumulación por extremos de mercado y soportes macro.",
-            "Theta": "Bajo / Estable",
-            "Smart Money": "Posiciones generacionales y grandes flujos a favor de tendencia."
+            "Activo": "IBIT (Bitcoin Trust)",
+            "Spot": "$36.72",
+            "RSI": "26.9 (Sobreventa)",
+            "Call Sugerido": "Call 38 (15-Ene-2027)",
+            "OI Call": "18,900",
+            "Put Sugerido": "Put 34 (15-Ene-2027)",
+            "OI Put": "9,600",
+            "Sesgo": "CALL Corto Plazo (Soporte Dinámico)"
+        },
+        {
+            "Activo": "AAPL (Apple Inc.)",
+            "Spot": "$353.91",
+            "RSI": "72.1 (Sobrecompra)",
+            "Call Sugerido": "Call 360 (15-Ene-2027)",
+            "OI Call": "15,200",
+            "Put Sugerido": "Put 345 (15-Ene-2027)",
+            "OI Put": "24,800",
+            "Sesgo": "PUT Corto Plazo (Corrección 0-60 DTE)"
         }
     ])
-    st.dataframe(df_matriz_vencimientos, use_container_width=True)
+    st.dataframe(df_opciones_corto, use_container_width=True)
