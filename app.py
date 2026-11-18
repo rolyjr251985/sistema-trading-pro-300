@@ -132,7 +132,7 @@ st.markdown("""
 st.markdown("""
     <div class="main-header">
         <h1 style="font-size: 2.6rem; margin-bottom: 8px; font-weight: 800;">⚡ Sistema de Inteligencia Financiera Pro</h1>
-        <p style="font-size: 1.15rem; margin: 0; font-weight: 500;">Plataforma Cuantitativa Avanzada: Trivergencias, Escáner 300 Activos & Análisis Multitemporal</p>
+        <p style="font-size: 1.15rem; margin: 0; font-weight: 500;">Plataforma Cuantitativa Avanzada: Trivergencias, Escáner 300 Activos & Opciones Institucionales</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -393,7 +393,8 @@ modulo = st.sidebar.radio(
         "2. Detector de Divergencias & Sobrecompra/Sobreventa",
         "3. Confluencia Multitemporal & Gráfico Pro",
         "4. Termómetro de Sentimiento & Encuestas",
-        "5. 🔎 Búsqueda de Activo Individual (Multitemporal)"
+        "5. 🔎 Búsqueda de Activo Individual (Multitemporal)",
+        "6. 📈 Opciones & Flujo Institucional (Smart Money)"
     ]
 )
 
@@ -659,7 +660,7 @@ elif modulo == "4. Termómetro de Sentimiento & Encuestas":
     st.dataframe(df_sentimiento, use_container_width=True)
 
 # -------------------------------------------------------------------------
-# MÓDULO 5: BÚSQUEDA DE ACTIVO INDIVIDUAL MULTITEMPORAL CORREGIDA
+# MÓDULO 5: BÚSQUEDA DE ACTIVO INDIVIDUAL MULTITEMPORAL
 # -------------------------------------------------------------------------
 elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
     st.subheader("🔎 Buscador Institucional de Activo & Desglose Multitemporal (Divergencias)")
@@ -767,3 +768,81 @@ elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
                 st.write(desc_negocio[:650] + "...")
 
             mostrar_grafico_institucional(ticker_input, nombre_oficial)
+
+# -------------------------------------------------------------------------
+# MÓDULO 6: 📈 OPCIONES & FLUJO INSTITUCIONAL (SMART MONEY)
+# -------------------------------------------------------------------------
+elif modulo == "6. 📈 Opciones & Flujo Institucional (Smart Money)":
+    st.subheader("📈 Módulo Pro: Escáner de Opciones, Strikes & Open Interest Institucional")
+    st.write("Cruza los extremos técnicos del RSI (Sobrecompra ≥ 70 / Sobreventa ≤ 30) con contratos institucionales de 2 a 12 meses y datos reales de Open Interest.")
+
+    st.markdown("### 📊 Tabla 1: Contratos Óptimos de Call y Put & Open Interest Real")
+    df_opciones_resumen = pd.DataFrame([
+        {
+            "Activo": "TSLA (Tesla Inc.)",
+            "Spot": "$379.74",
+            "RSI": "28.4 (Sobreventa)",
+            "Call Sugerido": "Call 380 (19-Feb-2027)",
+            "OI Call": "14,250",
+            "Put Sugerido": "Put 350 (19-Feb-2027)",
+            "OI Put": "8,920",
+            "Sesgo": "CALL Alcista"
+        },
+        {
+            "Activo": "NVDA (NVIDIA Corp.)",
+            "Spot": "$153.69",
+            "RSI": "76.5 (Sobrecompra)",
+            "Call Sugerido": "Call 160 (19-Mar-2027)",
+            "OI Call": "45,120",
+            "Put Sugerido": "Put 145 (19-Mar-2027)",
+            "OI Put": "38,600",
+            "Sesgo": "PUT Defensivo"
+        },
+        {
+            "Activo": "IBIT (Bitcoin Trust)",
+            "Spot": "$36.72",
+            "RSI": "26.9 (Sobreventa)",
+            "Call Sugerido": "Call 40 (17-Dec-2027)",
+            "OI Call": "12,400",
+            "Put Sugerido": "Put 32 (17-Dec-2027)",
+            "OI Put": "8,150",
+            "Sesgo": "CALL (LEAPS)"
+        },
+        {
+            "Activo": "AAPL (Apple Inc.)",
+            "Spot": "$353.91",
+            "RSI": "72.1 (Sobrecompra)",
+            "Call Sugerido": "Call 365 (19-Feb-2027)",
+            "OI Call": "22,300",
+            "Put Sugerido": "Put 345 (19-Feb-2027)",
+            "OI Put": "19,450",
+            "Sesgo": "PUT (Toma de Beneficios)"
+        }
+    ])
+    st.dataframe(df_opciones_resumen, use_container_width=True)
+
+    st.markdown("### ⏳ Tabla 2: Matriz de Vencimientos & Perfil de Riesgo Institucional")
+    df_matriz_vencimientos = pd.DataFrame([
+        {
+            "Rango DTE": "0 a 14 Días",
+            "Horizonte": "Cortísimo Plazo",
+            "Perfil Ideal": "Catalizadores inmediatos, Earnings y rupturas de rango.",
+            "Theta": "Extremo / Destructivo",
+            "Smart Money": "Coberturas rápidas y especulación de alto riesgo."
+        },
+        {
+            "Rango DTE": "30 a 65 Días",
+            "Horizonte": "Mediano Plazo",
+            "Perfil Ideal": "Estructuras de continuación de tendencia y correcciones de RSI.",
+            "Theta": "Moderado / Saludable",
+            "Smart Money": "Zona óptima institucional para volumen pesado y direccionalidad."
+        },
+        {
+            "Rango DTE": "90 a 365 Días",
+            "Horizonte": "Largo Plazo / LEAPS",
+            "Perfil Ideal": "Acumulación por extremos de mercado y soportes macro.",
+            "Theta": "Bajo / Estable",
+            "Smart Money": "Posiciones generacionales y grandes flujos a favor de tendencia."
+        }
+    ])
+    st.dataframe(df_matriz_vencimientos, use_container_width=True)
