@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilo visual institucional de fondo blanco y alta legibilidad absoluta
+# Estilo visual institucional con tipografía 100% visible sobre fondo blanco
 st.markdown("""
     <style>
     /* Fondo general de la aplicación en blanco nítido */
@@ -22,12 +22,18 @@ st.markdown("""
         color: #0f172a !important;
     }
     
-    /* Forzar tipografía oscura y de alta visibilidad en toda la interfaz */
+    /* FORZAR VISIBILIDAD TOTAL EN TODOS LOS TEXTOS, TÍTULOS Y ENCABEZADOS */
     p, span, label, div, h1, h2, h3, h4, h5, h6, .stMarkdown, .streamlit-expanderHeader {
         color: #0f172a !important;
+        opacity: 1 !important;
     }
     
-    /* Cajas de Alertas, Info y Éxito en tonos claros perfectamente legibles */
+    h1, h2, h3, h4, h5, h6 {
+        color: #0f172a !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Cajas de Alertas, Info y Éxito */
     div.stAlert, div[data-baseweb="notification"], div.stInfo, div.stSuccess, div.stWarning, div.stError {
         background-color: #f1f5f9 !important;
         color: #0f172a !important;
@@ -347,7 +353,7 @@ def mostrar_grafico_institucional(ticker, nombre_activo):
             colors = ['#10b981' if val >= 0 else '#ef4444' for val in sq_s]
             fig.add_trace(go.Bar(x=df_chart.index, y=sq_s, marker_color=colors, name="Squeeze Momentum"), row=3, col=1)
             
-            fig.update_layout(height=780, template="plotly_dark", paper_bgcolor="#ffffff", plot_bgcolor="#ffffff", font=dict(color="#0f172a"), title_text="", xaxis_rangeslider_visible=False)
+            fig.update_layout(height=780, template="plotly_white", paper_bgcolor="#ffffff", plot_bgcolor="#ffffff", font=dict(color="#0f172a"), title_text="", xaxis_rangeslider_visible=False)
             st.plotly_chart(fig, use_container_width=True)
             return
     st.error(f"No se pudieron cargar los datos del gráfico para el ticker `{ticker}`.")
