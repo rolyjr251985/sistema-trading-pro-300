@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilo visual institucional ultra nítido: Corrección universal y absoluta de textos, alertas y menús flotantes
+# Estilo visual institucional ultra nítido: Corrección total, radical y universal de textos, alertas y menús de tablas
 st.markdown("""
     <style>
     .stApp {
@@ -24,42 +24,49 @@ st.markdown("""
     p, span, label, div, h1, h2, h3, h4, h5, h6, .stMarkdown, .streamlit-expanderHeader {
         color: #f8fafc !important;
     }
-    /* CORRECCIÓN ABSOLUTA PARA CAJAS DE INFO Y ALERTAS (st.info, st.success, st.warning, st.error) */
+    
+    /* CORRECCIÓN RADICAL PARA ALERTAS, INFO Y ÉXITO (st.success, st.info, etc.) */
     div.stAlert, div[data-baseweb="notification"], div.stInfo, div.stSuccess, div.stWarning, div.stError {
         background-color: #0f172a !important;
         color: #ffffff !important;
         border: 1px solid #334155 !important;
     }
-    div.stAlert *, div.stInfo *, div.stSuccess *, div.stWarning *, div.stError *, 
-    div.stAlert p, div.stInfo p, div.stSuccess p, div.stWarning p, div.stError p, div.stAlert span, div.stInfo span {
+    div.stAlert *, div.stInfo *, div.stSuccess *, div.stWarning *, div.stError *,
+    div.stAlert p, div.stInfo p, div.stSuccess p, div.stWarning p, div.stError p,
+    div.stAlert span, div.stInfo span, div.stSuccess span {
         color: #ffffff !important;
         opacity: 1 !important;
     }
-    /* CORRECCIÓN PARA MENÚS FLOTANTES, POPOVERS Y TABLAS DE STREAMLIT */
-    div[data-baseweb="popover"], div[data-baseweb="menu"], div[role="menu"], ul[role="menu"], 
-    div[data-baseweb="select"] > div, div[data-baseweb="card"], div[class*="baseui"], section[data-testid="stSidebar"] {
+
+    /* CORRECCIÓN ABSOLUTA PARA MENÚS FLOTANTES, POPOVERS Y SELECTORES DE TABLAS */
+    div[data-baseweb="popover"], div[data-baseweb="menu"], div[role="menu"], ul[role="menu"],
+    div[class*="popover"], div[class*="menu"], div[class*="dropdown"], div[class*="select"] {
         background-color: #0f172a !important;
         color: #ffffff !important;
         border-color: #334155 !important;
     }
-    div[role="menuitem"], li[role="menuitem"], div[data-baseweb="option"], option, div[role="option"], 
-    div[role="menuitem"] *, div[data-baseweb="option"] * {
-        background-color: #0f172a !important;
+    div[role="menuitem"], li[role="menuitem"], div[data-baseweb="option"], option, div[role="option"],
+    div[role="menuitem"] *, div[data-baseweb="option"] *, label[data-baseweb="checkbox"] span {
+        background-color: transparent !important;
         color: #ffffff !important;
     }
     div[role="menuitem"]:hover, li[role="menuitem"]:hover, div[data-baseweb="option"]:hover, div[data-baseweb="option"]:hover * {
         background-color: #4f46e5 !important;
         color: #ffffff !important;
     }
+    
+    /* Inputs y Textareas */
     input, textarea, select {
         color: #ffffff !important;
         background-color: #0f172a !important;
     }
+    
     /* Contenedores de Dataframes y Toolbar flotante de tablas */
     .stDataFrame, div[data-testid="stDataFrame"] {
         background-color: #0f172a !important;
         color: #ffffff !important;
     }
+
     /* Estilos específicos para la barra lateral */
     [data-testid="stSidebar"] {
         background-color: #080c14;
@@ -69,6 +76,7 @@ st.markdown("""
         color: #ffffff !important;
         font-weight: 500 !important;
     }
+
     /* Banner Principal Estilizado */
     .main-header {
         background: linear-gradient(135deg, #312e81 0%, #1e1b4b 50%, #090d16 100%);
@@ -80,6 +88,7 @@ st.markdown("""
         text-align: center;
         margin-bottom: 30px;
     }
+
     /* Tarjetas de Contenido */
     .card {
         background: linear-gradient(145deg, #0f172a 0%, #111827 100%);
@@ -89,6 +98,7 @@ st.markdown("""
         box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5);
         margin-bottom: 20px;
     }
+
     /* Botones Mejorados */
     .stButton>button {
         background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
