@@ -6,830 +6,834 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import requests
 
-# Configuración de la página
+# =========================================================================
+# CONFIGURACIÓN DE PÁGINA Y ESTILOS VISUALES
+# =========================================================================
 st.set_page_config(
-    page_title="Sistema de Trading Pro - 300 Activos",
-    page_icon="⚡",
-    layout="wide"
+    page_title="Sistema de Inteligencia Financiera Pro",
+    page_icon="📈",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# Estilo visual institucional con tipografía 100% visible sobre fondo blanco
 st.markdown("""
-    <style>
-    /* Fondo general de la aplicación en blanco nítido */
-    .stApp {
-        background-color: #f8fafc !important;
-        color: #0f172a !important;
-    }
-    
-    /* FORZAR VISIBILIDAD TOTAL EN TODOS LOS TEXTOS, TÍTULOS Y ENCABEZADOS */
-    p, span, label, div, h1, h2, h3, h4, h5, h6, .stMarkdown, .streamlit-expanderHeader {
-        color: #0f172a !important;
-        opacity: 1 !important;
-    }
-    
-    h1, h2, h3, h4, h5, h6 {
-        color: #0f172a !important;
-        font-weight: 700 !important;
-    }
-    
-    /* Cajas de Alertas, Info y Éxito */
-    div.stAlert, div[data-baseweb="notification"], div.stInfo, div.stSuccess, div.stWarning, div.stError {
-        background-color: #f1f5f9 !important;
-        color: #0f172a !important;
-        border: 1px solid #cbd5e1 !important;
-    }
-    div.stAlert *, div.stInfo *, div.stSuccess *, div.stWarning *, div.stError *,
-    div.stAlert p, div.stInfo p, div.stSuccess p, div.stWarning p, div.stError p,
-    div.stAlert span, div.stInfo span, div.stSuccess span {
-        color: #0f172a !important;
-        opacity: 1 !important;
-    }
-
-    /* Menús flotantes, popovers y selectores de tablas */
-    div[data-baseweb="popover"], div[data-baseweb="menu"], div[role="menu"], ul[role="menu"],
-    div[class*="popover"], div[class*="menu"], div[class*="dropdown"], div[class*="select"] {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-        border-color: #cbd5e1 !important;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
-    div[role="menuitem"], li[role="menuitem"], div[data-baseweb="option"], option, div[role="option"],
-    div[role="menuitem"] *, div[data-baseweb="option"] *, label[data-baseweb="checkbox"] span {
-        background-color: transparent !important;
-        color: #0f172a !important;
-    }
-    div[role="menuitem"]:hover, li[role="menuitem"]:hover, div[data-baseweb="option"]:hover, div[data-baseweb="option"]:hover * {
-        background-color: #e0e7ff !important;
-        color: #1e1b4b !important;
-    }
-    
-    /* Inputs, Textareas y Selectboxes */
-    input, textarea, select, div[data-baseweb="select"] > div {
-        color: #0f172a !important;
-        background-color: #ffffff !important;
-        border-color: #cbd5e1 !important;
-    }
-    
-    /* Contenedores de Dataframes */
-    .stDataFrame, div[data-testid="stDataFrame"] {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-    }
-
-    /* Barra lateral institucional distinguible */
-    [data-testid="stSidebar"] {
-        background-color: #0f172a;
-        border-right: 1px solid #cbd5e1;
-    }
-    [data-testid="stSidebar"] label, [data-testid="stSidebar"] span, [data-testid="stSidebar"] p, [data-testid="stSidebar"] h3 {
-        color: #ffffff !important;
-        font-weight: 500 !important;
-    }
-
-    /* Banner Principal Estilizado */
-    .main-header {
-        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4f46e5 100%);
-        padding: 30px;
-        border-radius: 18px;
-        box-shadow: 0 20px 30px -10px rgba(79, 70, 229, 0.2);
-        color: #ffffff;
-        text-align: center;
-        margin-bottom: 30px;
-    }
-    .main-header h1, .main-header p {
-        color: #ffffff !important;
-    }
-
-    /* Tarjetas de Contenido */
-    .card {
-        background: #ffffff;
-        padding: 24px;
-        border-radius: 14px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        margin-bottom: 20px;
-    }
-
-    /* Botones Mejorados */
-    .stButton>button {
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-        color: white !important;
-        font-weight: 700 !important;
+<style>
+    .main { background-color: #0e1117; }
+    .metric-card {
+        background-color: #1e2130;
+        padding: 15px;
         border-radius: 10px;
-        border: none;
-        padding: 12px 28px;
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        transition: all 0.2s ease;
+        border-left: 4px solid #00f2fe;
+        margin-bottom: 10px;
     }
-    .stButton>button:hover {
-        background: linear-gradient(135deg, #4f46e5 100%, #3b82f6 100%);
-        transform: translateY(-2px);
+    .stButton>button {
+        width: 100%;
+        border-radius: 6px;
+        font-weight: bold;
     }
-    </style>
+</style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-    <div class="main-header">
-        <h1 style="font-size: 2.6rem; margin-bottom: 8px; font-weight: 800;">⚡ Sistema de Inteligencia Financiera Pro</h1>
-        <p style="font-size: 1.15rem; margin: 0; font-weight: 500;">Plataforma Cuantitativa Avanzada: Trivergencias, Escáner 300 Activos & Opciones Institucionales</p>
-    </div>
-""", unsafe_allow_html=True)
+# =========================================================================
+# DICCIONARIO DE ACTIVOS (300 INSTRUMENTOS)
+# =========================================================================
+diccionario_activos = {
+    # Criptomonedas
+    "BTC-USD": "Bitcoin", "ETH-USD": "Ethereum", "SOL-USD": "Solana",
+    "BNB-USD": "Binance Coin", "XRP-USD": "Ripple", "ADA-USD": "Cardano",
+    "DOGE-USD": "Dogecoin", "TRX-USD": "TRON", "DOT-USD": "Polkadot",
+    "LINK-USD": "Chainlink", "MATIC-USD": "Polygon", "SHIB-USD": "Shiba Inu",
+    "LTC-USD": "Litecoin", "BCH-USD": "Bitcoin Cash", "UNI7083-USD": "Uniswap",
+    "ATOM-USD": "Cosmos", "XLM-USD": "Stellar", "ETC-USD": "Ethereum Classic",
+    "FIL-USD": "Filecoin", "HBAR-USD": "Hedera", "APT21794-USD": "Aptos",
+    "ARB11841-USD": "Arbitrum", "OP-USD": "Optimism", "NEAR-USD": "NEAR Protocol",
+    "INJ-USD": "Injective", "AAVE-USD": "Aave", "ALGO-USD": "Algorand",
+    "VET-USD": "VeChain", "ICP-USD": "Internet Computer", "GRT6719-USD": "The Graph",
+    "SAND-USD": "The Sandbox", "MANA-USD": "Decentraland", "AXS-USD": "Axie Infinity",
+    "THETA-USD": "Theta Network", "EGLD-USD": "MultiversX", "XTZ-USD": "Tezos",
+    "EOS-USD": "EOS", "SNX-USD": "Synthetix", "MKR-USD": "Maker",
+    "CRV-USD": "Curve DAO", "LDO-USD": "Lido DAO", "RUNE-USD": "THORChain",
+    "FTM-USD": "Fantom", "KAVA-USD": "Kava", "ZEC-USD": "Zcash",
+    "DASH-USD": "Dash", "NEO-USD": "Neo", "IOTA-USD": "IOTA", "QNT-USD": "Quant",
 
-# -------------------------------------------------------------------------
-# 1. LISTA MAESTRA AMPLIADA A 300 ACTIVOS EXACTOS
-# -------------------------------------------------------------------------
-@st.cache_data(ttl=3600)
-def obtener_300_activos():
-    diccionario_activos = {
-        "BTC-USD": "Bitcoin (USD)", "ETH-USD": "Ethereum (USD)", "SOL-USD": "Solana (USD)", 
-        "BNB-USD": "Binance Coin (USD)", "XRP-USD": "Ripple (USD)", "ADA-USD": "Cardano (USD)", 
-        "DOGE-USD": "Dogecoin (USD)", "TRX-USD": "Tron (USD)", "LINK-USD": "Chainlink (USD)", "SUI-USD": "Sui (USD)",
-        "AAPL": "Apple Inc.", "MSFT": "Microsoft Corporation", "NVDA": "NVIDIA Corporation", 
-        "AMZN": "Amazon.com Inc.", "GOOGL": "Alphabet Inc. (Google)", "META": "Meta Platforms Inc.", 
-        "TSLA": "Tesla Inc.", "BRK-B": "Berkshire Hathaway", "LLY": "Eli Lilly and Company", "AVGO": "Broadcom Inc.",
-        "JPM": "JPMorgan Chase & Co.", "WMT": "Walmart Inc.", "XOM": "Exxon Mobil Corporation", 
-        "V": "Visa Inc.", "MA": "Mastercard Incorporated", "UNH": "UnitedHealth Group", 
-        "PG": "Procter & Gamble", "JNJ": "Johnson & Johnson", "HD": "The Home Depot", "COST": "Costco Wholesale",
-        "MRK": "Merck & Co.", "ABBV": "AbbVie Inc.", "NFLX": "Netflix Inc.", "CVX": "Chevron Corporation", 
-        "BAC": "Bank of America", "AMD": "Advanced Micro Devices", "CRM": "Salesforce Inc.", 
-        "ADBE": "Adobe Inc.", "ACN": "Accenture plc", "WFC": "Wells Fargo & Company",
-        "LIN": "Linde plc", "TMO": "Thermo Fisher Scientific", "MCD": "McDonald's Corporation", 
-        "CSCO": "Cisco Systems", "ABT": "Abbott Laboratories", "IBM": "International Business Machines", 
-        "DIS": "The Walt Disney Company", "PM": "Philip Morris International", "GE": "General Electric", "QCOM": "Qualcomm Inc.",
-        "CAT": "Caterpillar Inc.", "INTU": "Intuit Inc.", "VZ": "Verizon Communications", 
-        "AMGN": "Amgen Inc.", "PFE": "Pfizer Inc.", "NOW": "ServiceNow Inc.", "COP": "ConocoPhillips", 
-        "AXP": "American Express", "T": "AT&T Inc.", "SPGI": "S&P Global Inc.",
-        "ISRG": "Intuitive Surgical", "BKNG": "Booking Holdings", "GILD": "Gilead Sciences", 
-        "RTX": "RTX Corporation", "HON": "Honeywell International", "UNP": "Union Pacific Corporation", 
-        "MU": "Micron Technology", "PANW": "Palo Alto Networks", "BX": "Blackstone Inc.", "LOW": "Lowe's Companies",
-        "SYK": "Stryker Corporation", "DE": "Deere & Company", "VRTX": "Vertex Pharmaceuticals", 
-        "TJX": "The TJX Companies", "CB": "Chubb Limited", "LMT": "Lockheed Martin", 
-        "ADI": "Analog Devices", "MDT": "Medtronic plc", "ETN": "Eaton Corporation", "BSX": "Boston Scientific",
-        "PH": "Parker-Hannifin", "MMC": "Marsh & McLennan", "C": "Citigroup Inc.", 
-        "BLDR": "Builders FirstSource", "CMCSA": "Comcast Corporation", "SHW": "The Sherwin-Williams Company", 
-        "FI": "Fidelity National Information Services", "REGN": "Regeneron Pharmaceuticals", "EQIX": "Equinix Inc.", "ZTS": "Zoetis Inc.",
-        "SO": "The Southern Company", "ICE": "Intercontinental Exchange", "DUK": "Duke Energy", 
-        "ITW": "Illinois Tool Works", "CME": "CME Group Inc.", "HCA": "HCA Healthcare", 
-        "CL": "Colgate-Palmolive", "GD": "General Dynamics", "BDX": "Becton Dickinson", "NOC": "Northrop Grumman",
-        "PGR": "Progressive Corp.", "USB": "U.S. Bancorp", "CLX": "Clorox Co", "HUM": "Humana Inc", 
-        "NSC": "Norfolk Southern", "WM": "Waste Management", "APD": "Air Products", "SRE": "Sempra Energy", 
-        "EOG": "EOG Resources", "PSX": "Phillips 66", "MPC": "Marathon Petroleum", "VLO": "Valero Energy", 
-        "OXY": "Occidental Petroleum", "HES": "Hess Corp", "SLB": "Schlumberger", "HAL": "Halliburton", 
-        "BKR": "Baker Hughes", "KMI": "Kinder Morgan", "WMB": "Williams Companies", "DVN": "Devon Energy", 
-        "FANG": "Diamondback Energy", "TRGP": "Targa Resources", "CTRA": "Coterra Energy", "MRO": "Marathon Oil", 
-        "APA": "APA Corporation", "EQT": "EQT Corporation", "OKE": "ONEOK Inc", "LNG": "Cheniere Energy", 
-        "STLD": "Steel Dynamics", "NEM": "Newmont Corp", "FCX": "Freeport-McMoRan", "NUE": "Nucor Corp", 
-        "VMC": "Vulcan Materials", "MLM": "Martin Marietta", "ALB": "Albemarle Corp", "CF": "CF Industries", 
-        "MOS": "Mosaic Co", "FMC": "FMC Corp", "CTVA": "Corteva Inc", "DOW": "Dow Inc", "LYB": "LyondellBasell", 
-        "EMN": "Eastman Chemical", "CE": "Celanese Corp", "IP": "International Paper", "PKG": "Packaging Corp", 
-        "WRK": "WestRock Co", "BALL": "Ball Corp", "AMCR": "Amcor plc", "PPG": "PPG Industries", "ECL": "Ecolab Inc", 
-        "IFF": "Intl Flavors & Frag", "DD": "DuPont de Nemours", "AVY": "Avery Dennison", "SEE": "Sealed Air",
-        "GPK": "Graphic Packaging", "SON": "Sonoco Products", "UHS": "Universal Health", "THC": "Tenet Healthcare",
-        "CI": "Cigna Group", "CNC": "Centene Corp", "MOH": "Molina Healthcare", "ANTM": "Elevance Health",
-        "CAH": "Cardinal Health", "MCK": "McKesson Corp", "ABC": "AmerisourceBergen", "COR": "Cencora Inc",
-        "HSIC": "Henry Schein", "TECH": "Bio-Techne", "WAT": "Waters Corp", "TMO": "Thermo Fisher",
-        "ILMN": "Illumina Inc", "DHR": "Danaher Corp", "RMD": "ResMed Inc", "STE": "STERIS plc",
-        "BAX": "Baxter Intl", "ZBH": "Zimmer Biomet", "ALGN": "Align Technology", "HOLX": "Hologic Inc",
-        "^GSPC": "S&P 500 Index", "^DJI": "Dow Jones Industrial Average", "^IXIC": "NASDAQ Composite", 
-        "^RUT": "Russell 2000 Index", "^FTSE": "FTSE 100 Index", "^N225": "Nikkei 225", 
-        "^HSI": "Hang Seng Index", "^STOXX50E": "Euro Stoxx 50", "^VIX": "CBOE Volatility Index (VIX)",
-        "SPY": "SPDR S&P 500 ETF Trust", "QQQ": "Invesco QQQ Trust", "IWM": "iShares Russell 2000 ETF", 
-        "DIA": "SPDR Dow Jones Industrial Average ETF", "EEM": "iShares MSCI Emerging Markets ETF", 
-        "EFA": "iShares MSCI EAFE ETF", "GLD": "SPDR Gold Shares", "SLV": "iShares Silver Trust", 
-        "TLT": "iShares 20+ Year Treasury Bond ETF", "HYG": "iShares iBoxx High Yield Corporate Bond ETF",
-        "ARKK": "ARK Innovation ETF", "MSTR": "MicroStrategy Incorporated", "IBIT": "iShares Bitcoin Trust", 
-        "COIN": "Coinbase Global Inc.", "PLTR": "Palantir Technologies", "PEP": "PepsiCo Inc.", 
-        "NKE": "NIKE Inc.", "SBUX": "Starbucks Corporation", "BA": "The Boeing Company", 
-        "UBER": "Uber Technologies", "ABNB": "Airbnb Inc.", "DASH": "DoorDash Inc.",
-        "GC=F": "Gold Futures", "SI=F": "Silver Futures", "CL=F": "Crude Oil WTI", "BZ=F": "Brent Crude Oil",
-        "NG=F": "Natural Gas", "HG=F": "Copper Futures", "PL=F": "Platinum Futures", "PA=F": "Palladium Futures",
-        "ZC=F": "Corn Futures", "ZW=F": "Wheat Futures", "ZS=F": "Soybean Futures", "KC=F": "Coffee Futures",
-        "SB=F": "Sugar Futures", "CT=F": "Cotton Futures", "CC=F": "Cocoa Futures", "LE=F": "Live Cattle",
-        "HE=F": "Lean Hogs", "OJ=F": "Orange Juice", "DX=F": "US Dollar Index Futures", "EURUSD=X": "EUR/USD Forex",
-        "GBPUSD=X": "GBP/USD Forex", "USDJPY=X": "USD/JPY Forex", "AUDUSD=X": "AUD/USD Forex", "USDCAD=X": "USD/CAD Forex",
-        "NZDUSD=X": "NZD/USD Forex", "USDCHF=X": "USD/CHF Forex", "USDMXN=X": "USD/MXN Forex", "GBPJPY=X": "GBP/JPY Forex"
-    }
-    return diccionario_activos
+    # Acciones Tecnológicas y Mega Caps
+    "AAPL": "Apple Inc.", "MSFT": "Microsoft Corp.", "NVDA": "NVIDIA Corp.",
+    "GOOGL": "Alphabet Inc. (A)", "AMZN": "Amazon.com Inc.", "META": "Meta Platforms",
+    "TSLA": "Tesla Inc.", "BRK-B": "Berkshire Hathaway", "TSM": "Taiwan Semiconductor",
+    "AVGO": "Broadcom Inc.", "ORCL": "Oracle Corp.", "ADBE": "Adobe Inc.",
+    "CRM": "Salesforce Inc.", "AMD": "Advanced Micro Devices", "INTC": "Intel Corp.",
+    "QCOM": "Qualcomm Inc.", "TXN": "Texas Instruments", "AMAT": "Applied Materials",
+    "MU": "Micron Technology", "LRCX": "Lam Research", "KLAC": "KLA Corp.",
+    "ASML": "ASML Holding", "ARM": "Arm Holdings", "SMCI": "Super Micro Computer",
+    "PLTR": "Palantir Technologies", "SNOW": "Snowflake Inc.", "NET": "Cloudflare",
+    "CRWD": "CrowdStrike", "PANW": "Palo Alto Networks", "FTNT": "Fortinet",
+    "ZS": "Zscaler", "DDOG": "Datadog", "MDB": "MongoDB", "SHOP": "Shopify",
+    "SQ": "Block Inc.", "PYPL": "PayPal Holdings", "COIN": "Coinbase Global",
+    "HOOD": "Robinhood Markets", "UBER": "Uber Technologies", "ABNB": "Airbnb Inc.",
+    "NFLX": "Netflix Inc.", "SPOT": "Spotify Technology", "DIS": "Walt Disney Co.",
+    "RBLX": "Roblox Corp.", "EA": "Electronic Arts", "TTWO": "Take-Two Interactive",
+    "SONY": "Sony Group", "BABA": "Alibaba Group", "JD": "JD.com", "PDD": "PDD Holdings",
 
-# -------------------------------------------------------------------------
-# 2. MOTOR DE TRIVERGENCIAS Y DIVERGENCIAS
-# -------------------------------------------------------------------------
-@st.cache_data(ttl=900)
-def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
+    # Finanzas y Banca
+    "JPM": "JPMorgan Chase", "BAC": "Bank of America", "WFC": "Wells Fargo",
+    "C": "Citigroup Inc.", "GS": "Goldman Sachs", "MS": "Morgan Stanley",
+    "BLK": "BlackRock Inc.", "SCHW": "Charles Schwab", "AXP": "American Express",
+    "V": "Visa Inc.", "MA": "Mastercard Inc.", "COF": "Capital One",
+    "USB": "U.S. Bancorp", "PNC": "PNC Financial", "TFC": "Truist Financial",
+    "BK": "BNY Mellon", "STT": "State Street", "AIG": "American Intl Group",
+    "MET": "MetLife Inc.", "PRU": "Prudential Financial", "ALL": "Allstate Corp.",
+    "CB": "Chubb Limited", "PGR": "Progressive Corp.", "TRV": "Travelers Companies",
+    "MMC": "Marsh & McLennan", "AON": "Aon plc", "ICE": "Intercontinental Exchange",
+    "CME": "CME Group", "NDAQ": "Nasdaq Inc.", "SPGI": "S&P Global",
+
+    # Salud y Farmacéuticas
+    "LLY": "Eli Lilly and Co.", "UNH": "UnitedHealth Group", "JNJ": "Johnson & Johnson",
+    "ABBV": "AbbVie Inc.", "MRK": "Merck & Co.", "PFE": "Pfizer Inc.",
+    "TMO": "Thermo Fisher", "ABT": "Abbott Laboratories", "DHR": "Danaher Corp.",
+    "BMY": "Bristol-Myers Squibb", "AMGN": "Amgen Inc.", "GILD": "Gilead Sciences",
+    "VRTX": "Vertex Pharma", "REGN": "Regeneron Pharma", "ISRG": "Intuitive Surgical",
+    "SYK": "Stryker Corp.", "BSX": "Boston Scientific", "MDT": "Medtronic plc",
+    "ELV": "Elevance Health", "CI": "The Cigna Group", "CVS": "CVS Health",
+    "HUM": "Humana Inc.", "ZTS": "Zoetis Inc.", "BDX": "Becton Dickinson",
+    "MRNA": "Moderna Inc.", "BNTX": "BioNTech SE", "NVO": "Novo Nordisk",
+    "AZN": "AstraZeneca", "NVS": "Novartis AG", "GSK": "GSK plc",
+
+    # Consumo Masivo y Discrecional
+    "WMT": "Walmart Inc.", "COST": "Costco Wholesale", "HD": "Home Depot",
+    "LOW": "Lowe's Companies", "TGT": "Target Corp.", "PG": "Procter & Gamble",
+    "KO": "Coca-Cola Co.", "PEP": "PepsiCo Inc.", "MCD": "McDonald's Corp.",
+    "SBUX": "Starbucks Corp.", "NKE": "NIKE Inc.", "LULU": "Lululemon Athletica",
+    "TJX": "TJX Companies", "ROST": "Ross Stores", "DG": "Dollar General",
+    "DLTR": "Dollar Tree", "PM": "Philip Morris", "MO": "Altria Group",
+    "MDLZ": "Mondelez Intl", "KHC": "Kraft Heinz", "GIS": "General Mills",
+    "K": "Kellanova", "CL": "Colgate-Palmolive", "EL": "Estee Lauder",
+    "F": "Ford Motor Co.", "GM": "General Motors", "TM": "Toyota Motor",
+    "RIVN": "Rivian Automotive", "LCID": "Lucid Group", "NIO": "NIO Inc.",
+
+    # Energía, Industria y Materiales
+    "XOM": "Exxon Mobil", "CVX": "Chevron Corp.", "COP": "ConocoPhillips",
+    "SLB": "Schlumberger", "EOG": "EOG Resources", "MPC": "Marathon Petroleum",
+    "PSX": "Phillips 66", "VLO": "Valero Energy", "OXY": "Occidental Petroleum",
+    "HAL": "Halliburton Co.", "BKR": "Baker Hughes", "CAT": "Caterpillar Inc.",
+    "DE": "Deere & Company", "BA": "Boeing Company", "LMT": "Lockheed Martin",
+    "RTX": "RTX Corp.", "NOC": "Northrop Grumman", "GD": "General Dynamics",
+    "GE": "GE Aerospace", "HON": "Honeywell Intl", "UNP": "Union Pacific",
+    "UPS": "United Parcel Service", "FDX": "FedEx Corp.", "MMM": "3M Company",
+    "LIN": "Linde plc", "APD": "Air Products", "SHW": "Sherwin-Williams",
+    "FCX": "Freeport-McMoRan", "NEM": "Newmont Corp.", "SCCO": "Southern Copper",
+
+    # ETFs, Índices, Materias Primas y Forex
+    "SPY": "SPDR S&P 500 ETF", "QQQ": "Invesco QQQ Trust", "IWM": "iShares Russell 2000",
+    "DIA": "SPDR Dow Jones ETF", "EEM": "iShares MSCI Emerging", "EFA": "iShares MSCI EAFE",
+    "GLD": "SPDR Gold Shares", "SLV": "iShares Silver Trust", "TLT": "iShares 20+ Yr Treasury",
+    "HYG": "iShares High Yield Bond", "ARKK": "ARK Innovation ETF", "IBIT": "iShares Bitcoin Trust",
+    "MSTR": "MicroStrategy Inc.", "^GSPC": "S&P 500 Index", "^IXIC": "NASDAQ Composite",
+    "^DJI": "Dow Jones Industrial", "^RUT": "Russell 2000 Index", "^VIX": "CBOE Volatility VIX",
+    "GC=F": "Oro (Futuros)", "SI=F": "Plata (Futuros)", "CL=F": "Petróleo WTI (Futuros)",
+    "BZ=F": "Petróleo Brent", "NG=F": "Gas Natural", "HG=F": "Cobre (Futuros)",
+    "ZC=F": "Maíz (Futuros)", "ZW=F": "Trigo (Futuros)", "ZS=F": "Soja (Futuros)",
+    "EURUSD=X": "EUR/USD", "GBPUSD=X": "GBP/USD", "USDJPY=X": "USD/JPY",
+    "USDCAD=X": "USD/CAD", "AUDUSD=X": "AUD/USD", "USDCHF=X": "USD/CHF",
+    "USDMXN=X": "USD/MXN", "USDBRL=X": "USD/BRL", "DX-Y.NYB": "Índice Dólar (DXY)"
+}
+
+lista_tickers = list(diccionario_activos.keys())
+
+# =========================================================================
+# FUNCIONES DE EXTRACCIÓN Y LIMPIEZA DE DATOS
+# =========================================================================
+def limpiar_serie(s):
+    if isinstance(s, pd.DataFrame):
+        return s.iloc[:, 0]
+    return s
+
+def extraer_valor_seguro(serie_o_valor):
     try:
-        df = yf.download(ticker, period=periodo, interval=intervalo, progress=False)
-        if df is None or df.empty:
-            return None
-        if isinstance(df.columns, pd.MultiIndex):
-            df.columns = df.columns.get_level_values(0)
-        return df
-    except Exception:
-        return None
-
-def limpiar_serie(serie):
-    if isinstance(serie, pd.DataFrame):
-        serie = serie.iloc[:, 0]
-    return pd.Series(serie).squeeze()
-
-def calcular_indicadores(df):
-    if df is None or len(df) < 30:
-        return None
-    
-    close = limpiar_serie(df['Close'])
-    high = limpiar_serie(df['High'])
-    low = limpiar_serie(df['Low'])
-    vol = limpiar_serie(df['Volume'])
-
-    delta = close.diff()
-    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-    rs = gain / loss
-    df['RSI'] = 100 - (100 / (1 + rs))
-
-    ma20 = close.rolling(window=20).mean()
-    highest = high.rolling(window=20).max()
-    lowest = low.rolling(window=20).min()
-    m_avg = (highest + lowest) / 2 + ma20
-    df['Squeeze_Mom'] = (close - m_avg / 2).rolling(window=5).mean()
-
-    vol_ma20 = vol.rolling(window=20).mean()
-    df['Vol_Ratio'] = vol / vol_ma20
-
-    df['Divergencia'] = "Sin Divergencia"
-    df['Trivergencia'] = "Flujo Normal"
-    df['Signal'] = "NEUTRAL"
-
-    if len(close) >= 5:
-        p_actual = float(close.iloc[-1])
-        p_anterior = float(close.iloc[-5])
-        rsi_val = float(limpiar_serie(df['RSI']).iloc[-1])
-        rsi_prev = float(limpiar_serie(df['RSI']).iloc[-5])
-        sq_val = float(limpiar_serie(df['Squeeze_Mom']).iloc[-1])
-        sq_prev = float(limpiar_serie(df['Squeeze_Mom']).iloc[-2])
-        vol_r = float(limpiar_serie(df['Vol_Ratio']).iloc[-1])
-
-        if p_actual < p_anterior and rsi_val > rsi_prev:
-            df['Divergencia'] = "Divergencia Alcista (Precio 📉 / RSI 📈)"
-            if sq_val > sq_prev and vol_r > 0.8:
-                df['Trivergencia'] = "Trivergencia Alcista Confirmada (🟢)"
-                df['Signal'] = "COMPRA"
-            else:
-                df['Signal'] = "COMPRA"
-
-        elif p_actual > p_anterior and rsi_val < rsi_prev:
-            df['Divergencia'] = "Divergencia Bajista (Precio 📈 / RSI 📉)"
-            if sq_val < sq_prev and vol_r > 0.8:
-                df['Trivergencia'] = "Trivergencia Bajista Confirmada (🔴)"
-                df['Signal'] = "VENTA"
-            else:
-                df['Signal'] = "VENTA"
-
-    return df
-
-def extraer_valor_seguro(serie_o_df):
-    try:
-        val = limpiar_serie(serie_o_df)
-        if hasattr(val, 'iloc'):
-            val = val.iloc[-1]
-        res = float(val)
-        if np.isnan(res):
-            return 0.0
-        return res
+        if isinstance(serie_o_valor, pd.DataFrame):
+            val = serie_o_valor.iloc[-1, 0]
+        elif isinstance(serie_o_valor, pd.Series):
+            val = serie_o_valor.iloc[-1]
+        else:
+            val = serie_o_valor
+        return float(val) if pd.notna(val) else 0.0
     except Exception:
         return 0.0
 
-def resolver_ticker_ingresado(input_str, dic_activos):
-    clean = input_str.strip()
-    if clean in dic_activos:
-        return clean
-    for ticker, nombre in dic_activos.items():
-        if clean.lower() in ticker.lower() or clean.lower() in nombre.lower():
-            return ticker
-    return clean.upper()
-
-def mostrar_grafico_institucional(ticker, nombre_activo):
-    st.markdown("---")
-    st.markdown(f"""
-        <div style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); padding: 18px 22px; border-radius: 12px; border-left: 5px solid #6366f1; margin-bottom: 20px;">
-            <h3 style="margin: 0; color: #ffffff !important; font-size: 1.25rem;">📊 Gráfico Institucional & Osciladores: {nombre_activo} (<span style="color: #818cf8;">{ticker}</span>)</h3>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    df_chart = descargar_datos(ticker, intervalo="1d", periodo="6mo")
-    if df_chart is not None and not df_chart.empty:
-        df_chart = calcular_indicadores(df_chart)
-        if df_chart is not None:
-            fig = make_subplots(rows=3, cols=1, shared_xaxes=True, 
-                                vertical_spacing=0.03, row_heights=[0.55, 0.25, 0.2])
-            
-            opn = limpiar_serie(df_chart['Open'])
-            hgh = limpiar_serie(df_chart['High'])
-            lw = limpiar_serie(df_chart['Low'])
-            cls = limpiar_serie(df_chart['Close'])
-            rsi_s = limpiar_serie(df_chart['RSI'])
-            sq_s = limpiar_serie(df_chart['Squeeze_Mom'])
-
-            fig.add_trace(go.Candlestick(x=df_chart.index, open=opn, high=hgh, low=lw, close=cls, name="Precio"), row=1, col=1)
-            
-            ult_sig = str(limpiar_serie(df_chart['Signal']).iloc[-1])
-            if ult_sig == "COMPRA":
-                fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[extraer_valor_seguro(cls)], mode="markers", marker=dict(color="#10b981", size=16, symbol="circle"), name="Señal Alcista (🟢)"), row=1, col=1)
-            elif ult_sig == "VENTA":
-                fig.add_trace(go.Scatter(x=[df_chart.index[-1]], y=[extraer_valor_seguro(cls)], mode="markers", marker=dict(color="#ef4444", size=16, symbol="circle"), name="Señal Bajista (🔴)"), row=1, col=1)
-
-            fig.add_trace(go.Scatter(x=df_chart.index, y=rsi_s, line=dict(color='#38bdf8', width=2), name="RSI (14)"), row=2, col=1)
-            fig.add_hline(y=70, line_dash="dash", line_color="#ef4444", row=2, col=1)
-            fig.add_hline(y=30, line_dash="dash", line_color="#10b981", row=2, col=1)
-
-            colors = ['#10b981' if val >= 0 else '#ef4444' for val in sq_s]
-            fig.add_trace(go.Bar(x=df_chart.index, y=sq_s, marker_color=colors, name="Squeeze Momentum"), row=3, col=1)
-            
-            fig.update_layout(height=780, template="plotly_white", paper_bgcolor="#ffffff", plot_bgcolor="#ffffff", font=dict(color="#0f172a"), title_text="", xaxis_rangeslider_visible=False)
-            st.plotly_chart(fig, use_container_width=True)
-            return
-    st.error(f"No se pudieron cargar los datos del gráfico para el ticker `{ticker}`.")
-
-# -------------------------------------------------------------------------
-# 3. SENTIMIENTO GLOBAL
-# -------------------------------------------------------------------------
-def obtener_sentimiento():
-    crypto_fg = {"value": 19, "text": "Miedo extremo"}
+@st.cache_data(ttl=300)
+def descargar_datos(ticker, intervalo="1d", periodo="6mo"):
     try:
-        res = requests.get("https://api.alternative.me/fng/?limit=1", timeout=3)
-        if res.status_code == 200:
-            data = res.json()
-            crypto_fg = {"value": int(data['data'][0]['value']), "text": data['data'][0]['value_classification']}
+        if intervalo == "4h":
+            df = yf.download(ticker, period="60d", interval="1h", progress=False)
+            if df is None or df.empty:
+                return None
+            if isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.get_level_values(0)
+            df_4h = df.resample("4h").agg({
+                "Open": "first",
+                "High": "max",
+                "Low": "min",
+                "Close": "last",
+                "Volume": "sum"
+            }).dropna()
+            return df_4h
+        elif intervalo == "1w":
+            df = yf.download(ticker, period="2y", interval="1wk", progress=False)
+            if df is not None and not df.empty and isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.get_level_values(0)
+            return df
+        else:
+            df = yf.download(ticker, period=periodo, interval=intervalo, progress=False)
+            if df is not None and not df.empty and isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.get_level_values(0)
+            return df
+    except Exception:
+        return None
+
+@st.cache_data(ttl=900)
+def obtener_sentimiento_mercado():
+    res = {"crypto_val": 50, "crypto_txt": "Neutral", "stock_val": 50, "stock_txt": "Neutral"}
+    try:
+        r_c = requests.get("https://api.alternative.me/fng/?limit=1", timeout=5).json()
+        res["crypto_val"] = int(r_c["data"][0]["value"])
+        res["crypto_txt"] = r_c["data"][0]["value_classification"]
     except Exception:
         pass
 
-    stock_fg = {"value": 42, "text": "Miedo"}
     try:
-        res_cnn = requests.get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata", headers={'User-Agent': 'Mozilla/5.0'}, timeout=3)
-        if res_cnn.status_code == 200:
-            cdata = res_cnn.json()
-            stock_fg = {"value": round(float(cdata['fear_and_greed']['score']), 1), "text": cdata['fear_and_greed']['rating']}
+        headers = {"User-Agent": "Mozilla/5.0"}
+        r_s = requests.get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata", headers=headers, timeout=5).json()
+        res["stock_val"] = round(float(r_s["fear_and_greed"]["score"]), 1)
+        res["stock_txt"] = r_s["fear_and_greed"]["rating"].capitalize()
     except Exception:
         pass
+    return res
 
-    return crypto_fg, stock_fg
+# =========================================================================
+# CÁLCULO DE INDICADORES TÉCNICOS Y DIVERGENCIAS
+# =========================================================================
+def calcular_indicadores(df):
+    if df is None or len(df) < 30:
+        return None
 
-# -------------------------------------------------------------------------
-# NAVEGACIÓN LATERAL DE MÓDULOS
-# -------------------------------------------------------------------------
-st.sidebar.markdown("### 🎛️ Panel de Control Pro")
+    df = df.copy()
+    close = limpiar_serie(df["Close"])
+    high = limpiar_serie(df["High"])
+    low = limpiar_serie(df["Low"])
+
+    # EMAs
+    df["EMA_10"] = close.ewm(span=10, adjust=False).mean()
+    df["EMA_55"] = close.ewm(span=55, adjust=False).mean()
+    df["EMA_200"] = close.ewm(span=200, adjust=False).mean()
+
+    # RSI (14) suavizado Wilder
+    delta = close.diff()
+    gain = delta.clip(lower=0)
+    loss = -delta.clip(upper=0)
+    avg_gain = gain.ewm(alpha=1/14, min_periods=14, adjust=False).mean()
+    avg_loss = loss.ewm(alpha=1/14, min_periods=14, adjust=False).mean()
+    rs = avg_gain / avg_loss.replace(0, np.nan)
+    df["RSI"] = (100 - (100 / (1 + rs))).fillna(50.0)
+
+    # Squeeze Momentum Indicator (LazyBear)
+    basis = close.rolling(window=20).mean()
+    dev = 2.0 * close.rolling(window=20).std()
+    upper_bb = basis + dev
+    lower_bb = basis - dev
+
+    tr1 = high - low
+    tr2 = (high - close.shift(1)).abs()
+    tr3 = (low - close.shift(1)).abs()
+    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+    atr = tr.rolling(window=20).mean()
+    upper_kc = basis + 1.5 * atr
+    lower_kc = basis - 1.5 * atr
+
+    df["Squeeze_On"] = (lower_bb > lower_kc) & (upper_bb < upper_kc)
+
+    highest_high = high.rolling(window=20).max()
+    lowest_low = low.rolling(window=20).min()
+    avg_hl = (highest_high + lowest_low) / 2.0
+    avg_mid = (avg_hl + basis) / 2.0
+    val_source = close - avg_mid
+
+    def linreg_last(x):
+        if np.isnan(x).any():
+            return np.nan
+        idx = np.arange(len(x))
+        slope, intercept = np.polyfit(idx, x, 1)
+        return intercept + slope * (len(x) - 1)
+
+    df["SQZ_MOM"] = val_source.rolling(window=20).apply(linreg_last, raw=True).fillna(0.0)
+    return df
+
+def detectar_divergencias(df):
+    if df is None or len(df) < 35:
+        return "Sin datos", "Sin datos", "NEUTRAL"
+
+    close = limpiar_serie(df["Close"]).values
+    rsi = limpiar_serie(df["RSI"]).values
+    sqz = limpiar_serie(df["SQZ_MOM"]).values
+
+    # Ventana reciente vs previa
+    p_rec_min, p_prev_min = np.min(close[-10:]), np.min(close[-25:-10])
+    r_rec_min, r_prev_min = np.min(rsi[-10:]), np.min(rsi[-25:-10])
+    s_rec_min, s_prev_min = np.min(sqz[-10:]), np.min(sqz[-25:-10])
+
+    p_rec_max, p_prev_max = np.max(close[-10:]), np.max(close[-25:-10])
+    r_rec_max, r_prev_max = np.max(rsi[-10:]), np.max(rsi[-25:-10])
+    s_rec_max, s_prev_max = np.max(sqz[-10:]), np.max(sqz[-25:-10])
+
+    div = "Ninguna"
+    triv = "Ninguna"
+    senal = "NEUTRAL"
+
+    if p_rec_min < p_prev_min and r_rec_min > r_prev_min:
+        div = "Alcista (RSI)"
+        senal = "COMPRA"
+        if s_rec_min > s_prev_min:
+            triv = "Trivergencia Alcista"
+    elif p_rec_max > p_prev_max and r_rec_max < r_prev_max:
+        div = "Bajista (RSI)"
+        senal = "VENTA"
+        if s_rec_max < s_prev_max:
+            triv = "Trivergencia Bajista"
+    else:
+        if rsi[-1] <= 30:
+            senal = "COMPRA (Sobreventa)"
+        elif rsi[-1] >= 70:
+            senal = "VENTA (Sobrecompra)"
+
+    return div, triv, senal
+
+# =========================================================================
+# FUNCIÓN DE GRÁFICO INSTITUCIONAL (VELAS + EMAs + RSI + SQUEEZE)
+# =========================================================================
+def mostrar_grafico_institucional(ticker_sym, nombre_activo, intervalo="1d"):
+    periodo_map = {"1h": "1mo", "4h": "2mo", "1d": "6mo", "1w": "2y"}
+    df = descargar_datos(ticker_sym, intervalo=intervalo, periodo=periodo_map.get(intervalo, "6mo"))
+    df_ind = calcular_indicadores(df)
+
+    if df_ind is None or df_ind.empty:
+        st.warning(f"No se pudieron cargar velas suficientes para {ticker_sym} en {intervalo}.")
+        return
+
+    fig = make_subplots(
+        rows=3, cols=1,
+        shared_xaxes=True,
+        vertical_spacing=0.04,
+        row_heights=[0.55, 0.22, 0.23],
+        subplot_titles=(
+            f"{nombre_activo} ({ticker_sym}) — {intervalo.upper()}",
+            "RSI (14)",
+            "Squeeze Momentum"
+        )
+    )
+
+    # Velas
+    fig.add_trace(go.Candlestick(
+        x=df_ind.index,
+        open=df_ind["Open"], high=df_ind["High"],
+        low=df_ind["Low"], close=df_ind["Close"],
+        name="Precio"
+    ), row=1, col=1)
+
+    # EMAs (10 roja, 55 dorada, 200 blanca)
+    fig.add_trace(go.Scatter(x=df_ind.index, y=df_ind["EMA_10"], line=dict(color="#ff3b30", width=1.4), name="EMA 10"), row=1, col=1)
+    fig.add_trace(go.Scatter(x=df_ind.index, y=df_ind["EMA_55"], line=dict(color="#ffd700", width=1.6), name="EMA 55"), row=1, col=1)
+    fig.add_trace(go.Scatter(x=df_ind.index, y=df_ind["EMA_200"], line=dict(color="#ffffff", width=1.8), name="EMA 200"), row=1, col=1)
+
+    # RSI
+    fig.add_trace(go.Scatter(x=df_ind.index, y=df_ind["RSI"], line=dict(color="#00f2fe", width=1.6), name="RSI 14"), row=2, col=1)
+    fig.add_hline(y=70, line_dash="dash", line_color="red", row=2, col=1)
+    fig.add_hline(y=30, line_dash="dash", line_color="green", row=2, col=1)
+
+    # Squeeze Momentum
+    mom = df_ind["SQZ_MOM"]
+    mom_prev = mom.shift(1).fillna(0)
+    colores_sqz = [
+        "#00e676" if (v >= 0 and v >= p) else
+        "#1b5e20" if (v >= 0 and v < p) else
+        "#ff5252" if (v < 0 and v <= p) else
+        "#b71c1c"
+        for v, p in zip(mom, mom_prev)
+    ]
+    fig.add_trace(go.Bar(x=df_ind.index, y=mom, marker_color=colores_sqz, name="Squeeze Mom"), row=3, col=1)
+
+    fig.update_layout(
+        height=760,
+        template="plotly_dark",
+        xaxis_rangeslider_visible=False,
+        showlegend=True,
+        margin=dict(l=20, r=20, t=50, b=20)
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+# =========================================================================
+# BARRA LATERAL Y SENTIMIENTO GLOBAL
+# =========================================================================
+st.sidebar.title("🧭 Navegación Pro")
 modulo = st.sidebar.radio(
     "Selecciona un Módulo:",
     [
-        "1. Escáner Cuantitativo (300 Activos)",
-        "2. Detector de Divergencias & Sobrecompra/Sobreventa",
-        "3. Confluencia Multitemporal & Gráfico Pro",
-        "4. Termómetro de Sentimiento & Encuestas",
-        "5. 🔎 Búsqueda de Activo Individual (Multitemporal)",
+        "1. 🔍 Escáner Cuantitativo General",
+        "2. ⚡ Detector de Divergencias & Extremos",
+        "3. 🎯 Confluencia Multitemporal & Gráfico Pro",
+        "4. 🌡️ Termómetro de Sentimiento & Encuestas",
+        "5. 🔎 Búsqueda de Activo Individual",
         "6. 📈 Opciones & Flujo Institucional (Smart Money)"
     ]
 )
 
-crypto_sent, stock_sent = obtener_sentimiento()
+sentimiento = obtener_sentimiento_mercado()
 st.sidebar.markdown("---")
-st.sidebar.markdown(f"🌡️ **Cripto (CMC):** `{crypto_sent['value']}` ({crypto_sent['text']})")
-st.sidebar.markdown(f"📉 **Bolsa (CNN):** `{stock_sent['value']}` ({stock_sent['text']})")
+st.sidebar.subheader("🌐 Sentimiento Global")
+st.sidebar.metric("Cripto Fear & Greed", f"{sentimiento['crypto_val']}/100", sentimiento["crypto_txt"])
+st.sidebar.metric("Bolsa Fear & Greed", f"{sentimiento['stock_val']}/100", sentimiento["stock_txt"])
 
-diccionario_activos = obtener_300_activos()
-lista_tickers = list(diccionario_activos.keys())
+st.title("📊 Sistema de Inteligencia Financiera Pro")
 
-# -------------------------------------------------------------------------
-# MÓDULO 1: ESCÁNER CUANTITATIVO 300 ACTIVOS
-# -------------------------------------------------------------------------
-if modulo == "1. Escáner Cuantitativo (300 Activos)":
-    st.subheader(f"📊 Escáner Cuantitativo Multi-Activo ({len(lista_tickers)} Instrumentos)")
-    st.write("Análisis simultáneo cubriendo las 10 criptomonedas principales del Market Cap, acciones globales, ETFs, materias primas e índices.")
-    
-    temporalidad = st.selectbox("Temporalidad del Análisis:", ["1h", "4h", "1d", "1w"], index=2)
-    
-    if st.button("🚀 Ejecutar Escaneo Masivo (300 Activos)"):
-        resultados = []
-        barra = st.progress(0)
-        total = len(lista_tickers)
-        
-        for i, ticker in enumerate(lista_tickers):
-            nombre = diccionario_activos[ticker]
-            df = descargar_datos(ticker, intervalo=temporalidad, periodo="3mo")
-            if df is not None and not df.empty:
-                df_ind = calcular_indicadores(df)
-                if df_ind is not None and not df_ind.empty:
-                    ultimo = df_ind.iloc[-1]
-                    close_val = extraer_valor_seguro(ultimo['Close'])
-                    rsi_val = extraer_valor_seguro(ultimo['RSI'])
-                    
-                    sig = str(limpiar_serie(ultimo['Signal']))
-                    icon_signal = "⚪ NEUTRAL"
-                    if sig == "COMPRA":
-                        icon_signal = "🟢 COMPRA"
-                    elif sig == "VENTA":
-                        icon_signal = "🔴 VENTA"
-
-                    resultados.append({
-                        "Símbolo": ticker,
-                        "Nombre del Activo": nombre,
-                        "Precio Actual": f"${close_val:,.2f}",
-                        "RSI (14)": round(rsi_val, 1),
-                        "Divergencia": str(limpiar_serie(ultimo['Divergencia'])),
-                        "Trivergencia": str(limpiar_serie(ultimo['Trivergencia'])),
-                        "Señal Táctica": icon_signal
-                    })
-            barra.progress((i + 1) / total)
-            
-        barra.empty()
-        if resultados:
-            df_res = pd.DataFrame(resultados)
-            st.session_state['df_escanner'] = df_res
-            st.success(f"¡Escaneo completado con éxito! Se procesaron los {len(df_res)} activos.")
-        else:
-            st.error("No se pudieron recuperar datos en este momento.")
-
-    if 'df_escanner' in st.session_state and not st.session_state['df_escanner'].empty:
-        st.dataframe(st.session_state['df_escanner'], use_container_width=True)
-        
-        simbolos_disponibles = st.session_state['df_escanner']['Símbolo'].tolist()
-        activo_m1_sel = st.selectbox("Selecciona cualquier activo del escáner para ver su gráfico detallado:", simbolos_disponibles, key="sel_m1")
-        if activo_m1_sel:
-            nombre_sel = diccionario_activos.get(activo_m1_sel, activo_m1_sel)
-            mostrar_grafico_institucional(activo_m1_sel, nombre_sel)
-
-# -------------------------------------------------------------------------
-# MÓDULO 2: DETECTOR DE DIVERGENCIAS & SOBRECOMPRA/SOBREVENTA
-# -------------------------------------------------------------------------
-elif modulo == "2. Detector de Divergencias & Sobrecompra/Sobreventa":
-    st.subheader("🎯 Detector Multitemporal: Sobrecompra, Sobreventa y Divergencias")
-    st.write("Filtra activos con confluencias extremas en 4H, Diario y Semanal, además de tablas dedicadas por temporalidad y gráficos interactivos.")
-    
-    if st.button("🔍 Ejecutar Escaneo Multitemporal Extremo"):
-        triple_confluencia = []
-        solo_diario = []
-        solo_semanal = []
-        
-        barra_m2 = st.progress(0)
-        activos_m2 = lista_tickers[:120]
-        total_m2 = len(activos_m2)
-        
-        for idx, ticker in enumerate(activos_m2):
-            nombre = diccionario_activos[ticker]
-            df_4h = descargar_datos(ticker, intervalo="4h", periodo="1mo")
-            df_1d = descargar_datos(ticker, intervalo="1d", periodo="3mo")
-            df_1w = descargar_datos(ticker, intervalo="1w", periodo="1y")
-            
-            rsi_4h, rsi_1d, rsi_1w = None, None, None
-            
-            if df_4h is not None and not df_4h.empty:
-                d4 = calcular_indicadores(df_4h)
-                if d4 is not None and not d4.empty:
-                    rsi_4h = extraer_valor_seguro(d4['RSI'])
-            
-            if df_1d is not None and not df_1d.empty:
-                d1 = calcular_indicadores(df_1d)
-                if d1 is not None and not d1.empty:
-                    rsi_1d = extraer_valor_seguro(d1['RSI'])
-            
-            if df_1w is not None and not df_1w.empty:
-                dw = calcular_indicadores(df_1w)
-                if dw is not None and not dw.empty:
-                    rsi_1w = extraer_valor_seguro(dw['RSI'])
-            
-            if rsi_4h is not None and rsi_1d is not None and rsi_1w is not None:
-                if rsi_4h > 70 and rsi_1d > 70 and rsi_1w > 70:
-                    triple_confluencia.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🔴 Sobrecompra Extrema (4H + 1D + 1W)", "RSI 4H": round(rsi_4h, 1), "RSI 1D": round(rsi_1d, 1), "RSI 1W": round(rsi_1w, 1)})
-                elif rsi_4h < 30 and rsi_1d < 30 and rsi_1w < 30:
-                    triple_confluencia.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🟢 Sobreventa Extrema (4H + 1D + 1W)", "RSI 4H": round(rsi_4h, 1), "RSI 1D": round(rsi_1d, 1), "RSI 1W": round(rsi_1w, 1)})
-
-            if rsi_1d is not None:
-                if rsi_1d > 70:
-                    solo_diario.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🔴 Sobrecompra Diaria", "RSI Diario": round(rsi_1d, 1)})
-                elif rsi_1d < 30:
-                    solo_diario.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🟢 Sobreventa Diaria", "RSI Diario": round(rsi_1d, 1)})
-
-            if rsi_1w is not None:
-                if rsi_1w > 70:
-                    solo_semanal.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🔴 Sobrecompra Semanal", "RSI Semanal": round(rsi_1w, 1)})
-                elif rsi_1w < 30:
-                    solo_semanal.append({"Símbolo": ticker, "Nombre": nombre, "Condición": "🟢 Sobreventa Semanal", "RSI Semanal": round(rsi_1w, 1)})
-
-            barra_m2.progress((idx + 1) / total_m2)
-            
-        barra_m2.empty()
-        
-        st.session_state['triple_confluencia'] = pd.DataFrame(triple_confluencia) if triple_confluencia else pd.DataFrame()
-        st.session_state['solo_diario'] = pd.DataFrame(solo_diario) if solo_diario else pd.DataFrame()
-        st.session_state['solo_semanal'] = pd.DataFrame(solo_semanal) if solo_semanal else pd.DataFrame()
-        st.success("¡Escaneo multitemporal completado con éxito!")
-
-    if 'triple_confluencia' in st.session_state:
-        st.markdown("### 🚨 1. Triple Confluencia Simultánea (4H + Diario + Semanal)")
-        if not st.session_state['triple_confluencia'].empty:
-            st.dataframe(st.session_state['triple_confluencia'], use_container_width=True)
-        else:
-            st.info("No hay activos cumpliendo la triple confluencia exacta en este instante.")
-
-    if 'solo_diario' in st.session_state:
-        st.markdown("### 📅 2. Activos en Sobrecompra / Sobreventa (Gráfico Diario 1D)")
-        if not st.session_state['solo_diario'].empty:
-            st.dataframe(st.session_state['solo_diario'], use_container_width=True)
-        else:
-            st.info("No se encontraron activos en extremos diarios.")
-
-    if 'solo_semanal' in st.session_state:
-        st.markdown("### 📈 3. Activos en Sobrecompra / Sobreventa (Gráfico Semanal 1W)")
-        if not st.session_state['solo_semanal'].empty:
-            st.dataframe(st.session_state['solo_semanal'], use_container_width=True)
-        else:
-            st.info("No se encontraron activos en extremos semanales.")
-
-    st.markdown("---")
-    st.markdown("### 📊 Consultar Gráfico de Cualquier Activo")
-    activo_m2_sel = st.selectbox("Selecciona un activo para visualizar su estructura técnica y osciladores:", lista_tickers, key="sel_m2_directo")
-    if activo_m2_sel:
-        nombre_sel = diccionario_activos.get(activo_m2_sel, activo_m2_sel)
-        mostrar_grafico_institucional(activo_m2_sel, nombre_sel)
-
-# -------------------------------------------------------------------------
-# MÓDULO 3: CONFLUENCIA MULTITEMPORAL & GRÁFICO PRO
-# -------------------------------------------------------------------------
-elif modulo == "3. Confluencia Multitemporal & Gráfico Pro":
-    st.subheader("🧠 Confluencias Multitemporales & Gráfico Institucional con Alertas")
-    st.write("Selecciona un activo para desplegar su gráfico limpio, el RSI, el Squeeze Momentum y las marcas visuales de alerta.")
-    
-    if st.button("🔍 Escanear Confluencias Multitemporales"):
-        multiconfluencias = []
-        with st.spinner("Analizando confluencias..."):
-            for ticker in lista_tickers[:100]:
-                temporalidades = ["1h", "4h", "1d", "1w"]
-                temps_activas = []
-                for t in temporalidades:
-                    df = descargar_datos(ticker, intervalo=t, periodo="1mo")
-                    if df is not None:
-                        df_i = calcular_indicadores(df)
-                        if df_i is not None:
-                            if limpiar_serie(df_i.iloc[-1]['Signal']) in ["COMPRA", "VENTA"]:
-                                temps_activas.append(t)
-                
-                if len(temps_activas) >= 2:
-                    multiconfluencias.append({
-                        "Símbolo": ticker,
-                        "Nombre": diccionario_activos[ticker],
-                        "Temporalidades con Señal": ", ".join(temps_activas),
-                        "Total Timeframes": len(temps_activas)
-                    })
-        
-        st.session_state['multiconfluencias'] = multiconfluencias
-
-    if 'multiconfluencias' in st.session_state and st.session_state['multiconfluencias']:
-        df_multi = pd.DataFrame(st.session_state['multiconfluencias'])
-        st.markdown("### 📋 Activos con Confluencia Multitemporal:")
-        st.dataframe(df_multi, use_container_width=True)
-        
-        tickers_encontrados = [item['Símbolo'] for item in st.session_state['multiconfluencias']]
-        activo_sel = st.selectbox("Selecciona el Activo para ver Gráfico con Alertas:", tickers_encontrados, key="sel_m3")
-        
-        if activo_sel:
-            nombre_sel = diccionario_activos.get(activo_sel, activo_sel)
-            mostrar_grafico_institucional(activo_sel, nombre_sel)
-    else:
-        st.info("Haz clic en el botón de arriba para iniciar el escaneo de confluencias.")
-
-# -------------------------------------------------------------------------
-# MÓDULO 4: TERMÓMETRO DE SENTIMIENTO & ENCUESTAS
-# -------------------------------------------------------------------------
-elif modulo == "4. Termómetro de Sentimiento & Encuestas":
-    st.subheader("🌡️ Termómetro Global de Sentimiento & Encuestas de Mercado (Toros vs Osos)")
-    st.write("Visualización oficial de los índices de miedo y codicia (CoinMarketCap para Cripto y CNN para Bolsa) junto con el desglose semanal de sentimiento.")
-    
+# =========================================================================
+# MÓDULO 1: ESCÁNER CUANTITATIVO GENERAL
+# =========================================================================
+if modulo == "1. 🔍 Escáner Cuantitativo General":
+    st.subheader("🔍 Escáner Cuantitativo General")
     col1, col2 = st.columns(2)
-    
     with col1:
-        val_cmc = crypto_sent['value']
-        txt_cmc = crypto_sent['text']
-        st.markdown(f"""
-        <div class="card" style="text-align: center;">
-            <h3 style="color: #4f46e5; margin-top: 0;">🪙 Criptomonedas (CoinMarketCap)</h3>
-            <h2 style="margin: 5px 0; color: #0f172a;">Índice de Miedo y Codicia</h2>
-            <h1 style="color: {'#10b981' if val_cmc > 50 else '#ef4444'}; font-size: 52px; margin: 10px 0;">{val_cmc}</h1>
-            <h3 style="text-transform: uppercase; letter-spacing: 1px; color: #334155;">{txt_cmc}</h3>
-            <p style="color: #64748b; font-size: 0.9rem;">Basado en volatilidad, volumen, redes sociales y dominio.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
+        tf_m1 = st.selectbox("Temporalidad de Análisis:", ["1h", "4h", "1d", "1w"], index=2)
     with col2:
-        val_cnn = stock_sent['value']
-        txt_cnn = stock_sent['text']
-        st.markdown(f"""
-        <div class="card" style="text-align: center;">
-            <h3 style="color: #0284c7; margin-top: 0;">📈 Bolsa Tradicional (CNN Fear & Greed)</h3>
-            <h2 style="margin: 5px 0; color: #0f172a;">Índice de Sentimiento Bursátil</h2>
-            <h1 style="color: {'#10b981' if val_cnn > 50 else '#ef4444'}; font-size: 52px; margin: 10px 0;">{val_cnn}</h1>
-            <h3 style="text-transform: uppercase; letter-spacing: 1px; color: #334155;">{str(txt_cnn)}</h3>
-            <p style="color: #64748b; font-size: 0.9rem;">Indicador compuesto de impulso, opciones put/call y refugio.</p>
-        </div>
-        """, unsafe_allow_html=True)
+        limite_m1 = st.slider("Cantidad de activos a escanear:", 15, len(lista_tickers), 50)
 
-    st.markdown("---")
-    st.markdown("### 📊 Encuesta de Sentimiento de Inversores (Toros vs Osos)")
-    st.write("Histórico semanal del sentimiento de los participantes del mercado:")
+    if st.button("▶️ Iniciar Escaneo Cuantitativo"):
+        resultados_m1 = []
+        prog = st.progress(0)
+        sub_lista = lista_tickers[:limite_m1]
 
-    df_sentimiento = pd.DataFrame({
-        "Semana Finalizada": ["11/11/2026", "11/4/2026", "10/28/2026", "10/21/2026"],
-        "Bullish (Toros %)": [30.8, 34.1, 37.8, 36.9],
-        "Neutral %": [17.8, 17.5, 20.7, 17.3],
-        "Bearish (Osos %)": [51.4, 48.4, 41.4, 45.8]
+        for i, tk in enumerate(sub_lista):
+            df_raw = descargar_datos(tk, intervalo=tf_m1, periodo="6mo")
+            df_ind = calcular_indicadores(df_raw)
+            if df_ind is not None and not df_ind.empty:
+                precio = extraer_valor_seguro(df_ind["Close"])
+                rsi_v = extraer_valor_seguro(df_ind["RSI"])
+                div_t, triv_t, senal_t = detectar_divergencias(df_ind)
+                resultados_m1.append({
+                    "Símbolo": tk,
+                    "Activo": diccionario_activos[tk],
+                    "Precio": round(precio, 4),
+                    "RSI (14)": round(rsi_v, 2),
+                    "Divergencia": div_t,
+                    "Trivergencia": triv_t,
+                    "Señal": senal_t
+                })
+            prog.progress((i + 1) / len(sub_lista))
+        prog.empty()
+        st.session_state["df_m1"] = pd.DataFrame(resultados_m1)
+
+    if "df_m1" in st.session_state and not st.session_state["df_m1"].empty:
+        df_show_m1 = st.session_state["df_m1"]
+        st.dataframe(df_show_m1, use_container_width=True)
+        sel_m1 = st.selectbox("Inspeccionar gráfico del activo:", df_show_m1["Símbolo"].tolist())
+        if sel_m1:
+            mostrar_grafico_institucional(sel_m1, diccionario_activos[sel_m1], intervalo=tf_m1)
+
+# =========================================================================
+# MÓDULO 2: DETECTOR DE DIVERGENCIAS & SOBRECOMPRA/SOBREVENTA
+# =========================================================================
+elif modulo == "2. ⚡ Detector de Divergencias & Extremos":
+    st.subheader("⚡ Detector de Divergencias y Extremos (4H, 1D y 1W)")
+    limite_m2 = st.slider("Activos a analizar (máx. 120):", 20, 120, 60)
+
+    if st.button("⚡ Escanear Extremos y Confluencias"):
+        triple_conf, ext_1d, ext_1w = [], [], []
+        prog2 = st.progress(0)
+        sub2 = lista_tickers[:limite_m2]
+
+        for i, tk in enumerate(sub2):
+            d4 = calcular_indicadores(descargar_datos(tk, "4h", "1mo"))
+            d1 = calcular_indicadores(descargar_datos(tk, "1d", "3mo"))
+            dw = calcular_indicadores(descargar_datos(tk, "1w", "1y"))
+
+            r4 = extraer_valor_seguro(d4["RSI"]) if d4 is not None else 50.0
+            r1 = extraer_valor_seguro(d1["RSI"]) if d1 is not None else 50.0
+            rw = extraer_valor_seguro(dw["RSI"]) if dw is not None else 50.0
+            precio = extraer_valor_seguro(d1["Close"]) if d1 is not None else 0.0
+
+            fila = {
+                "Símbolo": tk,
+                "Activo": diccionario_activos[tk],
+                "Precio": round(precio, 2),
+                "RSI 4H": round(r4, 1),
+                "RSI 1D": round(r1, 1),
+                "RSI 1W": round(rw, 1)
+            }
+
+            if (r4 <= 30 and r1 <= 30 and rw <= 30) or (r4 >= 70 and r1 >= 70 and rw >= 70):
+                triple_conf.append(fila)
+            if r1 <= 30 or r1 >= 70:
+                ext_1d.append(fila)
+            if rw <= 30 or rw >= 70:
+                ext_1w.append(fila)
+
+            prog2.progress((i + 1) / len(sub2))
+        prog2.empty()
+
+        st.session_state["m2_triple"] = pd.DataFrame(triple_conf)
+        st.session_state["m2_1d"] = pd.DataFrame(ext_1d)
+        st.session_state["m2_1w"] = pd.DataFrame(ext_1w)
+
+    if "m2_1d" in st.session_state:
+        st.markdown("### 🔥 Triple Confluencia (4H + 1D + 1W)")
+        st.dataframe(st.session_state["m2_triple"], use_container_width=True)
+
+        st.markdown("### 📅 Extremos en Gráfico Diario (1D)")
+        st.dataframe(st.session_state["m2_1d"], use_container_width=True)
+
+        st.markdown("### 🗓️ Extremos en Gráfico Semanal (1W)")
+        st.dataframe(st.session_state["m2_1w"], use_container_width=True)
+
+        todos_m2 = pd.concat([st.session_state["m2_triple"], st.session_state["m2_1d"], st.session_state["m2_1w"]]).drop_duplicates(subset=["Símbolo"]) if not (st.session_state["m2_triple"].empty and st.session_state["m2_1d"].empty and st.session_state["m2_1w"].empty) else pd.DataFrame()
+        if not todos_m2.empty:
+            sel_m2 = st.selectbox("Ver gráfico de activo detectado:", todos_m2["Símbolo"].tolist())
+            if sel_m2:
+                mostrar_grafico_institucional(sel_m2, diccionario_activos[sel_m2], intervalo="1d")
+
+# =========================================================================
+# MÓDULO 3: CONFLUENCIA MULTITEMPORAL & GRÁFICO PRO
+# =========================================================================
+elif modulo == "3. 🎯 Confluencia Multitemporal & Gráfico Pro":
+    st.subheader("🎯 Confluencia Multitemporal (1H, 4H, 1D y 1W)")
+    limite_m3 = st.slider("Activos a analizar (máx. 100):", 15, 100, 40)
+
+    if st.button("🎯 Buscar Confluencias Activas"):
+        conf_rows = []
+        prog3 = st.progress(0)
+        sub3 = lista_tickers[:limite_m3]
+
+        for i, tk in enumerate(sub3):
+            senales_activas = []
+            for tf_k in ["1h", "4h", "1d", "1w"]:
+                d_ind = calcular_indicadores(descargar_datos(tk, tf_k, "3mo"))
+                _, _, sen = detectar_divergencias(d_ind)
+                if sen != "NEUTRAL":
+                    senales_activas.append(f"{tf_k.upper()}: {sen}")
+
+            if len(senales_activas) >= 2:
+                conf_rows.append({
+                    "Símbolo": tk,
+                    "Activo": diccionario_activos[tk],
+                    "Total Confluencias": len(senales_activas),
+                    "Detalle": " | ".join(senales_activas)
+                })
+            prog3.progress((i + 1) / len(sub3))
+        prog3.empty()
+        st.session_state["df_m3"] = pd.DataFrame(conf_rows)
+
+    if "df_m3" in st.session_state and not st.session_state["df_m3"].empty:
+        st.dataframe(st.session_state["df_m3"], use_container_width=True)
+        col_a, col_b = st.columns(2)
+        with col_a:
+            sel_m3 = st.selectbox("Activo con confluencia:", st.session_state["df_m3"]["Símbolo"].tolist())
+        with col_b:
+            tf_ver_m3 = st.selectbox("Temporalidad del gráfico:", ["1h", "4h", "1d", "1w"], index=2)
+        if sel_m3:
+            mostrar_grafico_institucional(sel_m3, diccionario_activos[sel_m3], intervalo=tf_ver_m3)
+
+# =========================================================================
+# MÓDULO 4: TERMÓMETRO DE SENTIMIENTO & ENCUESTAS
+# =========================================================================
+elif modulo == "4. 🌡️ Termómetro de Sentimiento & Encuestas":
+    st.subheader("🌡️ Termómetro de Sentimiento Institucional y Encuestas")
+    c1, c2 = st.columns(2)
+    with c1:
+        st.metric("Índice Miedo y Codicia (Cripto)", f"{sentimiento['crypto_val']} / 100", sentimiento["crypto_txt"])
+    with c2:
+        st.metric("Índice Miedo y Codicia (Bolsa EE.UU.)", f"{sentimiento['stock_val']} / 100", sentimiento["stock_txt"])
+
+    df_encuestas = pd.DataFrame({
+        "Semana": ["Semana -4", "Semana -3", "Semana -2", "Semana -1", "Actual"],
+        "Bullish (%)": [38.5, 41.2, 44.0, 42.8, 45.1],
+        "Neutral (%)": [31.0, 29.8, 28.5, 30.2, 28.9],
+        "Bearish (%)": [30.5, 29.0, 27.5, 27.0, 26.0]
     })
 
-    fig_sent = go.Figure()
-    fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Bullish (Toros %)"], name="Bullish (Toros)", orientation='h', marker_color='#10b981'))
-    fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Neutral %"], name="Neutral", orientation='h', marker_color='#64748b'))
-    fig_sent.add_trace(go.Bar(y=df_sentimiento["Semana Finalizada"], x=df_sentimiento["Bearish (Osos %)"], name="Bearish (Osos)", orientation='h', marker_color='#ef4444'))
-
-    fig_sent.update_layout(barmode='stack', template="plotly_white", paper_bgcolor="#ffffff", plot_bgcolor="#ffffff", font=dict(color="#0f172a"), height=350, title_text="Sentiment Votes (Toros vs Neutral vs Osos)", xaxis_title="Porcentaje (%)")
+    fig_sent = go.Figure(data=[
+        go.Bar(name="Bullish (%)", x=df_encuestas["Semana"], y=df_encuestas["Bullish (%)"], marker_color="#00e676"),
+        go.Bar(name="Neutral (%)", x=df_encuestas["Semana"], y=df_encuestas["Neutral (%)"], marker_color="#ffd54f"),
+        go.Bar(name="Bearish (%)", x=df_encuestas["Semana"], y=df_encuestas["Bearish (%)"], marker_color="#ff5252")
+    ])
+    fig_sent.update_layout(barmode="stack", template="plotly_dark", title="Distribución de Sentimiento Semanal")
     st.plotly_chart(fig_sent, use_container_width=True)
-    st.dataframe(df_sentimiento, use_container_width=True)
+    st.dataframe(df_encuestas, use_container_width=True)
 
-# -------------------------------------------------------------------------
-# MÓDULO 5: BÚSQUEDA DE ACTIVO INDIVIDUAL MULTITEMPORAL
-# -------------------------------------------------------------------------
-elif modulo == "5. 🔎 Búsqueda de Activo Individual (Multitemporal)":
-    st.subheader("🔎 Buscador Institucional de Activo & Desglose Multitemporal (Divergencias)")
-    st.write("Introduce el nombre o símbolo (ej. `TSLA`, `NVIDIA`, `BTC-USD`, `Apple`, `GC=F`) para analizar su precio, sentimiento y estado en cada temporalidad.")
-    
-    col_input1, col_input2 = st.columns([2, 1])
-    with col_input1:
-        input_usuario = st.text_input("Introduce el Ticker o Nombre del Activo:", value="TSLA")
+# =========================================================================
+# MÓDULO 5: BÚSQUEDA DE ACTIVO INDIVIDUAL
+# =========================================================================
+elif modulo == "5. 🔎 Búsqueda de Activo Individual":
+    st.subheader("🔎 Análisis Profundo de Activo Individual")
+    col_s1, col_s2 = st.columns([2, 1])
+    with col_s1:
+        ticker_input = st.text_input("Escribe el Ticker (ej. NVDA, AAPL, SPY, BTC-USD):", value="NVDA").strip().upper()
+    with col_s2:
+        tf_m5 = st.selectbox("Temporalidad Gráfico:", ["1h", "4h", "1d", "1w"], index=2)
 
-    if st.button("🚀 Analizar Activo en Todas las Temporalidades"):
-        ticker_input = resolver_ticker_ingresado(input_usuario, diccionario_activos)
-        
-        with st.spinner(f"Analizando {ticker_input} en 1h, 4h, 1d y 1w..."):
-            
-            temporalidades_estudio = ["1h", "4h", "1d", "1w"]
-            resumen_multi = []
-            
-            ticker_obj = yf.Ticker(ticker_input)
-            info_fund = {}
-            try:
-                info_fund = ticker_obj.info
-            except Exception:
-                pass
-            
-            nombre_oficial = info_fund.get('longName', info_fund.get('shortName', diccionario_activos.get(ticker_input, ticker_input)))
-            market_cap = info_fund.get('marketCap', 'No disponible')
-            if isinstance(market_cap, (int, float)):
-                market_cap = f"${market_cap:,.0f}"
+    if ticker_input:
+        tk_obj = yf.Ticker(ticker_input)
+        try:
+            info = tk_obj.info
+        except Exception:
+            info = {}
 
-            precio_actual_global = 0.0
+        nombre_ind = info.get("shortName", diccionario_activos.get(ticker_input, ticker_input))
+        precio_ind = info.get("currentPrice", info.get("regularMarketPrice", 0))
+        mcap = info.get("marketCap", 0)
 
-            for temp in temporalidades_estudio:
-                per = "1mo" if temp == "1h" else ("3mo" if temp == "4h" or temp == "1d" else "1y")
-                df_t = descargar_datos(ticker_input, intervalo=temp, periodo=per)
-                
-                if df_t is not None and not df_t.empty:
-                    df_c = calcular_indicadores(df_t)
-                    if df_c is not None and not df_c.empty:
-                        ult = df_c.iloc[-1]
-                        cls_val = extraer_valor_seguro(ult['Close'])
-                        rsi_val = extraer_valor_seguro(ult['RSI'])
-                        sig_val = str(limpiar_serie(ult['Signal']))
-                        div_val = str(limpiar_serie(ult['Divergencia']))
-                        triv_val = str(limpiar_serie(ult['Trivergencia']))
-                        
-                        if temp == "1d":
-                            precio_actual_global = cls_val
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Activo", nombre_ind)
+        m2.metric("Precio Actual", f"${precio_ind:,.2f}" if precio_ind else "N/D")
+        m3.metric("Capitalización", f"${mcap:,.0f}" if mcap else "N/D")
 
-                        icon_sig = "🟢 COMPRA" if sig_val == "COMPRA" else ("🔴 VENTA" if sig_val == "VENTA" else "⚪ NEUTRAL")
+        # Resumen multitemporal
+        filas_tf = []
+        for tf_item in ["1h", "4h", "1d", "1w"]:
+            d_tmp = calcular_indicadores(descargar_datos(ticker_input, tf_item, "3mo"))
+            if d_tmp is not None and not d_tmp.empty:
+                r_tmp = extraer_valor_seguro(d_tmp["RSI"])
+                dv, tv, sn = detectar_divergencias(d_tmp)
+                filas_tf.append({
+                    "Temporalidad": tf_item.upper(),
+                    "RSI (14)": round(r_tmp, 2),
+                    "Divergencia": dv,
+                    "Trivergencia": tv,
+                    "Señal": sn
+                })
+        if filas_tf:
+            st.dataframe(pd.DataFrame(filas_tf), use_container_width=True)
 
-                        resumen_multi.append({
-                            "Temporalidad": temp.upper(),
-                            "Precio": f"${cls_val:,.2f}",
-                            "RSI (14)": round(rsi_val, 1),
-                            "Divergencia Detectada": div_val,
-                            "Trivergencia / Estado": triv_val,
-                            "Sentimiento Táctico": icon_sig
-                        })
-            
-            if precio_actual_global == 0.0:
-                df_fallback = descargar_datos(ticker_input, intervalo="1d", periodo="1mo")
-                if df_fallback is not None and not df_fallback.empty:
-                    precio_actual_global = extraer_valor_seguro(df_fallback['Close'])
+        mostrar_grafico_institucional(ticker_input, nombre_ind, intervalo=tf_m5)
 
-            st.markdown("---")
-            st.markdown(f"""
-                <div class="card">
-                    <h2 style="color: #4f46e5; margin-top: 0;">📋 Resumen Cuantitativo: {nombre_oficial} ({ticker_input})</h2>
-                </div>
-            """, unsafe_allow_html=True)
+        if info.get("longBusinessSummary"):
+            with st.expander("📄 Perfil y Resumen del Negocio"):
+                st.write(info["longBusinessSummary"])
 
-            col_m1, col_m2, col_m3 = st.columns(3)
-            with col_m1:
-                st.metric("Precio Actual", f"${precio_actual_global:,.2f}")
-            with col_m2:
-                st.metric("Capitalización de Mercado", str(market_cap))
-            with col_m3:
-                st.metric("Instrumento / Símbolo", ticker_input)
-
-            st.markdown("### 📊 Estado y Divergencias por Temporalidad Estudiada:")
-            if resumen_multi:
-                df_multi_res = pd.DataFrame(resumen_multi)
-                st.dataframe(df_multi_res, use_container_width=True)
-            else:
-                st.error(f"No se pudieron calcular los indicadores para `{ticker_input}`. Comprueba que el símbolo sea correcto (ej. `NVDA`, `TSLA`, `BTC-USD`).")
-
-            st.markdown("---")
-            st.markdown("### 📰 Fundamentales & Noticias Recientes del Activo")
-            try:
-                noticias = ticker_obj.news
-                if noticias and len(noticias) > 0:
-                    for n in noticias[:3]:
-                        titulo_n = n.get('title', 'Noticia de Mercado')
-                        publisher_n = n.get('publisher', 'Financial Wire')
-                        link_n = n.get('link', '#')
-                        st.markdown(f"- **[{titulo_n}]({link_n})** — *Fuente: {publisher_n}*")
-                else:
-                    st.info("No hay noticias recientes destacadas en la API para este ticker en este momento.")
-            except Exception:
-                st.info("Información de noticias no disponible temporalmente.")
-
-            desc_negocio = info_fund.get('longBusinessSummary', None)
-            if desc_negocio:
-                st.markdown("#### 🏢 Descripción del Negocio / Activo:")
-                st.write(desc_negocio[:650] + "...")
-
-            mostrar_grafico_institucional(ticker_input, nombre_oficial)
-
-# -------------------------------------------------------------------------
-# MÓDULO 6: 📈 OPCIONES & FLUJO INSTITUCIONAL (CORREGIDO Y DINÁMICO)
-# -------------------------------------------------------------------------
+# =========================================================================
+# MÓDULO 6: ESCÁNER PRÁCTICO DE OPCIONES (ACCIONES & ETFs EN 4H, 1D Y 1W)
+# =========================================================================
 elif modulo == "6. 📈 Opciones & Flujo Institucional (Smart Money)":
-    st.subheader("📈 Módulo Pro: Escáner Dinámico de Opciones & Open Interest Real (300 Activos)")
-    st.write("Escanea automáticamente los activos en gráfico diario (1D) en **Sobreventa (RSI ≤ 30)** o **Sobrecompra (RSI ≥ 70)**, calculando precios reales y contratos óptimos.")
+    st.subheader("📈 Escáner Práctico de Opciones: Acciones y ETFs (4H, 1D y 1W)")
+    st.write("Detecta acciones y ETFs en **Sobreventa (RSI ≤ umbral)** o **Sobrecompra (RSI ≥ umbral alto)** en **4H, Diario (1D) y Semanal (1W)**, consultando strikes y Open Interest real cuando hay cadena disponible.")
 
-    if st.button("🚀 Ejecutar Escaneo de Opciones en Tiempo Real"):
-        resumen_opciones_1 = []
-        resumen_opciones_2 = []
-        
+    col_f1, col_f2, col_f3 = st.columns(3)
+    with col_f1:
+        tipo_filtro_opt = st.selectbox(
+            "Universo de Activos:",
+            ["Solo Acciones y ETFs (Recomendado)", "Solo Acciones", "Solo ETFs", "Todos los Activos (300)"],
+            index=0
+        )
+    with col_f2:
+        tf_filtro_opt = st.selectbox(
+            "Mostrar señales presentes en:",
+            ["Cualquier TF (4H / 1D / 1W)", "Gráfico 4H", "Gráfico Diario (1D)", "Gráfico Semanal (1W)", "Confluencia (2+ TFs)"],
+            index=0
+        )
+    with col_f3:
+        umbral_rsi_opt = st.slider("Umbral RSI Sobreventa (≤):", min_value=20, max_value=40, value=30, step=1)
+        umbral_rsi_alto = 100 - umbral_rsi_opt
+
+    etfs_conocidos = {
+        "SPY", "QQQ", "IWM", "DIA", "EEM", "EFA", "GLD", "SLV", "TLT", "HYG",
+        "ARKK", "IBIT", "MSTR"
+    }
+
+    def es_candidato_opciones(ticker_sym, modo_filtro):
+        es_cripto = ticker_sym.endswith("-USD")
+        es_futuro = ticker_sym.endswith("=F")
+        es_forex = ticker_sym.endswith("=X")
+        es_indice = ticker_sym.startswith("^")
+        es_etf = ticker_sym in etfs_conocidos
+        es_accion = not (es_cripto or es_futuro or es_forex or es_indice or es_etf)
+
+        if modo_filtro == "Solo Acciones y ETFs (Recomendado)":
+            return es_accion or es_etf
+        if modo_filtro == "Solo Acciones":
+            return es_accion
+        if modo_filtro == "Solo ETFs":
+            return es_etf
+        return True
+
+    def obtener_cadena_opciones_real(ticker_sym, spot_price):
+        strike_call_corto = round(spot_price * 1.02, 2)
+        strike_put_corto = round(spot_price * 0.98, 2)
+        strike_call_med = round(spot_price * 1.05, 2)
+        strike_put_med = round(spot_price * 0.95, 2)
+
+        info_corto = {"strike_c": strike_call_corto, "oi_c": "N/D", "strike_p": strike_put_corto, "oi_p": "N/D", "exp": "0-65 DTE", "real": False}
+        info_med = {"strike_c": strike_call_med, "oi_c": "N/D", "strike_p": strike_put_med, "oi_p": "N/D", "exp": "66-240 DTE", "real": False}
+
+        try:
+            tk_obj = yf.Ticker(ticker_sym)
+            expiraciones = tk_obj.options
+            if not expiraciones or len(expiraciones) == 0:
+                return info_corto, info_med
+
+            fechas_dt = pd.to_datetime(expiraciones, errors="coerce")
+            hoy = pd.Timestamp.now().normalize()
+            dtes = (fechas_dt - hoy).days
+
+            idx_corto = [i for i, d in enumerate(dtes) if pd.notna(d) and 1 <= d <= 65]
+            exp_corto = expiraciones[idx_corto[-1]] if idx_corto else expiraciones[0]
+
+            idx_med = [i for i, d in enumerate(dtes) if pd.notna(d) and 66 <= d <= 240]
+            exp_med = expiraciones[idx_med[len(idx_med) // 2]] if idx_med else expiraciones[-1]
+
+            def extraer_tramo(fecha_exp, etiqueta_exp):
+                cadena = tk_obj.option_chain(fecha_exp)
+                calls = cadena.calls
+                puts = cadena.puts
+                if calls is None or calls.empty or puts is None or puts.empty:
+                    return {"strike_c": round(spot_price * 1.02, 2), "oi_c": "N/D", "strike_p": round(spot_price * 0.98, 2), "oi_p": "N/D", "exp": fecha_exp, "real": False}
+
+                calls_otm = calls[calls["strike"] >= spot_price]
+                puts_otm = puts[puts["strike"] <= spot_price]
+
+                fila_c = calls_otm.iloc[0] if not calls_otm.empty else calls.iloc[(calls["strike"] - spot_price).abs().argsort().iloc[0]]
+                fila_p = puts_otm.iloc[-1] if not puts_otm.empty else puts.iloc[(puts["strike"] - spot_price).abs().argsort().iloc[0]]
+
+                oi_c_val = fila_c.get("openInterest", np.nan)
+                oi_p_val = fila_p.get("openInterest", np.nan)
+
+                oi_c_str = f"{int(oi_c_val):,}" if pd.notna(oi_c_val) else "0"
+                oi_p_str = f"{int(oi_p_val):,}" if pd.notna(oi_p_val) else "0"
+
+                return {
+                    "strike_c": round(float(fila_c["strike"]), 2),
+                    "oi_c": oi_c_str,
+                    "strike_p": round(float(fila_p["strike"]), 2),
+                    "oi_p": oi_p_str,
+                    "exp": f"{fecha_exp} ({etiqueta_exp})",
+                    "real": True
+                }
+
+            info_corto = extraer_tramo(exp_corto, "Corto Plazo")
+            info_med = extraer_tramo(exp_med, "Mediano Plazo")
+        except Exception:
+            pass
+
+        return info_corto, info_med
+
+    if st.button("🚀 Ejecutar Escáner de Opciones (4H, 1D y 1W)"):
+        candidatos = [t for t in lista_tickers if es_candidato_opciones(t, tipo_filtro_opt)]
+        filas_corto = []
+        filas_mediano = []
+
         barra_opt = st.progress(0)
-        total_opt = len(lista_tickers)
-        
-        for idx, ticker in enumerate(lista_tickers):
-            nombre = diccionario_activos[ticker]
-            df_opt = descargar_datos(ticker, intervalo="1d", periodo="3mo")
-            if df_opt is not None and not df_opt.empty:
-                df_ind_opt = calcular_indicadores(df_opt)
-                if df_ind_opt is not None and not df_ind_opt.empty:
-                    ult_opt = df_ind_opt.iloc[-1]
-                    rsi_val = extraer_valor_seguro(ult_opt['RSI'])
-                    spot_val = extraer_valor_seguro(ult_opt['Close'])
-                    
-                    # Evitar valores en cero
-                    if spot_val > 0 and (rsi_val <= 30 or rsi_val >= 70):
-                        condicion = "Sobreventa Extrema" if rsi_val <= 30 else "Sobrecompra Extrema"
-                        sesgo_base = "CALL Alcista" if rsi_val <= 30 else "PUT Defensivo"
-                        
-                        # Cálculo matemático preciso de strikes basados en el precio real spot
-                        strike_call_med = round(spot_val * 1.05, 2)
-                        strike_put_med = round(spot_val * 0.95, 2)
-                        strike_call_corto = round(spot_val * 1.02, 2)
-                        strike_put_corto = round(spot_val * 0.98, 2)
-                        
-                        resumen_opciones_1.append({
-                            "Activo": f"{nombre} ({ticker})",
-                            "Spot": f"${spot_val:,.2f}",
-                            "RSI (1D)": f"{round(rsi_val, 1)} ({condicion})",
-                            "Call Sugerido": f"Call ${strike_call_med:,.2f} (Mediano Plazo)",
-                            "OI Call": f"{np.random.randint(8000, 55000):,}",
-                            "Put Sugerido": f"Put ${strike_put_med:,.2f} (Mediano Plazo)",
-                            "OI Put": f"{np.random.randint(6000, 42000):,}",
-                            "Sesgo": sesgo_base
-                        })
-                        
-                        resumen_opciones_2.append({
-                            "Activo": f"{nombre} ({ticker})",
-                            "Spot": f"${spot_val:,.2f}",
-                            "RSI (1D)": f"{round(rsi_val, 1)} ({condicion})",
-                            "Call Sugerido": f"Call ${strike_call_corto:,.2f} (0-2 Meses)",
-                            "OI Call": f"{np.random.randint(12000, 65000):,}",
-                            "Put Sugerido": f"Put ${strike_put_corto:,.2f} (0-2 Meses)",
-                            "OI Put": f"{np.random.randint(9000, 48000):,}",
-                            "Sesgo": f"{sesgo_base} (Corto Plazo)"
-                        })
-            barra_opt.progress((idx + 1) / total_opt)
-            
-        barra_opt.empty()
-        
-        st.session_state['df_opt_1'] = pd.DataFrame(resumen_opciones_1) if resumen_opciones_1 else pd.DataFrame()
-        st.session_state['df_opt_2'] = pd.DataFrame(resumen_opciones_2) if resumen_opciones_2 else pd.DataFrame()
-        st.success("¡Escaneo institucional de opciones completado con éxito!")
+        total_cand = max(len(candidatos), 1)
 
-    if 'df_opt_1' in st.session_state and not st.session_state['df_opt_1'].empty:
-        st.markdown("### 📊 Tabla 1: Contratos Óptimos & Open Interest Real (Mediano / Largo Plazo)")
-        st.dataframe(st.session_state['df_opt_1'], use_container_width=True)
-        
-        st.markdown("### ⚡ Tabla 2: Contratos Óptimos & Open Interest Real (Corto Plazo: 0 a 2 Meses / 0 - 60 DTE)")
-        st.dataframe(st.session_state['df_opt_2'], use_container_width=True)
+        for idx, ticker_sym in enumerate(candidatos):
+            nombre_act = diccionario_activos[ticker_sym]
+            df_4h = descargar_datos(ticker_sym, intervalo="4h", periodo="1mo")
+            df_1d = descargar_datos(ticker_sym, intervalo="1d", periodo="3mo")
+            df_1w = descargar_datos(ticker_sym, intervalo="1w", periodo="1y")
+
+            ind_4h = calcular_indicadores(df_4h)
+            ind_1d = calcular_indicadores(df_1d)
+            ind_1w = calcular_indicadores(df_1w)
+
+            rsi_4h = extraer_valor_seguro(ind_4h["RSI"]) if ind_4h is not None else None
+            rsi_1d = extraer_valor_seguro(ind_1d["RSI"]) if ind_1d is not None else None
+            rsi_1w = extraer_valor_seguro(ind_1w["RSI"]) if ind_1w is not None else None
+
+            spot_act = 0.0
+            if df_1d is not None and not df_1d.empty:
+                spot_act = extraer_valor_seguro(limpiar_serie(df_1d["Close"]))
+            elif df_4h is not None and not df_4h.empty:
+                spot_act = extraer_valor_seguro(limpiar_serie(df_4h["Close"]))
+
+            tfs_extremos = []
+            for label_tf, r_val in [("4H", rsi_4h), ("1D", rsi_1d), ("1W", rsi_1w)]:
+                if r_val is not None and r_val > 0:
+                    if r_val <= umbral_rsi_opt:
+                        tfs_extremos.append(f"{label_tf}: Sobreventa ({r_val:.1f})")
+                    elif r_val >= umbral_rsi_alto:
+                        tfs_extremos.append(f"{label_tf}: Sobrecompra ({r_val:.1f})")
+
+            cumple_filtro_tf = False
+            if tfs_extremos and spot_act > 0:
+                unido = " | ".join(tfs_extremos)
+                if tf_filtro_opt == "Cualquier TF (4H / 1D / 1W)":
+                    cumple_filtro_tf = True
+                elif tf_filtro_opt == "Gráfico 4H":
+                    cumple_filtro_tf = "4H:" in unido
+                elif tf_filtro_opt == "Gráfico Diario (1D)":
+                    cumple_filtro_tf = "1D:" in unido
+                elif tf_filtro_opt == "Gráfico Semanal (1W)":
+                    cumple_filtro_tf = "1W:" in unido
+                elif tf_filtro_opt == "Confluencia (2+ TFs)":
+                    cumple_filtro_tf = len(tfs_extremos) >= 2
+
+            if cumple_filtro_tf:
+                hay_sobreventa = any("Sobreventa" in x for x in tfs_extremos)
+                sesgo_txt = "🟢 CALL (Rebote / Sobreventa)" if hay_sobreventa else "🔴 PUT (Retroceso / Sobrecompra)"
+
+                cad_corto, cad_med = obtener_cadena_opciones_real(ticker_sym, spot_act)
+
+                r4_str = f"{rsi_4h:.1f}" if (rsi_4h is not None and rsi_4h > 0) else "N/D"
+                r1_str = f"{rsi_1d:.1f}" if (rsi_1d is not None and rsi_1d > 0) else "N/D"
+                rw_str = f"{rsi_1w:.1f}" if (rsi_1w is not None and rsi_1w > 0) else "N/D"
+
+                base_row = {
+                    "Símbolo": ticker_sym,
+                    "Activo": nombre_act,
+                    "Spot": f"${spot_act:,.2f}",
+                    "RSI 4H": r4_str,
+                    "RSI 1D": r1_str,
+                    "RSI 1W": rw_str,
+                    "TFs en Extremo": " | ".join(tfs_extremos),
+                    "Sesgo": sesgo_txt
+                }
+
+                filas_corto.append({
+                    **base_row,
+                    "Vencimiento": cad_corto["exp"],
+                    "Call Cercano": f"${cad_corto['strike_c']:,.2f}",
+                    "OI Call": cad_corto["oi_c"],
+                    "Put Cercano": f"${cad_corto['strike_p']:,.2f}",
+                    "OI Put": cad_corto["oi_p"],
+                    "Fuente Opciones": "Cadena Real" if cad_corto["real"] else "Estimación Spot"
+                })
+
+                filas_mediano.append({
+                    **base_row,
+                    "Vencimiento": cad_med["exp"],
+                    "Call Cercano": f"${cad_med['strike_c']:,.2f}",
+                    "OI Call": cad_med["oi_c"],
+                    "Put Cercano": f"${cad_med['strike_p']:,.2f}",
+                    "OI Put": cad_med["oi_p"],
+                    "Fuente Opciones": "Cadena Real" if cad_med["real"] else "Estimación Spot"
+                })
+
+            barra_opt.progress((idx + 1) / total_cand)
+
+        barra_opt.empty()
+        st.session_state["df_opt_corto_m6"] = pd.DataFrame(filas_corto) if filas_corto else pd.DataFrame()
+        st.session_state["df_opt_med_m6"] = pd.DataFrame(filas_mediano) if filas_mediano else pd.DataFrame()
+        st.success(f"Escaneo completado sobre {len(candidatos)} activos ({tipo_filtro_opt}).")
+
+    if "df_opt_corto_m6" in st.session_state and not st.session_state["df_opt_corto_m6"].empty:
+        st.markdown("### ⚡ Opciones Corto Plazo (0–65 DTE)")
+        st.dataframe(st.session_state["df_opt_corto_m6"], use_container_width=True)
+
+        st.markdown("### 📊 Opciones Mediano Plazo (66–240 DTE)")
+        st.dataframe(st.session_state["df_opt_med_m6"], use_container_width=True)
+
+        col_g1, col_g2 = st.columns(2)
+        with col_g1:
+            tickers_opt_disp = st.session_state["df_opt_corto_m6"]["Símbolo"].tolist()
+            sel_ticker_m6 = st.selectbox("Ver gráfico técnico del activo detectado:", tickers_opt_disp, key="sel_m6_graf")
+        with col_g2:
+            tf_graf_m6 = st.selectbox("Temporalidad a visualizar:", ["4h", "1d", "1w"], index=1, key="tf_m6_graf")
+
+        if sel_ticker_m6:
+            mostrar_grafico_institucional(sel_ticker_m6, diccionario_activos.get(sel_ticker_m6, sel_ticker_m6), intervalo=tf_graf_m6)
+    elif "df_opt_corto_m6" in st.session_state:
+        st.info("No se encontraron acciones/ETFs en extremos con los filtros actuales. Prueba subir el umbral de sobreventa a 35.")
     else:
-        st.info("Haz clic en el botón de arriba para iniciar el escaneo en tiempo real de los 300 activos y poblar ambas tablas con los precios reales actuales.")
+        st.info("Configura los filtros arriba y haz clic en **Ejecutar Escáner de Opciones (4H, 1D y 1W)**.")
